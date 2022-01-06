@@ -29,11 +29,10 @@ $(BUILDING_DIR)%.o:$(SRCS_DIR)%.cpp
 				$(CC) $(FLAGS) -I ${INCLUDES_DIR} -c $< -o $@
 
 ${NAME}:		${OBJECTS}
-				$(CC) $(C_FLAGS) ${OBJECTS}  -o ${NAME}
+				$(CC) $(FLAGS) ${OBJECTS}  -o ${NAME}
 
 # CLEANING RULES
 clean:
-				rm -f $(OBJECTS)
 				rm -Rf building_dir
 
 fclean:			clean
