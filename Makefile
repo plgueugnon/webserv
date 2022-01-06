@@ -16,7 +16,8 @@ INCLUDES_DIR	= ./
 
 
 # FILES
-SRCS			= 	main
+SRCS			= 	main \
+					webserv
 
 FILES			= $(addsuffix .cpp, $(SRCS))
 OBJECTS			= $(addprefix $(BUILDING_DIR),$(FILES:.cpp=.o))
