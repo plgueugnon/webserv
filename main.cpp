@@ -68,6 +68,7 @@ int main (int ac, char **av, char **env)
 			server.setFileName(av[1]);
 		}
 	}
+	std::cout << server.getFileName() << std::endl;
 
 	return (1);
 }

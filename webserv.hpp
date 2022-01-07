@@ -10,6 +10,7 @@ class webserv
 	public :
 		webserv ( void );
 		void setFileName(std::string name);
+		std::string const & getFileName();
 
 } ; // webserv class
 
