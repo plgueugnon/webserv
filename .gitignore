@@ -1,6 +1,7 @@
+#bin
+webserv
 #coc-nvim
-.ccls
-.ccls*
+.ccls-*
 # Prerequisites
 *.d
 

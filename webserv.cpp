@@ -5,5 +5,5 @@ webserv::webserv ( void )
 
 void webserv::setFileName (std::string name)
 {
-	_file_name = name;
+	_file_name.assign(name);
 }
