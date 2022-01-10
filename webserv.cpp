@@ -17,6 +17,7 @@ std::string const & webserv::getFileName ( void ) const
  * LIST OF CONTEXTS
  *	- MAIN
  *	- events
+ *	- server
  *	- http
  *	- upstream
  *	- mail
