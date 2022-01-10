@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
-#include "colors.h"
+#include "colors.hpp"
 #include "webserv.hpp"
 
 void print_welcome( void )
