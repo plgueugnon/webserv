@@ -25,6 +25,9 @@ class webserv
 		/* GETTER */
 		std::string const & getFileName() const;
 
+		/* PARSING */
+		void parseConfigFile ( void );
+
 } ; // webserv class
 
 #endif
