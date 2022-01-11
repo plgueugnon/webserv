@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/10 16:41:23 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/01/11 13:44:24 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,7 +45,7 @@ SRCS			= 	main \
 
 #________________________________Building rules________________________________#
 
-all:			init $(NAME)
+all:			init_hooks init $(NAME)
 
 init:
 		@ if test -f $(NAME);\
@@ -82,6 +82,14 @@ fclean:			clean
 				$(RM) $(NAME)
 
 re:				fclean all
+
+#_____________________________________Hooks____________________________________#
+
+init_hooks:
+			if [[ -e .git/hooks/commit-msg ]];\
+			then :;\
+			else ln -s .hooks/commit-msg .git/hooks/commit-msg;\
+			fi
 
 #_____________________________________Misc.____________________________________#
 
