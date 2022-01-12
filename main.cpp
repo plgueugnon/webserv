@@ -69,7 +69,6 @@ int main (int ac, char **av, char **env)
 		}
 	}
 	server.parseConfigFile();
-	std::cout << server.getFileName() << std::endl;
 
 	return (1);
 }
