@@ -39,7 +39,7 @@ std::string const & webserv::getFileName ( void ) const
  * - server_name 			| server
  * - limit_except 			| location
  *
- * find CONTEXT
+ * find CONTEXT -> always between '{}'
  * find http context : http string and {}
  * find server context : server string and {}
  * find location context : location string and {}
@@ -65,19 +65,42 @@ void webserv::parseConfigFile ( void )
 		// file get line to the end of the file
 		while (getline(file, line))
 		{
-			//find http
 			it = line.begin();
 			end = line.end();
-			while ( *it == ' ')///* || line[pos] == '\t') */ && line[pos] != '\0' )
-				it++;
-			if ( end - it > 4 )
+			// skip spaces
+			while ( *it == ' ' || *it == '\t') 
 			{
-			if ( line.compare(pos, 4, "http") == 0)
-				context.assign(line, pos, 4);
+				it++;
+				pos++;
 			}
+			// open curly brace
+			if (*it == '{')
+			{
+				it++;
+				pos++;
+			}
+			while ( *it == ' ' || *it == '\t') 
+			{
+				it++;
+				pos++;
+			}
+			// check if we can compare 
+			//find http
+			if ( pos > 4 )
+				if ( line.compare(pos, 4, "http") == 0)
+				{
+					context.assign(line, pos, 4);
+					std::cout << "We are in " << context << " context." << std::endl;
+				}
+			if ( pos > 6 )
+				if ( line.compare(pos, 6, "server") == 0)
+					context.assign(line, pos, 6);
+			if ( end - it > 8 )
+				if ( line.compare(pos, 8, "location") == 0)
+					context.assign(line, pos, 8);
 			if (context.empty() == 0)
 				std::cout << context << std::endl;
-			std::cout << line << '\n';
+			// std::cout << line << '\n';
 			context.clear();
 		}
 		file.close();
@@ -89,7 +112,6 @@ void webserv::parseConfigFile ( void )
 	  std::cerr << "' file." << std::endl;
 	  std::cerr << RESET;
   }
-			std::cout << "test" << std::endl;
 
 	return ;
 }
