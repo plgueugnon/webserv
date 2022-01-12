@@ -1,4 +1,7 @@
 #include "webserv.hpp"
+#include <iostream>
+#include <fstream>
+#include <string>
 
 webserv::webserv ( void )
 { return ;}
@@ -12,6 +15,7 @@ std::string const & webserv::getFileName ( void ) const
 {
 	return _file_name ;
 }
+
 
 /*
  * LIST OF CONTEXTS
@@ -53,5 +57,21 @@ std::string const & webserv::getFileName ( void ) const
 
 void webserv::parseConfigFile ( void )
 {
+	std::string line;
+	std::ifstream file;
+
+	file.open(_file_name );
+
+	if (file.is_open())
+	{
+		while (getline(file, line))
+		{
+			std::cout << line << '\n';
+		}
+		file.close();
+	}
+  else
+	  std::cout << "Unable to open file";
+
 	return ;
 }
