@@ -178,6 +178,7 @@ void tokenizeConfigFile(std::string & src)
 
 	while (it != end)
 	{
+		// substring separators ; { }
 		if (*it == ';' || *it == '{' || *it == '}')
 		{
 			token.push_back(src.substr(i, 1));
@@ -198,20 +199,15 @@ void tokenizeConfigFile(std::string & src)
 			it++;
 			j++;
 		}
-		// std::cout << "i: " << i << "| j: " << j << std::endl;
-		// str = "";
-		// substring the word
-		// str = src.substr(i, j - i);
+		// substring the word with : pos, len
 		token.push_back(src.substr(i, j - i));
 		i = j;
 	}
-	vec_enum(token);
-	std::cout << "------------------" << std::endl;
+	// vec_enum(token);
+	// std::cout << "------------------" << std::endl;
 	vec_erase_empty(token);
 	vec_enum(token);
-	
 	// std::cout << src << std::endl;
-
 }
 
 void webserv::parseConfigFile ( void )
