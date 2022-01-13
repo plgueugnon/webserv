@@ -85,54 +85,6 @@ std::string const & webserv::getFileName ( void ) const
 	limit_except
 */
 
-class serverContext;
-class locationContext;
-class httpContext
-{
-	private :
-	std::string 					_autoindex;
-	std::string 					_client_max_body_size;
-	std::string 					_index;
-	std::string 					_root;
-	std::vector < std::string >		_error_page;
-	std::vector < serverContext >	_serverContext;
-	std::vector < locationContext >	_locationContext;
-
-	public :
-	httpContext( void );
-};
-
-class serverContext
-{
-	private :
-	std::string 					_autoindex;
-	std::string 					_client_max_body_size;
-	std::string 					_index;
-	std::string 					_root;
-	std::string 					_server_name;
-	std::vector < std::string >		_error_page;
-	std::vector < std::string >		_return;
-	std::vector < locationContext >	_locationContext;
-
-	public :
-	serverContext ( void );
-};
-
-class locationContext
-{
-	private :
-	std::string 					_autoindex;
-	std::string 					_client_max_body_size;
-	std::string 					_index;
-	std::string 					_root;
-	std::vector < std::string >		_error_page;
-	std::vector < std::string >		_return;
-	std::vector < std::string >		_limit_except;
-	std::vector < locationContext >	_locationContext;
-
-	public :
-	locationContext ( void ) ;
-};
 
 void    vec_enum(std::vector<std::string> &vec)
 {

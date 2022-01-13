@@ -6,12 +6,14 @@
 #define WEBSERV_HPP
 
 #include <iostream>
+#include "httpContext.hpp"
 
 class webserv
 {
 	/* private attributes */
 	private :
 		std::string _file_name;
+		httpContext _config;
 
 	/* public attributes */
 	public :
