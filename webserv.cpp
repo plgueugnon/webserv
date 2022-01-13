@@ -4,7 +4,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <list>
 
 webserv::webserv ( void )
 { return ;}
