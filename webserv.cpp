@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
+#include <list>
 
 webserv::webserv ( void )
 { return ;}
@@ -82,75 +84,130 @@ std::string const & webserv::getFileName ( void ) const
 	return
 	limit_except
 */
+
+class serverContext;
+class locationContext;
 class httpContext
 {
 	private :
-	std::string 			_autoindex;
-	std::string 			_client_max_body_size;
-	std::string 			_index;
-	std::vector<std::string> _error_page;
-	std::string _root;
+	std::string 					_autoindex;
+	std::string 					_client_max_body_size;
+	std::string 					_index;
+	std::string 					_root;
+	std::vector < std::string >		_error_page;
+	std::vector < serverContext >	_serverContext;
+	std::vector < locationContext >	_locationContext;
 
 	public :
 	httpContext( void );
 };
 
+class serverContext
+{
+	private :
+	std::string 					_autoindex;
+	std::string 					_client_max_body_size;
+	std::string 					_index;
+	std::string 					_root;
+	std::string 					_server_name;
+	std::vector < std::string >		_error_page;
+	std::vector < std::string >		_return;
+	std::vector < locationContext >	_locationContext;
+
+	public :
+	serverContext ( void );
+};
+
+class locationContext
+{
+	private :
+	std::string 					_autoindex;
+	std::string 					_client_max_body_size;
+	std::string 					_index;
+	std::string 					_root;
+	std::vector < std::string >		_error_page;
+	std::vector < std::string >		_return;
+	std::vector < std::string >		_limit_except;
+	std::vector < locationContext >	_locationContext;
+
+	public :
+	locationContext ( void ) ;
+};
+
+void    vec_enum(std::vector<std::string> &vec)
+{
+    std::vector<std::string>::iterator it;
+    std::vector<std::string>::iterator it2;
+
+    it = vec.begin();
+    it2 = vec.end();
+	int i = 0;
+
+    std::cout << std::endl;
+    while (it != it2) 
+	{
+        std::cout << "vector[" << i << "] : " <<*it << std::endl;
+        it++;
+		i++;
+    }
+}
+void tokenizeConfigFile(std::string & src)
+{
+	(void)src;
+	std::vector<std::string> token;
+
+	std::string str;
+
+	std::string::iterator it = src.begin();
+	std::string::iterator end = src.end();;
+
+	size_t i = 0;
+	size_t j = 0;
+
+	while (it != end)
+	{
+		while (*it == ' ' && it != end)
+		{
+			it++;
+			i++;
+			j++;
+		}
+		while (*it != ' ' && it != end)
+		{
+			it++;
+			j++;
+		}
+		std::cout << "i: " << i << "| j: " << j << std::endl;
+		str = src.substr(i, j);
+		std::cout << "'" << str << "'" << std::endl;
+		std::cout << "------------------" << std::endl;
+		// token.push_back(str);
+		i = j;
+	}
+	// vec_enum(token);
+	
+	// std::cout << src << std::endl;
+
+}
 
 void webserv::parseConfigFile ( void )
 {
+	std::string config_string = "";
 	std::string line;
-	std::string context;
 	std::ifstream file;
-	std::string::iterator it;
-	std::string::iterator end;
-	size_t 		pos = 0;
+	std::vector<std::string> 	token;
 
 	file.open(_file_name );
 
 	if (file.is_open())
 	{
-		// file get line to the end of the file
 		while (getline(file, line))
 		{
-			it = line.begin();
-			end = line.end();
-			// skip spaces
-			while ( *it == ' ' || *it == '\t') 
-			{
-				it++;
-				pos++;
-			}
-			// open curly brace
-			if (*it == '{')
-			{
-				it++;
-				pos++;
-			}
-			while ( *it == ' ' || *it == '\t') 
-			{
-				it++;
-				pos++;
-			}
-			// check if we can compare 
-			//find http
-			if ( pos > 4 )
-				if ( line.compare(pos, 4, "http") == 0)
-				{
-					context.assign(line, pos, 4);
-					std::cout << "We are in " << context << " context." << std::endl;
-				}
-			if ( pos > 6 )
-				if ( line.compare(pos, 6, "server") == 0)
-					context.assign(line, pos, 6);
-			if ( end - it > 8 )
-				if ( line.compare(pos, 8, "location") == 0)
-					context.assign(line, pos, 8);
-			if (context.empty() == 0)
-				std::cout << context << std::endl;
-			// std::cout << line << '\n';
-			context.clear();
+			if (line[0] != '#')
+				config_string += line;
 		}
 		file.close();
+		tokenizeConfigFile(config_string);
 	}
   else
   {
