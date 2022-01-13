@@ -146,18 +146,30 @@ void    vec_enum(std::vector<std::string> &vec)
     std::cout << std::endl;
     while (it != it2) 
 	{
-        std::cout << "vector[" << i << "] : " <<*it << std::endl;
+        std::cout << "vector[" << i << "] : '" <<*it << "'"<<std::endl;
         it++;
 		i++;
     }
 }
+void    vec_erase_empty(std::vector<std::string> &vec)
+{
+    std::vector<std::string>::iterator it;
+    std::vector<std::string>::iterator it2;
+
+    it = vec.begin();
+
+    while (++it != vec.end()) 
+	{
+		if ((*it).empty() == 1 && it != vec.end())
+			vec.erase(it);
+		if (it == vec.end())
+			break;
+	}
+}
+
 void tokenizeConfigFile(std::string & src)
 {
-	(void)src;
 	std::vector<std::string> token;
-
-	std::string str;
-
 	std::string::iterator it = src.begin();
 	std::string::iterator end = src.end();;
 
@@ -166,6 +178,13 @@ void tokenizeConfigFile(std::string & src)
 
 	while (it != end)
 	{
+		if (*it == ';' || *it == '{' || *it == '}')
+		{
+			token.push_back(src.substr(i, 1));
+			j++;
+			i++;
+			it++;
+		}
 		// skip spaces
 		while (*it == ' ' && it != end)
 		{
@@ -174,22 +193,22 @@ void tokenizeConfigFile(std::string & src)
 			j++;
 		}
 		// count word len
-		while (*it != ' ' && it != end)
+		while (*it != ' ' && *it !=';' && *it != '{' && *it != '}' && it != end)
 		{
 			it++;
 			j++;
 		}
-		std::cout << "i: " << i << "| j: " << j << std::endl;
-		str = "";
+		// std::cout << "i: " << i << "| j: " << j << std::endl;
+		// str = "";
 		// substring the word
-		str = src.substr(i, j - i);
-		std::cout << "'" << str << "'" << std::endl;
-		std::cout << "------------------" << std::endl;
-		// pushback token in vector
-		token.push_back(str);
+		// str = src.substr(i, j - i);
+		token.push_back(src.substr(i, j - i));
 		i = j;
 	}
-	// vec_enum(token);
+	vec_enum(token);
+	std::cout << "------------------" << std::endl;
+	vec_erase_empty(token);
+	vec_enum(token);
 	
 	// std::cout << src << std::endl;
 
