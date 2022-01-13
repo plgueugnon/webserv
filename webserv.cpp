@@ -166,12 +166,14 @@ void tokenizeConfigFile(std::string & src)
 
 	while (it != end)
 	{
+		// skip spaces
 		while (*it == ' ' && it != end)
 		{
 			it++;
 			i++;
 			j++;
 		}
+		// count word len
 		while (*it != ' ' && it != end)
 		{
 			it++;
@@ -179,10 +181,12 @@ void tokenizeConfigFile(std::string & src)
 		}
 		std::cout << "i: " << i << "| j: " << j << std::endl;
 		str = "";
+		// substring the word
 		str = src.substr(i, j - i);
 		std::cout << "'" << str << "'" << std::endl;
 		std::cout << "------------------" << std::endl;
-		// token.push_back(str);
+		// pushback token in vector
+		token.push_back(str);
 		i = j;
 	}
 	// vec_enum(token);
