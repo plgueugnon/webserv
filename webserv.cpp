@@ -178,7 +178,8 @@ void tokenizeConfigFile(std::string & src)
 			j++;
 		}
 		std::cout << "i: " << i << "| j: " << j << std::endl;
-		str = src.substr(i, j);
+		str = "";
+		str = src.substr(i, j - i);
 		std::cout << "'" << str << "'" << std::endl;
 		std::cout << "------------------" << std::endl;
 		// token.push_back(str);
