@@ -49,6 +49,53 @@ std::string const & webserv::getFileName ( void ) const
  * find VALUE
  */
 
+/*
+ http directives :
+	server
+	autoindex
+	client_max_body_size
+	index
+	error_page
+	root 
+*/
+
+/*
+ server directives :
+	autoindex
+	client_max_body_size
+	index
+	error_page
+	root 
+	location
+	return
+	server_name
+*/
+
+/*
+ location directives :
+	autoindex
+	client_max_body_size
+	index
+	error_page
+	root 
+	location
+	return
+	limit_except
+*/
+class httpContext
+{
+	private :
+	std::string 			_autoindex;
+	std::string 			_client_max_body_size;
+	std::string 			_index;
+	std::vector<std::string> _error_page;
+	std::string _root;
+
+	public :
+	httpContext( void );
+};
+
+
 void webserv::parseConfigFile ( void )
 {
 	std::string line;
