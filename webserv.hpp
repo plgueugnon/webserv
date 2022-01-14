@@ -29,6 +29,8 @@ class webserv
 
 		/* PARSING */
 		void parseConfigFile ( void );
+		void tokenizeConfigFile(std::string &src);
+void parseToken(std::vector<std::string> & vec);
 
 } ; // webserv class
 

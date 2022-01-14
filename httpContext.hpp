@@ -47,5 +47,9 @@ class httpContext
 	std::vector < std::string >		_error_page;
 	std::vector < serverContext >	_serverContext;
 	std::vector < locationContext >	_locationContext;
+
+	public :
+	void setHttpAutoindex (std::string const & rhs);
+	std::string const & getHttpAutoindex ( void );
 };
 #endif

@@ -85,7 +85,7 @@ std::string const & webserv::getFileName ( void ) const
 */
 
 
-void    webser::vec_enum(std::vector<std::string> &vec)
+void    vec_enum(std::vector<std::string> &vec)
 {
     std::vector<std::string>::iterator it;
     std::vector<std::string>::iterator it2;
@@ -102,7 +102,7 @@ void    webser::vec_enum(std::vector<std::string> &vec)
 		i++;
     }
 }
-void    webser::vec_erase_empty(std::vector<std::string> &vec)
+void    vec_erase_empty(std::vector<std::string> &vec)
 {
     std::vector<std::string>::iterator it;
     std::vector<std::string>::iterator it2;
@@ -120,8 +120,9 @@ void    webser::vec_erase_empty(std::vector<std::string> &vec)
 
 #define HTTP_CONTEXT 1
 #define ERR_HTTP_MISSING "Http context is missing."
+#define ERR_WRONG_AUTOINDEX "Wrong autoindex value, usage : on | off."
 
-void webser::error_exit (std::string const & error)
+void error_exit (std::string const & error)
 {
 	std::cerr << RED;
 	std::cerr << "Error : ";
@@ -131,7 +132,7 @@ void webser::error_exit (std::string const & error)
 	exit (1);
 }
 
-void webser::parseToken(std::vector<std::string> & vec)
+void webserv::parseToken(std::vector<std::string> & vec)
 {
     std::vector<std::string>::iterator it;
     std::vector<std::string>::iterator end;
@@ -146,25 +147,30 @@ void webser::parseToken(std::vector<std::string> & vec)
 	it += 2;
 	while ( it != end)
 	{
-		autoindex
-	client_max_body_size
-	index
-	error_page
-	root 
+	// 	autoindex
+	// client_max_body_size
+	// index
+	// error_page
+	// root 
 		if (it->compare("autoindex") == 0)
 		{
 			it++;
 			if (it->compare("on") == 0 || it->compare("off") == 0 )
-				_auto
-				setHttpAutoindex(it + 1, it + 2)
+				_config.setHttpAutoindex(*it);
+			else
+				return (error_exit(ERR_WRONG_AUTOINDEX));
+
+				// setHttpAutoindex(it + 1, it + 2)
 		}
 		if (it->compare("http") == 0 && (it + 1)->compare("{") == 0)
 			it++;
+		it++;
 	}
+		std::cout << _config.getHttpAutoindex() << std::endl; 
 	return;
 }
 
-void webser::tokenizeConfigFile(std::string & src)
+void webserv::tokenizeConfigFile(std::string & src)
 {
 	std::vector<std::string> token;
 	std::string::iterator it = src.begin();
