@@ -5,19 +5,6 @@
 #include <string>
 #include <vector>
 
-webserv::webserv ( void )
-{ return ;}
-
-void webserv::setFileName (std::string name)
-{
-	_file_name.assign(name);
-}
-
-std::string const & webserv::getFileName ( void ) const
-{
-	return _file_name ;
-}
-
 /*
  * LIST OF CONTEXTS to implement
  * - server
@@ -85,6 +72,19 @@ std::string const & webserv::getFileName ( void ) const
 */
 
 
+webserv::webserv ( void )
+{ return ;}
+
+void webserv::setFileName (std::string name)
+{
+	_file_name.assign(name);
+}
+
+std::string const & webserv::getFileName ( void ) const
+{
+	return _file_name ;
+}
+
 void    vec_enum(std::vector<std::string> &vec)
 {
     std::vector<std::string>::iterator it;
@@ -104,10 +104,7 @@ void    vec_enum(std::vector<std::string> &vec)
 }
 void    vec_erase_empty(std::vector<std::string> &vec)
 {
-    std::vector<std::string>::iterator it;
-    std::vector<std::string>::iterator it2;
-
-    it = vec.begin();
+    std::vector<std::string>::iterator it = vec.begin();
 
     while (++it != vec.end()) 
 	{
@@ -119,6 +116,8 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 }
 
 #define HTTP_CONTEXT 1
+#define SERVER_CONTEXT 2
+#define LOCATION_CONTEXT 2
 #define ERR_HTTP_MISSING "Http context is missing."
 #define ERR_WRONG_AUTOINDEX "Wrong autoindex value, usage : on | off."
 
@@ -147,23 +146,18 @@ void webserv::parseToken(std::vector<std::string> & vec)
 	it += 2;
 	while ( it != end)
 	{
-	// 	autoindex
 	// client_max_body_size
 	// index
 	// error_page
 	// root 
-		if (it->compare("autoindex") == 0)
+		if (it->compare("autoindex") == 0 && flag == HTTP_CONTEXT)
 		{
 			it++;
 			if (it->compare("on") == 0 || it->compare("off") == 0 )
 				_config.setHttpAutoindex(*it);
 			else
 				return (error_exit(ERR_WRONG_AUTOINDEX));
-
-				// setHttpAutoindex(it + 1, it + 2)
 		}
-		if (it->compare("http") == 0 && (it + 1)->compare("{") == 0)
-			it++;
 		it++;
 	}
 		std::cout << _config.getHttpAutoindex() << std::endl; 

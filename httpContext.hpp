@@ -49,7 +49,7 @@ class httpContext
 	std::vector < locationContext >	_locationContext;
 
 	public :
-	void setHttpAutoindex (std::string const & rhs);
+	void 				setHttpAutoindex (std::string const & rhs);
 	std::string const & getHttpAutoindex ( void );
 };
 #endif
