@@ -85,7 +85,7 @@ std::string const & webserv::getFileName ( void ) const
 */
 
 
-void    vec_enum(std::vector<std::string> &vec)
+void    webser::vec_enum(std::vector<std::string> &vec)
 {
     std::vector<std::string>::iterator it;
     std::vector<std::string>::iterator it2;
@@ -102,7 +102,7 @@ void    vec_enum(std::vector<std::string> &vec)
 		i++;
     }
 }
-void    vec_erase_empty(std::vector<std::string> &vec)
+void    webser::vec_erase_empty(std::vector<std::string> &vec)
 {
     std::vector<std::string>::iterator it;
     std::vector<std::string>::iterator it2;
@@ -118,7 +118,53 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 	}
 }
 
-void tokenizeConfigFile(std::string & src)
+#define HTTP_CONTEXT 1
+#define ERR_HTTP_MISSING "Http context is missing."
+
+void webser::error_exit (std::string const & error)
+{
+	std::cerr << RED;
+	std::cerr << "Error : ";
+	std::cerr << error;
+	std::cerr << std::endl;
+	std::cerr << RESET;
+	exit (1);
+}
+
+void webser::parseToken(std::vector<std::string> & vec)
+{
+    std::vector<std::string>::iterator it;
+    std::vector<std::string>::iterator end;
+	int 	flag = 0;
+
+    it = vec.begin();
+    end = vec.end();
+	if (it->compare("http") == 0 && (it + 1)->compare("{") == 0)
+		flag = HTTP_CONTEXT;
+	else 
+		return (error_exit(ERR_HTTP_MISSING));
+	it += 2;
+	while ( it != end)
+	{
+		autoindex
+	client_max_body_size
+	index
+	error_page
+	root 
+		if (it->compare("autoindex") == 0)
+		{
+			it++;
+			if (it->compare("on") == 0 || it->compare("off") == 0 )
+				_auto
+				setHttpAutoindex(it + 1, it + 2)
+		}
+		if (it->compare("http") == 0 && (it + 1)->compare("{") == 0)
+			it++;
+	}
+	return;
+}
+
+void webser::tokenizeConfigFile(std::string & src)
 {
 	std::vector<std::string> token;
 	std::string::iterator it = src.begin();
@@ -150,7 +196,7 @@ void tokenizeConfigFile(std::string & src)
 			it++;
 			j++;
 		}
-		// substring the word with : pos, len
+		// substring the word with : (pos, len)
 		token.push_back(src.substr(i, j - i));
 		i = j;
 	}
@@ -158,6 +204,8 @@ void tokenizeConfigFile(std::string & src)
 	// std::cout << "------------------" << std::endl;
 	vec_erase_empty(token);
 	vec_enum(token);
+	parseToken(token);
+	return ;
 	// std::cout << src << std::endl;
 }
 
