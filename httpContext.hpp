@@ -54,12 +54,14 @@ class httpContext
 	void 				setHttpClientMaxBodySize (size_t const & rhs);
 	void 				setHttpIndex (std::string const & rhs);
 	void 				setHttpRoot (std::string const & rhs);
+	void 				setHttpErrorPage (std::string const & rhs);
 
 	// GET
 	std::string const & getHttpAutoindex ( void );
 	size_t 		const & getHttpClientMaxBodySize ( void );
 	std::string const & getHttpIndex ( void );
 	std::string const & getHttpRoot ( void );
+std::vector<std::string> & getHttpErrorPage( void );
 
 	void 				printHttpConfig ( void );
 };

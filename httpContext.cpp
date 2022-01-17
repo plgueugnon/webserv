@@ -26,6 +26,11 @@ void httpContext::setHttpRoot (std::string const & rhs)
 	_root = rhs;
 }
 
+void httpContext::setHttpErrorPage (std::string const & rhs)
+{
+	_error_page.push_back(rhs);
+}
+
 void httpContext::printHttpConfig( void )
 {
 	std::cout << "-------------------" << std::endl;
@@ -56,4 +61,9 @@ std::string const &httpContext::getHttpIndex( void )
 std::string const &httpContext::getHttpRoot( void )
 {
 	return _root;
+}
+
+std::vector<std::string> &httpContext::getHttpErrorPage( void )
+{
+	return _error_page;
 }

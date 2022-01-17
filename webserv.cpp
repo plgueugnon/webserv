@@ -153,9 +153,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 	it += 2;
 	while ( it != end)
 	{
-	// index
 	// error_page
-	// root 
 		// AUTOINDEX
 		if (it->compare("autoindex") == 0 && flag == HTTP_CONTEXT)
 		{
@@ -199,9 +197,22 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if (it->compare(";") != 0)
 				return (error_exit(ERR_ROOT_ARG));
 		}
+		else if (it->compare("error_page") == 0 && flag == HTTP_CONTEXT)
+		{
+			it++;
+			while(it->compare(";") != 0)
+			{
+				_config.setHttpErrorPage(*it);
+				it++;
+			}
+			it++;
+			// if (it->compare(";") != 0)
+			// 	return (error_exit(ERR_ROOT_ARG));
+		}
 		it++;
 	}
 		_config.printHttpConfig();
+		vec_enum(_config.getHttpErrorPage());
 	return;
 }
 
