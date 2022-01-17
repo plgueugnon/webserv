@@ -67,3 +67,8 @@ std::vector<std::string> &httpContext::getHttpErrorPage( void )
 {
 	return _error_page;
 }
+
+std::vector<serverContext> &httpContext::getHttpServerContext( void )
+{
+	return _serverContext;
+}

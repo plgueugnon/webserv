@@ -37,9 +37,9 @@ class serverContext
 	std::vector < locationContext >	_locationContext;
 };
 
-class httpContext
+struct httpContext
 {
-	private :
+	// private :
 	std::string 					_autoindex;
 	size_t							_client_max_body_size;
 	std::string 					_index;
@@ -62,6 +62,8 @@ class httpContext
 	std::string const & getHttpIndex ( void );
 	std::string const & getHttpRoot ( void );
 std::vector<std::string> & getHttpErrorPage( void );
+std::vector<serverContext> & getHttpServerContext( void );
+
 
 	void 				printHttpConfig ( void );
 };

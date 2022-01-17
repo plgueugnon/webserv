@@ -160,7 +160,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 			it++;
 			if (it->compare("on") == 0 || it->compare("off") == 0 )
-				_config.setHttpAutoindex(*it);
+				_config._autoindex = (*it);
 			else
 				return (error_exit(ERR_WRONG_AUTOINDEX));
 			it++;
@@ -219,6 +219,8 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if (it->compare("{") != 0)
 				return (error_exit(ERR_SERVER_BRACKET));
 			flag = SERVER_CONTEXT;
+			// serverContext *server = new serverContext;
+			// _config._serverContext = server;
 			it++;
 
 		}
