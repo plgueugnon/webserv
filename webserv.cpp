@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 /*
  * LIST OF CONTEXTS to implement
@@ -120,6 +121,12 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 #define LOCATION_CONTEXT 2
 #define ERR_HTTP_MISSING "Http context is missing."
 #define ERR_WRONG_AUTOINDEX "Wrong autoindex value, usage : on | off."
+#define ERR_WRONG_AUTOINDEX_ARG "Autoindex, Missing semicolomn ';'."
+#define ERR_NEG_BODY_SIZE "client_max_body_size : can't be negative."
+#define ERR_BODY_SIZE_ARG "client_max_body_size, Missing semicolomn ';'."
+#define ERR_INDEX_ARG "index, Missing semicolomn ';'."
+#define ERR_ROOT_ARG "root, Missing semicolomn ';'."
+
 
 void error_exit (std::string const & error)
 {
@@ -146,10 +153,10 @@ void webserv::parseToken(std::vector<std::string> & vec)
 	it += 2;
 	while ( it != end)
 	{
-	// client_max_body_size
 	// index
 	// error_page
 	// root 
+		// AUTOINDEX
 		if (it->compare("autoindex") == 0 && flag == HTTP_CONTEXT)
 		{
 			it++;
@@ -157,10 +164,44 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				_config.setHttpAutoindex(*it);
 			else
 				return (error_exit(ERR_WRONG_AUTOINDEX));
+			it++;
+			if (it->compare(";") != 0)
+				return (error_exit(ERR_WRONG_AUTOINDEX_ARG));
+		}
+		// CLIENT MAX BODY SIZE
+		else if (it->compare("client_max_body_size") == 0 && flag == HTTP_CONTEXT)
+		{
+			it++;
+			int 	n = atoi(it->c_str());
+			if (n >= 0)
+				_config.setHttpClientMaxBodySize(n);
+			else
+				return (error_exit(ERR_NEG_BODY_SIZE));
+			it++;
+			if (it->compare(";") != 0)
+				return (error_exit(ERR_BODY_SIZE_ARG));
+		}
+		// INDEX
+		else if (it->compare("index") == 0 && flag == HTTP_CONTEXT)
+		{
+			it++;
+			_config.setHttpIndex(*it);
+			it++;
+			if (it->compare(";") != 0)
+				return (error_exit(ERR_INDEX_ARG));
+		}
+		// ROOT
+		else if (it->compare("root") == 0 && flag == HTTP_CONTEXT)
+		{
+			it++;
+			_config.setHttpRoot(*it);
+			it++;
+			if (it->compare(";") != 0)
+				return (error_exit(ERR_ROOT_ARG));
 		}
 		it++;
 	}
-		std::cout << _config.getHttpAutoindex() << std::endl; 
+		_config.printHttpConfig();
 	return;
 }
 

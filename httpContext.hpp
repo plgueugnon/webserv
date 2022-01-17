@@ -15,7 +15,7 @@ class locationContext
 {
 	private :
 	std::string 					_autoindex;
-	std::string 					_client_max_body_size;
+	// size_t							_client_max_body_size;
 	std::string 					_index;
 	std::string 					_root;
 	std::vector < std::string >		_error_page;
@@ -28,7 +28,7 @@ class serverContext
 {
 	private :
 	std::string 					_autoindex;
-	std::string 					_client_max_body_size;
+	// size_t							_client_max_body_size;
 	std::string 					_index;
 	std::string 					_root;
 	std::string 					_server_name;
@@ -41,7 +41,7 @@ class httpContext
 {
 	private :
 	std::string 					_autoindex;
-	std::string 					_client_max_body_size;
+	size_t							_client_max_body_size;
 	std::string 					_index;
 	std::string 					_root;
 	std::vector < std::string >		_error_page;
@@ -49,7 +49,18 @@ class httpContext
 	std::vector < locationContext >	_locationContext;
 
 	public :
+	// SET
 	void 				setHttpAutoindex (std::string const & rhs);
+	void 				setHttpClientMaxBodySize (size_t const & rhs);
+	void 				setHttpIndex (std::string const & rhs);
+	void 				setHttpRoot (std::string const & rhs);
+
+	// GET
 	std::string const & getHttpAutoindex ( void );
+	size_t 		const & getHttpClientMaxBodySize ( void );
+	std::string const & getHttpIndex ( void );
+	std::string const & getHttpRoot ( void );
+
+	void 				printHttpConfig ( void );
 };
 #endif
