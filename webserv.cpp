@@ -118,7 +118,7 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 
 #define HTTP_CONTEXT 1
 #define SERVER_CONTEXT 2
-#define LOCATION_CONTEXT 2
+#define LOCATION_CONTEXT 3
 #define ERR_HTTP_MISSING "Http context is missing."
 #define ERR_WRONG_AUTOINDEX "Wrong autoindex value, usage : on | off."
 #define ERR_WRONG_AUTOINDEX_ARG "Autoindex, Missing semicolomn ';'."
@@ -126,6 +126,7 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 #define ERR_BODY_SIZE_ARG "client_max_body_size, Missing semicolomn ';'."
 #define ERR_INDEX_ARG "index, Missing semicolomn ';'."
 #define ERR_ROOT_ARG "root, Missing semicolomn ';'."
+#define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
 
 
 void error_exit (std::string const & error)
@@ -169,6 +170,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		// CLIENT MAX BODY SIZE
 		else if (it->compare("client_max_body_size") == 0 && flag == HTTP_CONTEXT)
 		{
+		
 			it++;
 			int 	n = atoi(it->c_str());
 			if (n >= 0)
@@ -197,6 +199,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if (it->compare(";") != 0)
 				return (error_exit(ERR_ROOT_ARG));
 		}
+		// ERROR PAGE
 		else if (it->compare("error_page") == 0 && flag == HTTP_CONTEXT)
 		{
 			it++;
@@ -209,7 +212,50 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			// if (it->compare(";") != 0)
 			// 	return (error_exit(ERR_ROOT_ARG));
 		}
-		it++;
+		// SERVER
+		else if (it->compare("server") == 0 && flag == HTTP_CONTEXT)
+		{
+			it++;
+			if (it->compare("{") != 0)
+				return (error_exit(ERR_SERVER_BRACKET));
+			flag = SERVER_CONTEXT;
+			it++;
+
+		}
+		// LOCATION
+		else if (it->compare("location") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			// add location here later
+			it++;
+			if (it->compare("{") != 0)
+				return (error_exit(ERR_SERVER_BRACKET));
+			flag = LOCATION_CONTEXT;
+			it++;
+		}
+		else if (it->compare("}") == 0 && flag == SERVER_CONTEXT)
+		{
+			flag = HTTP_CONTEXT;
+			it++;
+		}
+
+		else if (it->compare("}") == 0 && flag == LOCATION_CONTEXT)
+		{
+			flag = SERVER_CONTEXT;
+			it++;
+		}
+
+		else if (it->compare("}") == 0 && flag == HTTP_CONTEXT)
+		{
+			flag = -1;
+			// it = vec.end();
+		}
+		else
+			it++;
+
+		std::cout << "-----------"  << std::endl;
+		std::cout << "token : " << *it << std::endl;
+		std::cout << "context : " << flag << std::endl;
 	}
 		_config.printHttpConfig();
 		vec_enum(_config.getHttpErrorPage());
