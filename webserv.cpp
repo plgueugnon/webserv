@@ -255,13 +255,29 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			flag = -1;
 			// it = vec.end();
 		}
+		else if (it->compare("autoindex") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			if (it->compare("on") == 0 || it->compare("off") == 0 )
+				_config.server[srv_nb -1].autoindex = (*it);
+			else
+				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX);
+			it++;
+			if (it->compare(";") != 0)
+				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX_ARG);
+		}
 		else
 			it++;
+
 
 		std::cout << "-----------"  << std::endl;
 		std::cout << "token : " << *it << std::endl;
 		std::cout << "context : " << flag << std::endl;
 	}
+		std::cout << "-----------"  << std::endl;
+		std::cout << "srv_nb : " << srv_nb << std::endl;
+		std::cout << "srv : " << _config.server[0].autoindex  << std::endl;
+		std::cout << "srv : " << _config.server[1].autoindex  << std::endl;
 		printHttpConfig();
 		vec_enum(_config.error_page);
 	return;
