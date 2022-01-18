@@ -68,7 +68,18 @@ int main (int ac, char **av, char **env)
 			server.setFileName(av[1]);
 		}
 	}
-	server.parseConfigFile();
+	try 
+	{
+		server.parseConfigFile();
+	}
+	  catch (std::invalid_argument& e)
+    {
+		std::cerr << RED;
+		std::cerr << "Error : ";
+		std::cerr << e.what() << std::endl;
+		std::cerr << RESET;
+		return -1;
+	}
 
 	return (1);
 }

@@ -127,6 +127,7 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 #define ERR_INDEX_ARG "index, Missing semicolomn ';'."
 #define ERR_ROOT_ARG "root, Missing semicolomn ';'."
 #define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
+#define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
 
 
 void error_exit (std::string const & error)
@@ -144,6 +145,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
     std::vector<std::string>::iterator it;
     std::vector<std::string>::iterator end;
 	int 	flag = 0;
+	int 	srv_nb = 0;
 
     it = vec.begin();
     end = vec.end();
@@ -160,12 +162,12 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 			it++;
 			if (it->compare("on") == 0 || it->compare("off") == 0 )
-				_config._autoindex = (*it);
+				_config.autoindex = (*it);
 			else
-				return (error_exit(ERR_WRONG_AUTOINDEX));
+				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX);
 			it++;
 			if (it->compare(";") != 0)
-				return (error_exit(ERR_WRONG_AUTOINDEX_ARG));
+				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX_ARG);
 		}
 		// CLIENT MAX BODY SIZE
 		else if (it->compare("client_max_body_size") == 0 && flag == HTTP_CONTEXT)
@@ -174,30 +176,30 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			int 	n = atoi(it->c_str());
 			if (n >= 0)
-				_config.setHttpClientMaxBodySize(n);
+				_config.client_max_body_size = n;
 			else
-				return (error_exit(ERR_NEG_BODY_SIZE));
+				 throw std::invalid_argument(ERR_NEG_BODY_SIZE);
 			it++;
 			if (it->compare(";") != 0)
-				return (error_exit(ERR_BODY_SIZE_ARG));
+				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
 		}
 		// INDEX
 		else if (it->compare("index") == 0 && flag == HTTP_CONTEXT)
 		{
 			it++;
-			_config.setHttpIndex(*it);
+			_config.index = (*it);
 			it++;
 			if (it->compare(";") != 0)
-				return (error_exit(ERR_INDEX_ARG));
+				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
 		}
 		// ROOT
 		else if (it->compare("root") == 0 && flag == HTTP_CONTEXT)
 		{
 			it++;
-			_config.setHttpRoot(*it);
+			_config.root = (*it);
 			it++;
 			if (it->compare(";") != 0)
-				return (error_exit(ERR_ROOT_ARG));
+				throw std::invalid_argument(ERR_ROOT_ARG);
 		}
 		// ERROR PAGE
 		else if (it->compare("error_page") == 0 && flag == HTTP_CONTEXT)
@@ -205,22 +207,23 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			while(it->compare(";") != 0)
 			{
-				_config.setHttpErrorPage(*it);
+				_config.error_page.push_back(*it);
 				it++;
 			}
-			it++;
-			// if (it->compare(";") != 0)
-			// 	return (error_exit(ERR_ROOT_ARG));
+			// it++;
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
 		}
 		// SERVER
 		else if (it->compare("server") == 0 && flag == HTTP_CONTEXT)
 		{
 			it++;
 			if (it->compare("{") != 0)
-				return (error_exit(ERR_SERVER_BRACKET));
+				throw std::invalid_argument(ERR_SERVER_BRACKET);
 			flag = SERVER_CONTEXT;
-			// serverContext *server = new serverContext;
-			// _config._serverContext = server;
+			t_server *new_server = new t_server;
+			_config.server.push_back(*new_server) ;
+			srv_nb++;
 			it++;
 
 		}
@@ -231,7 +234,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			// add location here later
 			it++;
 			if (it->compare("{") != 0)
-				return (error_exit(ERR_SERVER_BRACKET));
+				 throw std::invalid_argument(ERR_SERVER_BRACKET);
 			flag = LOCATION_CONTEXT;
 			it++;
 		}
@@ -259,9 +262,23 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		std::cout << "token : " << *it << std::endl;
 		std::cout << "context : " << flag << std::endl;
 	}
-		_config.printHttpConfig();
-		vec_enum(_config.getHttpErrorPage());
+		printHttpConfig();
+		vec_enum(_config.error_page);
 	return;
+}
+void webserv::printHttpConfig( void )
+{
+	std::vector<std::string>::iterator it;
+	std::cout << "-------------------" << std::endl;
+	std::cout << "HTTP config" << std::endl;
+	std::cout << "-------------------" << std::endl;
+	std::cout << "autoindex : '" << _config.autoindex << "'" << std::endl;
+	std::cout << "client_max_body_size : '" << _config.client_max_body_size << "'" << std::endl;
+	std::cout << "index : '" << _config.index << "'" << std::endl;
+	std::cout << "root : '" <<  _config.root << "'" << std::endl;
+	for (it = _config.error_page.begin(); it != _config.error_page.end() ;it++ )
+		std::cout << "error_page : '" << *it << "'" << std::endl;
+	std::cout << "-------------------" << std::endl;
 }
 
 void webserv::tokenizeConfigFile(std::string & src)
@@ -328,13 +345,13 @@ void webserv::parseConfigFile ( void )
 		file.close();
 		tokenizeConfigFile(config_string);
 	}
-  else
-  {
-	  std::cerr << "Unable to open '";
-	  std::cerr << _file_name;
-	  std::cerr << "' file." << std::endl;
-	  std::cerr << RESET;
-  }
+	else
+	{
+		std::cerr << "Unable to open '";
+		std::cerr << _file_name;
+		std::cerr << "' file." << std::endl;
+		std::cerr << RESET;
+	}
 
 	return ;
 }

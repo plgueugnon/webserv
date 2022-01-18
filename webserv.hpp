@@ -13,7 +13,7 @@ class webserv
 	/* private attributes */
 	private :
 		std::string _file_name;
-		httpContext _config;
+		t_http 		_config;
 
 	/* public attributes */
 	public :
@@ -30,7 +30,8 @@ class webserv
 		/* PARSING */
 		void parseConfigFile ( void );
 		void tokenizeConfigFile(std::string &src);
-void parseToken(std::vector<std::string> & vec);
+		void parseToken (std::vector<std::string> &vec);
+		void printHttpConfig ( void );
 
 } ; // webserv class
 
