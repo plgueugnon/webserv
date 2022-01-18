@@ -156,7 +156,6 @@ void webserv::parseToken(std::vector<std::string> & vec)
 	it += 2;
 	while ( it != end)
 	{
-	// error_page
 		// AUTOINDEX
 		if (it->compare("autoindex") == 0 && flag == HTTP_CONTEXT)
 		{
@@ -266,6 +265,50 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if (it->compare(";") != 0)
 				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX_ARG);
 		}
+		else if (it->compare("client_max_body_size") == 0 && flag == SERVER_CONTEXT)
+		{
+		
+			it++;
+			int 	n = atoi(it->c_str());
+			if (n >= 0)
+				_config.server[srv_nb -1].client_max_body_size = n;
+			else
+				 throw std::invalid_argument(ERR_NEG_BODY_SIZE);
+			it++;
+			if (it->compare(";") != 0)
+				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+		}
+		// INDEX
+		else if (it->compare("index") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			_config.server[srv_nb -1].index = (*it);
+			it++;
+			if (it->compare(";") != 0)
+				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+		}
+		// ROOT
+		else if (it->compare("root") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			_config.server[srv_nb -1].root = (*it);
+			it++;
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ROOT_ARG);
+		}
+		// ERROR PAGE
+		else if (it->compare("error_page") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			while(it->compare(";") != 0)
+			{
+				_config.server[srv_nb -1].error_page.push_back(*it);
+				it++;
+			}
+			// it++;
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+		}
 		else
 			it++;
 
@@ -285,6 +328,8 @@ void webserv::parseToken(std::vector<std::string> & vec)
 void webserv::printHttpConfig( void )
 {
 	std::vector<std::string>::iterator it;
+	std::vector<t_server>::iterator srv_it;
+
 	std::cout << "-------------------" << std::endl;
 	std::cout << "HTTP config" << std::endl;
 	std::cout << "-------------------" << std::endl;
@@ -295,6 +340,20 @@ void webserv::printHttpConfig( void )
 	for (it = _config.error_page.begin(); it != _config.error_page.end() ;it++ )
 		std::cout << "error_page : '" << *it << "'" << std::endl;
 	std::cout << "-------------------" << std::endl;
+	int srv_nb = 0;
+	for (srv_it = _config.server.begin(); srv_it != _config.server.end(); srv_it++)
+	{
+	std::cout << "Server config " << srv_nb + 1<< std::endl;
+	std::cout << "-------------------" << std::endl;
+	std::cout << "autoindex : '" << _config.server[srv_nb].autoindex << "'" << std::endl;
+	std::cout << "client_max_body_size : '" << _config.server[srv_nb].client_max_body_size << "'" << std::endl;
+	std::cout << "index : '" << _config.server[srv_nb].index << "'" << std::endl;
+	std::cout << "root : '" <<  _config.server[srv_nb].root << "'" << std::endl;
+	for (it = _config.server[srv_nb].error_page.begin(); it != _config.server[srv_nb].error_page.end() ;it++ )
+		std::cout << "error_page : '" << *it << "'" << std::endl;
+	std::cout << "-------------------" << std::endl;
+	srv_nb++;
+	}
 }
 
 void webserv::tokenizeConfigFile(std::string & src)
