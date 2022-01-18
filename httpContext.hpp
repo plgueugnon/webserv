@@ -20,7 +20,7 @@ typedef struct s_location
 	std::vector < std::string >		error_page;
 	std::vector < std::string >		return_dir;
 	std::vector < std::string >		limit_except;
-	std::vector < s_location >		locationContext;
+	std::vector < s_location >		location;
 
 } 				t_location;
 
@@ -31,9 +31,10 @@ typedef struct s_server
 	std::string 					index;
 	std::string 					root;
 	std::string 					server_name;
+	std::string 					listen;
 	std::vector < std::string >		error_page;
 	std::vector < std::string >		return_dir;
-	std::vector < t_location >		location;
+	std::vector < s_location >		location;
 } 				t_server;
 
 typedef struct s_http

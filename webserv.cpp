@@ -126,7 +126,10 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 #define ERR_BODY_SIZE_ARG "client_max_body_size, Missing semicolomn ';'."
 #define ERR_INDEX_ARG "index, Missing semicolomn ';'."
 #define ERR_ROOT_ARG "root, Missing semicolomn ';'."
+#define ERR_LISTEN_ARG "listen, Missing semicolomn ';'."
+#define ERR_SERVER_NAME_ARG "server_name, Missing semicolomn ';'."
 #define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
+#define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
 #define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
 
 
@@ -145,7 +148,8 @@ void webserv::parseToken(std::vector<std::string> & vec)
     std::vector<std::string>::iterator it;
     std::vector<std::string>::iterator end;
 	int 	flag = 0;
-	int 	srv_nb = 0;
+	int 	srv_nb = -1;
+	int 	loc_nb = -1;
 
     it = vec.begin();
     end = vec.end();
@@ -167,6 +171,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			if (it->compare(";") != 0)
 				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX_ARG);
+			it++;
 		}
 		// CLIENT MAX BODY SIZE
 		else if (it->compare("client_max_body_size") == 0 && flag == HTTP_CONTEXT)
@@ -181,6 +186,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			if (it->compare(";") != 0)
 				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+			it++;
 		}
 		// INDEX
 		else if (it->compare("index") == 0 && flag == HTTP_CONTEXT)
@@ -190,6 +196,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			if (it->compare(";") != 0)
 				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+			it++;
 		}
 		// ROOT
 		else if (it->compare("root") == 0 && flag == HTTP_CONTEXT)
@@ -199,6 +206,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			if (it->compare(";") != 0)
 				throw std::invalid_argument(ERR_ROOT_ARG);
+			it++;
 		}
 		// ERROR PAGE
 		else if (it->compare("error_page") == 0 && flag == HTTP_CONTEXT)
@@ -212,6 +220,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			// it++;
 			if (it->compare(";") != 0)
 				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+			it++;
 		}
 		// SERVER
 		else if (it->compare("server") == 0 && flag == HTTP_CONTEXT)
@@ -233,8 +242,11 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			// add location here later
 			it++;
 			if (it->compare("{") != 0)
-				 throw std::invalid_argument(ERR_SERVER_BRACKET);
+				 throw std::invalid_argument(ERR_LOCATION_BRACKET);
 			flag = LOCATION_CONTEXT;
+			t_location *new_location = new t_location;
+			_config.server[srv_nb].location.push_back(*new_location) ;
+			loc_nb++;
 			it++;
 		}
 		else if (it->compare("}") == 0 && flag == SERVER_CONTEXT)
@@ -252,18 +264,18 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		else if (it->compare("}") == 0 && flag == HTTP_CONTEXT)
 		{
 			flag = -1;
-			// it = vec.end();
 		}
 		else if (it->compare("autoindex") == 0 && flag == SERVER_CONTEXT)
 		{
 			it++;
 			if (it->compare("on") == 0 || it->compare("off") == 0 )
-				_config.server[srv_nb -1].autoindex = (*it);
+				_config.server[srv_nb].autoindex = (*it);
 			else
 				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX);
 			it++;
 			if (it->compare(";") != 0)
 				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX_ARG);
+			it++;
 		}
 		else if (it->compare("client_max_body_size") == 0 && flag == SERVER_CONTEXT)
 		{
@@ -271,30 +283,53 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			int 	n = atoi(it->c_str());
 			if (n >= 0)
-				_config.server[srv_nb -1].client_max_body_size = n;
+				_config.server[srv_nb].client_max_body_size = n;
 			else
 				 throw std::invalid_argument(ERR_NEG_BODY_SIZE);
 			it++;
 			if (it->compare(";") != 0)
 				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+			it++;
 		}
 		// INDEX
 		else if (it->compare("index") == 0 && flag == SERVER_CONTEXT)
 		{
 			it++;
-			_config.server[srv_nb -1].index = (*it);
+			_config.server[srv_nb].index = (*it);
 			it++;
 			if (it->compare(";") != 0)
 				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+			it++;
 		}
 		// ROOT
 		else if (it->compare("root") == 0 && flag == SERVER_CONTEXT)
 		{
 			it++;
-			_config.server[srv_nb -1].root = (*it);
+			_config.server[srv_nb].root = (*it);
 			it++;
 			if (it->compare(";") != 0)
 				throw std::invalid_argument(ERR_ROOT_ARG);
+			it++;
+		}
+		// LISTEN
+		else if (it->compare("listen") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			_config.server[srv_nb].listen = (*it);
+			it++;
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ROOT_ARG);
+			it++;
+		}
+		// SERVER NAME
+		else if (it->compare("server_name") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			_config.server[srv_nb].server_name = (*it);
+			it++;
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ROOT_ARG);
+			it++;
 		}
 		// ERROR PAGE
 		else if (it->compare("error_page") == 0 && flag == SERVER_CONTEXT)
@@ -302,33 +337,124 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			while(it->compare(";") != 0)
 			{
-				_config.server[srv_nb -1].error_page.push_back(*it);
+				_config.server[srv_nb].error_page.push_back(*it);
 				it++;
 			}
-			// it++;
 			if (it->compare(";") != 0)
 				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+			it++;
+		}
+		// LOCATION AUTOINDEX
+		else if (it->compare("autoindex") == 0 && flag == LOCATION_CONTEXT)
+		{
+			it++;
+			if (it->compare("on") == 0 || it->compare("off") == 0 )
+				_config.server[srv_nb].location[loc_nb].autoindex = (*it);
+			else
+				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX);
+			it++;
+			if (it->compare(";") != 0)
+				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX_ARG);
+			it++;
+		}
+		else if (it->compare("client_max_body_size") == 0 && flag == LOCATION_CONTEXT)
+		{
+		
+			it++;
+			int 	n = atoi(it->c_str());
+			if (n >= 0)
+				_config.server[srv_nb].location[loc_nb].client_max_body_size = n;
+			else
+				 throw std::invalid_argument(ERR_NEG_BODY_SIZE);
+			it++;
+			if (it->compare(";") != 0)
+				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+			it++;
+		}
+		// INDEX
+		else if (it->compare("index") == 0 && flag == LOCATION_CONTEXT)
+		{
+			it++;
+			_config.server[srv_nb].location[loc_nb].index = (*it);
+			it++;
+			if (it->compare(";") != 0)
+				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+			it++;
+		}
+		// ROOT
+		else if (it->compare("root") == 0 && flag == LOCATION_CONTEXT)
+		{
+			it++;
+			_config.server[srv_nb].location[loc_nb].root = (*it);
+			it++;
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ROOT_ARG);
+			it++;
+		}
+		// ERROR PAGE
+		else if (it->compare("error_page") == 0 && flag == LOCATION_CONTEXT)
+		{
+			it++;
+			while(it->compare(";") != 0)
+			{
+				_config.server[srv_nb].location[loc_nb].error_page.push_back(*it);
+				it++;
+			}
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+			it++;
+		}
+		else if (it->compare("limit_except") == 0 && flag == LOCATION_CONTEXT)
+		{
+			it++;
+			while(it->compare(";") != 0)
+			{
+				_config.server[srv_nb].location[loc_nb].limit_except.push_back(*it);
+				it++;
+			}
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+			it++;
+		}
+		// return	
+		else if (it->compare("return") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			while(it->compare(";") != 0)
+			{
+				_config.server[srv_nb].return_dir.push_back(*it);
+				it++;
+			}
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+			it++;
 		}
 		else
+		{
+			it--;
+		std::cout << "-----------"  << std::endl;
+		std::cout << "token -1 : " << *it << std::endl;
+		std::cout << "context -1 : " << flag << std::endl;
 			it++;
-
-
 		std::cout << "-----------"  << std::endl;
 		std::cout << "token : " << *it << std::endl;
 		std::cout << "context : " << flag << std::endl;
+			it++;
+			// return ;
+
+		}
+
+
 	}
-		std::cout << "-----------"  << std::endl;
-		std::cout << "srv_nb : " << srv_nb << std::endl;
-		std::cout << "srv : " << _config.server[0].autoindex  << std::endl;
-		std::cout << "srv : " << _config.server[1].autoindex  << std::endl;
 		printHttpConfig();
-		vec_enum(_config.error_page);
+		// vec_enum(_config.error_page);
 	return;
 }
 void webserv::printHttpConfig( void )
 {
 	std::vector<std::string>::iterator it;
 	std::vector<t_server>::iterator srv_it;
+	std::vector<t_location>::iterator loc_it;
 
 	std::cout << "-------------------" << std::endl;
 	std::cout << "HTTP config" << std::endl;
@@ -337,22 +463,47 @@ void webserv::printHttpConfig( void )
 	std::cout << "client_max_body_size : '" << _config.client_max_body_size << "'" << std::endl;
 	std::cout << "index : '" << _config.index << "'" << std::endl;
 	std::cout << "root : '" <<  _config.root << "'" << std::endl;
+	// error pages
 	for (it = _config.error_page.begin(); it != _config.error_page.end() ;it++ )
 		std::cout << "error_page : '" << *it << "'" << std::endl;
 	std::cout << "-------------------" << std::endl;
 	int srv_nb = 0;
+	// servers
 	for (srv_it = _config.server.begin(); srv_it != _config.server.end(); srv_it++)
 	{
-	std::cout << "Server config " << srv_nb + 1<< std::endl;
-	std::cout << "-------------------" << std::endl;
-	std::cout << "autoindex : '" << _config.server[srv_nb].autoindex << "'" << std::endl;
-	std::cout << "client_max_body_size : '" << _config.server[srv_nb].client_max_body_size << "'" << std::endl;
-	std::cout << "index : '" << _config.server[srv_nb].index << "'" << std::endl;
-	std::cout << "root : '" <<  _config.server[srv_nb].root << "'" << std::endl;
-	for (it = _config.server[srv_nb].error_page.begin(); it != _config.server[srv_nb].error_page.end() ;it++ )
-		std::cout << "error_page : '" << *it << "'" << std::endl;
-	std::cout << "-------------------" << std::endl;
-	srv_nb++;
+		std::cout << "Server config " << srv_nb + 1 << std::endl;
+		std::cout << "-------------------" << std::endl;
+		std::cout << "listen : '" << srv_it->listen << "'" << std::endl;
+		std::cout << "server_name : '" << srv_it->server_name << "'" << std::endl;
+		std::cout << "autoindex : '" << srv_it->autoindex << "'" << std::endl;
+		std::cout << "client_max_body_size : '" << srv_it->client_max_body_size << "'" << std::endl;
+		std::cout << "index : '" << srv_it->index << "'" << std::endl;
+		std::cout << "root : '" << srv_it->root << "'" << std::endl;
+		for (it = srv_it->error_page.begin(); it != srv_it->error_page.end(); it++)
+			std::cout << "error_page : '" << *it << "'" << std::endl;
+		for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
+			std::cout << "return : '" << *it << "'" << std::endl;
+		std::cout << "-------------------" << std::endl;
+		int loc_nb = 0;
+		for (loc_it = srv_it->location.begin(); loc_it != srv_it->location.end(); loc_it++)
+		{
+			std::cout << "-----" << std::endl;
+			std::cout << "location config " << loc_nb << std::endl;
+			std::cout << "-----" << std::endl;
+			std::cout << "autoindex : '" << loc_it->autoindex << "'" << std::endl;
+			std::cout << "client_max_body_size : '" << loc_it->client_max_body_size << "'" << std::endl;
+			std::cout << "index : '" << loc_it->index << "'" << std::endl;
+			std::cout << "root : '" << loc_it->root << "'" << std::endl;
+			// error pages
+			for (it = loc_it->error_page.begin(); it != loc_it->error_page.end(); it++)
+				std::cout << "error_page : '" << *it << "'" << std::endl;
+			// limit except
+			for (it = loc_it->limit_except.begin(); it != loc_it->limit_except.end(); it++)
+				std::cout << "limit_except : '" << *it << "'" << std::endl;
+			loc_nb++;
+		}
+		std::cout << "-------------------" << std::endl;
+		srv_nb++;
 	}
 }
 
