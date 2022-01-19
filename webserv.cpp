@@ -2,14 +2,36 @@
 /* ygeslin                                                                    */
 /* ************************************************************************** */
 
-#include "webserv.hpp"
-#include "colors.h"
+// System headers
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <cstdlib>
-// #include <strings.h>
+
+// Custom headers
+#include "utils.h"
+
+// Parsing context flags to parse the token (AST)
+#define HTTP_CONTEXT 1
+#define SERVER_CONTEXT 2
+#define LOCATION_CONTEXT 3
+
+// Error exception messages
+#define ERR_HTTP_MISSING "Http context is missing."
+#define ERR_WRONG_AUTOINDEX "Wrong autoindex value, usage : on | off."
+#define ERR_WRONG_AUTOINDEX_ARG "Autoindex, Missing semicolomn ';'."
+#define ERR_NEG_BODY_SIZE "client_max_body_size : can't be negative."
+#define ERR_BODY_SIZE_ARG "client_max_body_size, Missing semicolomn ';'."
+#define ERR_INDEX_ARG "index, Missing semicolomn ';'."
+#define ERR_ROOT_ARG "root, Missing semicolomn ';'."
+#define ERR_LISTEN_ARG "listen, Missing semicolomn ';'."
+#define ERR_SERVER_NAME_ARG "server_name, Missing semicolomn ';'."
+#define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
+#define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
+#define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
+#define ERR_LIMIT_EXCEPT_ARG "except_limit, Missing semicolomn ';'."
+#define ERR_RETURN_ARG "except_limit, Missing semicolomn ';'."
 
 /*
  * LIST OF CONTEXTS to implement
@@ -79,7 +101,10 @@
 
 
 webserv::webserv ( void )
-{ return ;}
+{ 
+	bzero(&_config, sizeof(t_http));
+	return ;
+}
 
 void webserv::setFileName (std::string name)
 {
@@ -91,54 +116,8 @@ std::string const & webserv::getFileName ( void ) const
 	return _file_name ;
 }
 
-void    vec_enum(std::vector<std::string> &vec)
-{
-    std::vector<std::string>::iterator it;
-    std::vector<std::string>::iterator it2;
-
-    it = vec.begin();
-    it2 = vec.end();
-	int i = 0;
-
-    std::cout << std::endl;
-    while (it != it2) 
-	{
-        std::cout << "vector[" << i << "] : '" <<*it << "'"<<std::endl;
-        it++;
-		i++;
-    }
-}
-void    vec_erase_empty(std::vector<std::string> &vec)
-{
-    std::vector<std::string>::iterator it = vec.begin();
-
-    while (++it != vec.end()) 
-	{
-		if ((*it).empty() == 1 && it != vec.end())
-			vec.erase(it);
-		if (it == vec.end())
-			break;
-	}
-}
-
-#define HTTP_CONTEXT 1
-#define SERVER_CONTEXT 2
-#define LOCATION_CONTEXT 3
-#define ERR_HTTP_MISSING "Http context is missing."
-#define ERR_WRONG_AUTOINDEX "Wrong autoindex value, usage : on | off."
-#define ERR_WRONG_AUTOINDEX_ARG "Autoindex, Missing semicolomn ';'."
-#define ERR_NEG_BODY_SIZE "client_max_body_size : can't be negative."
-#define ERR_BODY_SIZE_ARG "client_max_body_size, Missing semicolomn ';'."
-#define ERR_INDEX_ARG "index, Missing semicolomn ';'."
-#define ERR_ROOT_ARG "root, Missing semicolomn ';'."
-#define ERR_LISTEN_ARG "listen, Missing semicolomn ';'."
-#define ERR_SERVER_NAME_ARG "server_name, Missing semicolomn ';'."
-#define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
-#define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
-#define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
-#define ERR_LIMIT_EXCEPT_ARG "except_limit, Missing semicolomn ';'."
-#define ERR_RETURN_ARG "except_limit, Missing semicolomn ';'."
-
+// return an empty location struct to push_back in the vectors
+// To avoid allocate and use "new"
 t_location newLocation ( void )
 {
 	t_location loc;
@@ -147,6 +126,8 @@ t_location newLocation ( void )
 	return (loc);
 }
 
+// return an empty server struct to push_back in the vectors
+// To avoid allocate and use "new"
 t_server newServer ( void )
 {
 	t_server srv;
@@ -154,6 +135,8 @@ t_server newServer ( void )
 	bzero(&srv, sizeof(t_server));
 	return (srv);
 }
+
+// Parse token and fill data structures according to context
 void webserv::parseToken(std::vector<std::string> & vec)
 {
     std::vector<std::string>::iterator	it;
@@ -432,7 +415,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				throw std::invalid_argument(ERR_LIMIT_EXCEPT_ARG);
 			it++;
 		}
-		// return	
+		// RETURN	
 		else if (it->compare("return") == 0 && flag == SERVER_CONTEXT)
 		{
 			it++;

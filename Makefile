@@ -18,6 +18,7 @@ INCLUDES_DIR	= ./
 # FILES
 SRCS			= 	main \
 					httpContext \
+					utils \
 					webserv
 
 FILES			= $(addsuffix .cpp, $(SRCS))

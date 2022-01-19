@@ -6,6 +6,7 @@
 #define WEBSERV_HPP
 
 #include <iostream>
+#include "utils.h"
 #include "httpContext.hpp"
 
 class webserv

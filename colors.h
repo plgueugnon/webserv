@@ -1,5 +1,5 @@
-#ifndef COLORS_HPP
-#define COLORS_HPP
+#ifndef COLORS_H
+#define COLORS_H
 
 //the following are UBUNTU/LINUX, and MacOS ONLY terminal color codes.
 #define RESET   "\033[0m"
