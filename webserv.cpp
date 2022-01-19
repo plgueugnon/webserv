@@ -255,6 +255,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		else if (it->compare("}") == 0 && flag == SERVER_CONTEXT)
 		{
 			flag = HTTP_CONTEXT;
+			loc_nb = -1;
 			it++;
 		}
 
@@ -490,6 +491,7 @@ void printLocationConfig ( std::vector< t_location> & loc)
 	std::cout << MAGENTA;
 	for (loc_it = loc.begin(); loc_it != loc.end(); loc_it++)
 	{
+	std::cout << MAGENTA;
 		std::cout << "---------------------" << std::endl;
 		std::cout << " Location config " << loc_nb << std::endl;
 		std::cout << "---------------------" << std::endl;
@@ -535,8 +537,8 @@ void webserv::printServerConfig ( void )
 			std::cout << "return : \t\t'" << *it << "'" << std::endl;
 		printLocationConfig(srv_it->location);
 		srv_nb++;
-	}
 	std::cout << RESET;
+	}
 	return ;
 }
 
