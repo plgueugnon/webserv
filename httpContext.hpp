@@ -21,7 +21,7 @@ typedef struct s_location
 	std::vector < std::string >		error_page;
 	std::vector < std::string >		return_dir;
 	std::vector < std::string >		limit_except;
-	std::vector < s_location >		location;
+	// std::vector < s_location >		location;
 
 } 				t_location;
 

@@ -1,3 +1,7 @@
+/* ************************************************************************** */
+/* ygeslin                                                                    */
+/* ************************************************************************** */
+
 #include "webserv.hpp"
 #include "colors.h"
 #include <iostream>
@@ -5,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+// #include <strings.h>
 
 /*
  * LIST OF CONTEXTS to implement
@@ -132,38 +137,46 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 #define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
 #define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
 
-
-void error_exit (std::string const & error)
+t_location newLocation ( void )
 {
-	std::cerr << RED;
-	std::cerr << "Error : ";
-	std::cerr << error;
-	std::cerr << std::endl;
-	std::cerr << RESET;
-	exit (1);
+	t_location loc;
+
+	bzero(&loc, sizeof(t_location));
+	return (loc);
 }
 
+t_server newServer ( void )
+{
+	t_server srv;
+
+	bzero(&srv, sizeof(t_server));
+	return (srv);
+}
 void webserv::parseToken(std::vector<std::string> & vec)
 {
-    std::vector<std::string>::iterator it;
-    std::vector<std::string>::iterator end;
-	int 	flag = 0;
-	int 	srv_nb = -1;
-	int 	loc_nb = -1;
+    std::vector<std::string>::iterator	it;
+    std::vector<std::string>::iterator	end;
+	std::string 						tmp;
+
+	int 								flag = 0;
+	int 								srv_nb = -1;
+	int 								loc_nb = -1;
 
     it = vec.begin();
     end = vec.end();
 	if (it->compare("http") == 0 && (it + 1)->compare("{") == 0)
 		flag = HTTP_CONTEXT;
-	else 
-		return (error_exit(ERR_HTTP_MISSING));
+	else
+		throw std::invalid_argument(ERR_HTTP_MISSING);
 	it += 2;
 	while ( it != end)
 	{
+		// ! -----------HTTP CONTEXT------------ START
 		// AUTOINDEX
 		if (it->compare("autoindex") == 0 && flag == HTTP_CONTEXT)
 		{
 			it++;
+
 			if (it->compare("on") == 0 || it->compare("off") == 0 )
 				_config.autoindex = (*it);
 			else
@@ -229,25 +242,25 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if (it->compare("{") != 0)
 				throw std::invalid_argument(ERR_SERVER_BRACKET);
 			flag = SERVER_CONTEXT;
-			t_server *new_server = new t_server;
-			_config.server.push_back(*new_server) ;
+			_config.server.push_back(newServer()) ;
 			srv_nb++;
 			it++;
 
 		}
+		// ! ----------- HTTP CONTEXT ------------ END
+
+		// ! ----------- SERVER CONTEXT ------------ BEGINING
 		// LOCATION
 		else if (it->compare("location") == 0 && flag == SERVER_CONTEXT)
 		{
 			it++;
-			std::string tmp = *it;
+			tmp = *it;
 			// add location here later
 			it++;
 			if (it->compare("{") != 0)
 				 throw std::invalid_argument(ERR_LOCATION_BRACKET);
 			flag = LOCATION_CONTEXT;
-			t_location *new_location = new t_location;
-			// function return new loc pour pas new
-			_config.server[srv_nb].location.push_back(*new_location) ;
+			_config.server[srv_nb].location.push_back(newLocation()) ;
 			loc_nb++;
 			_config.server[srv_nb].location[loc_nb].path = tmp;
 			it++;
@@ -348,6 +361,9 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
 			it++;
 		}
+		// ! ----------- SERVER CONTEXT ------------ END
+
+		// ! ----------- LOCATION CONTEXT ------------ BEGINING
 		// LOCATION AUTOINDEX
 		else if (it->compare("autoindex") == 0 && flag == LOCATION_CONTEXT)
 		{
@@ -382,7 +398,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			_config.server[srv_nb].location[loc_nb].index = (*it);
 			it++;
 			if (it->compare(";") != 0)
-				 throw std::invalid_argument(ERR_BODY_SIZE_ARG);
+				 throw std::invalid_argument(ERR_INDEX_ARG);
 			it++;
 		}
 		// ROOT
@@ -408,6 +424,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
 			it++;
 		}
+		// LIMITE EXCEPT
 		else if (it->compare("limit_except") == 0 && flag == LOCATION_CONTEXT)
 		{
 			it++;
@@ -433,6 +450,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
 			it++;
 		}
+		// ! ----------- LOCATION CONTEXT ------------ END
 		else
 		{
 			it--;
@@ -450,38 +468,10 @@ void webserv::parseToken(std::vector<std::string> & vec)
 
 
 	}
-		printHttpConfig();
-		// vec_enum(_config.error_page);
+	printHttpConfig();
 	return;
 }
 
-// std::ostream &operator<<(std::ostream &os, const t_location &l)
-// {
-//     os << "root: " << l.root << std::endl;
-//     os << "\t\tindex: " << l.index << std::endl;
-//     os << "\t\tautoindex: " << l.autoindex << std::endl;
-//     os << "\t\tmethods: " << l.methods << std::endl;
-//     os << "\t\troot: " << l.root << std::endl;
-//     os << "\t\tpath: " << l.path << std::endl;
-//     os << "\t}";
-//     return os;
-// }
-
-// std::ostream &operator<<(std::ostream &os, const t_server &l)
-// {
-//     os << "{ " << std::endl << "\t listen: " << l.listen << std::endl;
-//     os << "\t addr_ip: " << l.addr_ip << std::endl;
-//     os << "\t server_name: " << l.server_name << std::endl;
-//     os << "\t root: " << l.root << std::endl;
-//     os << "\t index: " << l.index << std::endl;
-//     os << "\t error_page: " << l.error_page << std::endl;
-//     os << "\t client_max_body_size: " << l.client_max_body_size << std::endl;
-//     os << "\t autoindex: " << l.autoindex << std::endl;
-//     os << "\t location: " << l.locations << std::endl;
-//     os << "}";
-
-//     return os;
-// }
 void printLocationConfig ( std::vector< t_location> & loc)
 {
 	std::vector<t_location>::iterator	loc_it;
@@ -521,7 +511,7 @@ void webserv::printServerConfig ( void )
 
 	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
 	{
-	std::cout << BLUE;
+		std::cout << BLUE;
 		std::cout << "-----------------------------" << std::endl;
 		std::cout << "\tServer config " << srv_nb << std::endl;
 		std::cout << "-----------------------------" << std::endl;
@@ -537,16 +527,16 @@ void webserv::printServerConfig ( void )
 			std::cout << "return : \t\t'" << *it << "'" << std::endl;
 		printLocationConfig(srv_it->location);
 		srv_nb++;
-	std::cout << RESET;
+		std::cout << RESET;
 	}
 	return ;
 }
 
 void webserv::printHttpConfig( void )
 {
-	std::vector<std::string>::iterator it;
-	std::vector<t_server>::iterator srv_it;
-	std::vector<t_location>::iterator loc_it;
+	std::vector<std::string>::iterator 	it;
+	std::vector<t_server>::iterator		srv_it;
+	std::vector<t_location>::iterator	loc_it;
 
 	std::cout << GREEN;
 	std::cout << "-----------------------------------------------" << std::endl;
@@ -561,48 +551,16 @@ void webserv::printHttpConfig( void )
 		std::cout << "error_page : \t\t'" << *it << "'" << std::endl;
 	std::cout << "-----------------------------------------------" << std::endl;
 	printServerConfig();
-	// for (srv_it = _config.server.begin(); srv_it != _config.server.end(); srv_it++)
-	// {
-	// 	std::cout << "Server config " << srv_nb  << std::endl;
-	// 	std::cout << "-------------------" << std::endl;
-	// 	std::cout << "listen : '" << srv_it->listen << "'" << std::endl;
-	// 	std::cout << "server_name : '" << srv_it->server_name << "'" << std::endl;
-	// 	std::cout << "autoindex : '" << srv_it->autoindex << "'" << std::endl;
-	// 	std::cout << "client_max_body_size : '" << srv_it->client_max_body_size << "'" << std::endl;
-	// 	std::cout << "index : '" << srv_it->index << "'" << std::endl;
-	// 	std::cout << "root : '" << srv_it->root << "'" << std::endl;
-	// 	for (it = srv_it->error_page.begin(); it != srv_it->error_page.end(); it++)
-	// 		std::cout << "error_page : '" << *it << "'" << std::endl;
-	// 	for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
-	// 		std::cout << "return : '" << *it << "'" << std::endl;
-	// 	std::cout << "-------------------" << std::endl;
-		// int loc_nb = 0;
-		// for (loc_it = srv_it->location.begin(); loc_it != srv_it->location.end(); loc_it++)
-		// {
-		// 	std::cout << "-----" << std::endl;
-		// 	std::cout << "location config " << loc_nb << std::endl;
-		// 	std::cout << "-----" << std::endl;
-		// 	std::cout << "autoindex : '" << loc_it->autoindex << "'" << std::endl;
-		// 	std::cout << "client_max_body_size : '" << loc_it->client_max_body_size << "'" << std::endl;
-		// 	std::cout << "index : '" << loc_it->index << "'" << std::endl;
-		// 	std::cout << "root : '" << loc_it->root << "'" << std::endl;
-		// 	// error pages
-		// 	for (it = loc_it->error_page.begin(); it != loc_it->error_page.end(); it++)
-		// 		std::cout << "error_page : '" << *it << "'" << std::endl;
-		// 	// limit except
-		// 	for (it = loc_it->limit_except.begin(); it != loc_it->limit_except.end(); it++)
-		// 		std::cout << "limit_except : '" << *it << "'" << std::endl;
-		// 	loc_nb++;
-		// }
-		std::cout << "-------------------" << std::endl;
-		std::cout << RESET;
+	std::cout << "-------------------" << std::endl;
+	std::cout << RESET;
 }
 
 void webserv::tokenizeConfigFile(std::string & src)
 {
-	std::vector<std::string> token;
-	std::string::iterator it = src.begin();
-	std::string::iterator end = src.end();;
+	std::vector<std::string> 	token;
+
+	std::string::iterator 		it 		= src.begin();
+	std::string::iterator 		end 	= src.end();;
 
 	size_t i = 0;
 	size_t j = 0;
@@ -634,20 +592,21 @@ void webserv::tokenizeConfigFile(std::string & src)
 		token.push_back(src.substr(i, j - i));
 		i = j;
 	}
-	// vec_enum(token);
-	// std::cout << "------------------" << std::endl;
+	// Erase empty node in the vector
 	vec_erase_empty(token);
+	// print the tokens
 	vec_enum(token);
 	parseToken(token);
 	return ;
-	// std::cout << src << std::endl;
 }
 
 void webserv::parseConfigFile ( void )
 {
-	std::string config_string = "";
-	std::string line;
-	std::ifstream file;
+	std::string 				config_string = "";
+	std::string 				line;
+
+	std::ifstream 				file;
+
 	std::vector<std::string> 	token;
 
 	file.open(_file_name );
@@ -669,6 +628,5 @@ void webserv::parseConfigFile ( void )
 		std::cerr << "' file." << std::endl;
 		std::cerr << RESET;
 	}
-
 	return ;
 }
