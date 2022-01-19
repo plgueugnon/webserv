@@ -13,6 +13,7 @@
 
 typedef struct s_location
 {
+	std::string 					path;
 	std::string 					autoindex;
 	size_t							client_max_body_size;
 	std::string 					index;

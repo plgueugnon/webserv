@@ -239,14 +239,17 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		else if (it->compare("location") == 0 && flag == SERVER_CONTEXT)
 		{
 			it++;
+			std::string tmp = *it;
 			// add location here later
 			it++;
 			if (it->compare("{") != 0)
 				 throw std::invalid_argument(ERR_LOCATION_BRACKET);
 			flag = LOCATION_CONTEXT;
 			t_location *new_location = new t_location;
+			// function return new loc pour pas new
 			_config.server[srv_nb].location.push_back(*new_location) ;
 			loc_nb++;
+			_config.server[srv_nb].location[loc_nb].path = tmp;
 			it++;
 		}
 		else if (it->compare("}") == 0 && flag == SERVER_CONTEXT)
@@ -450,61 +453,147 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		// vec_enum(_config.error_page);
 	return;
 }
+
+// std::ostream &operator<<(std::ostream &os, const t_location &l)
+// {
+//     os << "root: " << l.root << std::endl;
+//     os << "\t\tindex: " << l.index << std::endl;
+//     os << "\t\tautoindex: " << l.autoindex << std::endl;
+//     os << "\t\tmethods: " << l.methods << std::endl;
+//     os << "\t\troot: " << l.root << std::endl;
+//     os << "\t\tpath: " << l.path << std::endl;
+//     os << "\t}";
+//     return os;
+// }
+
+// std::ostream &operator<<(std::ostream &os, const t_server &l)
+// {
+//     os << "{ " << std::endl << "\t listen: " << l.listen << std::endl;
+//     os << "\t addr_ip: " << l.addr_ip << std::endl;
+//     os << "\t server_name: " << l.server_name << std::endl;
+//     os << "\t root: " << l.root << std::endl;
+//     os << "\t index: " << l.index << std::endl;
+//     os << "\t error_page: " << l.error_page << std::endl;
+//     os << "\t client_max_body_size: " << l.client_max_body_size << std::endl;
+//     os << "\t autoindex: " << l.autoindex << std::endl;
+//     os << "\t location: " << l.locations << std::endl;
+//     os << "}";
+
+//     return os;
+// }
+void printLocationConfig ( std::vector< t_location> & loc)
+{
+	std::vector<t_location>::iterator	loc_it;
+	std::vector<std::string>::iterator	it;
+	int 								loc_nb = 1;
+
+	std::cout << MAGENTA;
+	for (loc_it = loc.begin(); loc_it != loc.end(); loc_it++)
+	{
+		std::cout << "---------------------" << std::endl;
+		std::cout << " Location config " << loc_nb << std::endl;
+		std::cout << "---------------------" << std::endl;
+		std::cout << "path : \t\t\t'" << loc_it->path << "'" << std::endl;
+		std::cout << "autoindex : \t\t'" << loc_it->autoindex << "'" << std::endl;
+		std::cout << "client_max_body_size :\t'" << loc_it->client_max_body_size << "'" << std::endl;
+		std::cout << "index : \t\t'" << loc_it->index << "'" << std::endl;
+		std::cout << "root : \t\t\t'" << loc_it->root << "'" << std::endl;
+		// error pages
+		for (it = loc_it->error_page.begin(); it != loc_it->error_page.end(); it++)
+			std::cout << "error_page : \t\t'" << *it << "'" << std::endl;
+		// limit except
+		for (it = loc_it->limit_except.begin(); it != loc_it->limit_except.end(); it++)
+			std::cout << "limit_except : \t\t'" << *it << "'" << std::endl;
+		loc_nb++;
+	}
+	std::cout << RESET;
+	return ;
+}
+
+void webserv::printServerConfig ( void )
+{
+	std::vector<t_server> 				srv = _config.server;
+	std::vector<t_server>::iterator 	srv_it;
+	int 								srv_nb = 1;
+	std::vector<std::string>::iterator	it;
+
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+	std::cout << BLUE;
+		std::cout << "-----------------------------" << std::endl;
+		std::cout << "\tServer config " << srv_nb << std::endl;
+		std::cout << "-----------------------------" << std::endl;
+		std::cout << "listen : \t\t'" << srv_it->listen << "'" << std::endl;
+		std::cout << "server_name : \t\t'" << srv_it->server_name << "'" << std::endl;
+		std::cout << "autoindex : \t\t'" << srv_it->autoindex << "'" << std::endl;
+		std::cout << "client_max_body_size :\t'" << srv_it->client_max_body_size << "'" << std::endl;
+		std::cout << "index : \t\t'" << srv_it->index << "'" << std::endl;
+		std::cout << "root : \t\t\t'" << srv_it->root << "'" << std::endl;
+		for (it = srv_it->error_page.begin(); it != srv_it->error_page.end(); it++)
+			std::cout << "error_page : \t\t'" << *it << "'" << std::endl;
+		for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
+			std::cout << "return : \t\t'" << *it << "'" << std::endl;
+		printLocationConfig(srv_it->location);
+		srv_nb++;
+	}
+	std::cout << RESET;
+	return ;
+}
+
 void webserv::printHttpConfig( void )
 {
 	std::vector<std::string>::iterator it;
 	std::vector<t_server>::iterator srv_it;
 	std::vector<t_location>::iterator loc_it;
 
-	std::cout << "-------------------" << std::endl;
-	std::cout << "HTTP config" << std::endl;
-	std::cout << "-------------------" << std::endl;
-	std::cout << "autoindex : '" << _config.autoindex << "'" << std::endl;
-	std::cout << "client_max_body_size : '" << _config.client_max_body_size << "'" << std::endl;
-	std::cout << "index : '" << _config.index << "'" << std::endl;
-	std::cout << "root : '" <<  _config.root << "'" << std::endl;
+	std::cout << GREEN;
+	std::cout << "-----------------------------------------------" << std::endl;
+	std::cout << "\tHTTP config" << std::endl;
+	std::cout << "-----------------------------------------------" << std::endl;
+	std::cout << "autoindex : \t\t'" << _config.autoindex << "'" << std::endl;
+	std::cout << "client_max_body_size :\t'" << _config.client_max_body_size << "'" << std::endl;
+	std::cout << "index : \t\t'" << _config.index << "'" << std::endl;
+	std::cout << "root : \t\t\t'" <<  _config.root << "'" << std::endl;
 	// error pages
 	for (it = _config.error_page.begin(); it != _config.error_page.end() ;it++ )
-		std::cout << "error_page : '" << *it << "'" << std::endl;
-	std::cout << "-------------------" << std::endl;
-	int srv_nb = 0;
-	// servers
-	for (srv_it = _config.server.begin(); srv_it != _config.server.end(); srv_it++)
-	{
-		std::cout << "Server config " << srv_nb + 1 << std::endl;
+		std::cout << "error_page : \t\t'" << *it << "'" << std::endl;
+	std::cout << "-----------------------------------------------" << std::endl;
+	printServerConfig();
+	// for (srv_it = _config.server.begin(); srv_it != _config.server.end(); srv_it++)
+	// {
+	// 	std::cout << "Server config " << srv_nb  << std::endl;
+	// 	std::cout << "-------------------" << std::endl;
+	// 	std::cout << "listen : '" << srv_it->listen << "'" << std::endl;
+	// 	std::cout << "server_name : '" << srv_it->server_name << "'" << std::endl;
+	// 	std::cout << "autoindex : '" << srv_it->autoindex << "'" << std::endl;
+	// 	std::cout << "client_max_body_size : '" << srv_it->client_max_body_size << "'" << std::endl;
+	// 	std::cout << "index : '" << srv_it->index << "'" << std::endl;
+	// 	std::cout << "root : '" << srv_it->root << "'" << std::endl;
+	// 	for (it = srv_it->error_page.begin(); it != srv_it->error_page.end(); it++)
+	// 		std::cout << "error_page : '" << *it << "'" << std::endl;
+	// 	for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
+	// 		std::cout << "return : '" << *it << "'" << std::endl;
+	// 	std::cout << "-------------------" << std::endl;
+		// int loc_nb = 0;
+		// for (loc_it = srv_it->location.begin(); loc_it != srv_it->location.end(); loc_it++)
+		// {
+		// 	std::cout << "-----" << std::endl;
+		// 	std::cout << "location config " << loc_nb << std::endl;
+		// 	std::cout << "-----" << std::endl;
+		// 	std::cout << "autoindex : '" << loc_it->autoindex << "'" << std::endl;
+		// 	std::cout << "client_max_body_size : '" << loc_it->client_max_body_size << "'" << std::endl;
+		// 	std::cout << "index : '" << loc_it->index << "'" << std::endl;
+		// 	std::cout << "root : '" << loc_it->root << "'" << std::endl;
+		// 	// error pages
+		// 	for (it = loc_it->error_page.begin(); it != loc_it->error_page.end(); it++)
+		// 		std::cout << "error_page : '" << *it << "'" << std::endl;
+		// 	// limit except
+		// 	for (it = loc_it->limit_except.begin(); it != loc_it->limit_except.end(); it++)
+		// 		std::cout << "limit_except : '" << *it << "'" << std::endl;
+		// 	loc_nb++;
+		// }
 		std::cout << "-------------------" << std::endl;
-		std::cout << "listen : '" << srv_it->listen << "'" << std::endl;
-		std::cout << "server_name : '" << srv_it->server_name << "'" << std::endl;
-		std::cout << "autoindex : '" << srv_it->autoindex << "'" << std::endl;
-		std::cout << "client_max_body_size : '" << srv_it->client_max_body_size << "'" << std::endl;
-		std::cout << "index : '" << srv_it->index << "'" << std::endl;
-		std::cout << "root : '" << srv_it->root << "'" << std::endl;
-		for (it = srv_it->error_page.begin(); it != srv_it->error_page.end(); it++)
-			std::cout << "error_page : '" << *it << "'" << std::endl;
-		for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
-			std::cout << "return : '" << *it << "'" << std::endl;
-		std::cout << "-------------------" << std::endl;
-		int loc_nb = 0;
-		for (loc_it = srv_it->location.begin(); loc_it != srv_it->location.end(); loc_it++)
-		{
-			std::cout << "-----" << std::endl;
-			std::cout << "location config " << loc_nb << std::endl;
-			std::cout << "-----" << std::endl;
-			std::cout << "autoindex : '" << loc_it->autoindex << "'" << std::endl;
-			std::cout << "client_max_body_size : '" << loc_it->client_max_body_size << "'" << std::endl;
-			std::cout << "index : '" << loc_it->index << "'" << std::endl;
-			std::cout << "root : '" << loc_it->root << "'" << std::endl;
-			// error pages
-			for (it = loc_it->error_page.begin(); it != loc_it->error_page.end(); it++)
-				std::cout << "error_page : '" << *it << "'" << std::endl;
-			// limit except
-			for (it = loc_it->limit_except.begin(); it != loc_it->limit_except.end(); it++)
-				std::cout << "limit_except : '" << *it << "'" << std::endl;
-			loc_nb++;
-		}
-		std::cout << "-------------------" << std::endl;
-		srv_nb++;
-	}
+		std::cout << RESET;
 }
 
 void webserv::tokenizeConfigFile(std::string & src)

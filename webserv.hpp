@@ -32,6 +32,7 @@ class webserv
 		void tokenizeConfigFile(std::string &src);
 		void parseToken (std::vector<std::string> &vec);
 		void printHttpConfig ( void );
+		void printServerConfig( void );
 
 } ; // webserv class
 
