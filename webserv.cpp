@@ -136,6 +136,8 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 #define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
 #define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
 #define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
+#define ERR_LIMIT_EXCEPT_ARG "except_limit, Missing semicolomn ';'."
+#define ERR_RETURN_ARG "except_limit, Missing semicolomn ';'."
 
 t_location newLocation ( void )
 {
@@ -226,11 +228,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 			it++;
 			while(it->compare(";") != 0)
-			{
-				_config.error_page.push_back(*it);
-				it++;
-			}
-			// it++;
+				_config.error_page.push_back(*it++);
 			if (it->compare(";") != 0)
 				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
 			it++;
@@ -429,12 +427,9 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 			it++;
 			while(it->compare(";") != 0)
-			{
-				_config.server[srv_nb].location[loc_nb].limit_except.push_back(*it);
-				it++;
-			}
+				_config.server[srv_nb].location[loc_nb].limit_except.push_back(*it++);
 			if (it->compare(";") != 0)
-				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+				throw std::invalid_argument(ERR_LIMIT_EXCEPT_ARG);
 			it++;
 		}
 		// return	
@@ -447,7 +442,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				it++;
 			}
 			if (it->compare(";") != 0)
-				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
+				throw std::invalid_argument(ERR_RETURN_ARG);
 			it++;
 		}
 		// ! ----------- LOCATION CONTEXT ------------ END
