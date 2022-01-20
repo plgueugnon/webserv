@@ -111,6 +111,7 @@ void webserv::setFileName (std::string name)
 	_file_name.assign(name);
 }
 
+// return config file name / path
 std::string const & webserv::getFileName ( void ) const
 {
 	return _file_name ;
@@ -139,6 +140,10 @@ t_server newServer ( void )
 // Parse token and fill data structures according to context
 void webserv::parseToken(std::vector<std::string> & vec)
 {
+	// ! PENSER A LIMITER LE NOMBRE DE TOKEN AVANT LES ";"
+	// ! FAIRE LE CHECK DES VALEURS DU FICHIER DE CONFIG, du genre
+	// ! si port 80 pas dispo, quitter, si code erreur non connu etc
+	// ! donnees indispensables non renseignees
     std::vector<std::string>::iterator	it;
     std::vector<std::string>::iterator	end;
 	std::string 						tmp;
@@ -431,6 +436,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		// ! ----------- LOCATION CONTEXT ------------ END
 		else
 		{
+			// print erreur ici si bracket pas fermee ou directive inconnue
 			it--;
 		std::cout << "-----------"  << std::endl;
 		std::cout << "token -1 : " << *it << std::endl;
@@ -454,12 +460,12 @@ void printLocationConfig ( std::vector< t_location> & loc)
 {
 	std::vector<t_location>::iterator	loc_it;
 	std::vector<std::string>::iterator	it;
+
 	int 								loc_nb = 1;
 
-	std::cout << MAGENTA;
 	for (loc_it = loc.begin(); loc_it != loc.end(); loc_it++)
 	{
-	std::cout << MAGENTA;
+		std::cout << MAGENTA;
 		std::cout << "---------------------" << std::endl;
 		std::cout << " Location config " << loc_nb << std::endl;
 		std::cout << "---------------------" << std::endl;
@@ -483,9 +489,11 @@ void printLocationConfig ( std::vector< t_location> & loc)
 void webserv::printServerConfig ( void )
 {
 	std::vector<t_server> 				srv = _config.server;
+
 	std::vector<t_server>::iterator 	srv_it;
-	int 								srv_nb = 1;
 	std::vector<std::string>::iterator	it;
+
+	int 								srv_nb = 1;
 
 	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
 	{
@@ -570,9 +578,7 @@ void webserv::tokenizeConfigFile(std::string & src)
 		token.push_back(src.substr(i, j - i));
 		i = j;
 	}
-	// Erase empty node in the vector
 	vec_erase_empty(token);
-	// print the tokens
 	vec_enum(token);
 	parseToken(token);
 	return ;
@@ -601,6 +607,7 @@ void webserv::parseConfigFile ( void )
 	}
 	else
 	{
+		std::cerr << RED;
 		std::cerr << "Unable to open '";
 		std::cerr << _file_name;
 		std::cerr << "' file." << std::endl;
