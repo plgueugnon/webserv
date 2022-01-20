@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/21 14:58:12 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/13 12:49:21 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/01/20 17:10:12 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,6 +68,9 @@ init:
 		else echo "$(_YELLOW)[Initialize program]$(_NC)";\
 		fi
 		$(shell mkdir -p $(OBJS_DIR))
+
+debug: CXXFLAGS += -D DEBUG
+debug: all
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp
 				@ echo "\t$(_YELLOW) compiling... $*.cpp$(_NC)"

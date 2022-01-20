@@ -4,97 +4,103 @@ int	main(int argc, char **argv)
 {
 	int	sockfd = 0;
 	SA	serv_addr;
+	std::ifstream ifs;
+	std::vector<std::string> requests;
 
-	if (argc != 3)
+	// ! Arg check upon entry
+	if (argc < 4)
 	{
-		std::cout << "usage = ./client + ip + port" << std::endl;
+		std::cout << YEL"Usage = ./client + target IP + port + path to http request file(s)\n"RST;
 		return 0;
 	}
 
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	// ! Stacking requests
+	for (int i = 3; i < argc; i++)
 	{
-		std::cerr << "error: failure to create socket" << std::endl;
-		return -1;
+		std::string content;
+		std::string line;
+		ifs.open(argv[i], std::ifstream::in);
+		if (ifs.is_open())
+		{
+			while (std::getline(ifs, line))
+				content += line;
+		}
+		else
+		{
+			std::cerr << RED"error: invalid file or path " << argv[i] << "\n"RST;
+			return 1;
+		}
+		requests.push_back(content);
+		ifs.close();
 	}
 
-	serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
-	if (serv_addr.sin_addr.s_addr == INADDR_NONE)
+	if (DEBUG_TEST)
 	{
-		std::cerr << "error: failure to convert IP address with inet_addr" << std::endl;
-		return -1;
+		for (std::vector<std::string>::iterator it = requests.begin(); it != requests.end(); it++)
+			std::cout << BLU"\nrequest is : \n"RST << *it << " on address : " << argv[1] << ":" << argv[2] << "\n";
 	}
 
-	serv_addr.sin_port = htons(atoi(argv[2])); 
-	serv_addr.sin_family = AF_INET;
-
-	if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+	// ! request loop
+	for (std::vector<std::string>::iterator it = requests.begin(); it != requests.end(); it++)
 	{
-		std::cerr << "error: failure to connect socket" << std::endl;
-		return -1;
-	}
-	std::cout << BLU"Connect successful\n"RST;
+		if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		{
+			std::cerr << RED"error: failure to create socket\n"RST;
+			return 1;
+		}
 
-	char request[MAXLINE] = "GET / HTTP/1.1\nHost: example.com\r\n\r\n";
-	if (send(sockfd, request, std::strlen(request), 0 ) == -1)
-	{
-		std::cerr << "error: failure to send request\n";
-		return -1;
-	}
+		// ? CHECK SI IP ET PORT PEUVENT ETRE SET HORS LOOP
+		serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
+		if (serv_addr.sin_addr.s_addr == INADDR_NONE)
+		{
+			std::cerr << YEL"error: IP address" << argv[1] << " is invalid\n"RST;
+			return 1;
+		}
 
-	std::vector<unsigned char> buf(MAXLINE);
-	// fcntl(sockfd, F_SETFL, O_NONBLOCK);
-	ssize_t n = 0;
+		int port = std::atoi(argv[2]);
+		if (port < 0 || port > 65535)
+		{
+			std::cerr << YEL"error: Port number " << argv[2] << " is invalid\n"RST;
+			return 1;
+		}
+		serv_addr.sin_port = htons(atoi(argv[2])); 
+		serv_addr.sin_family = AF_INET;
 
-	// faire un ping sur example.com
-	while ( (n = recv(sockfd, buf.data(), MAXLINE - 1, 0)) > 0)
-	{
-		std::cout << buf.data() << std::endl;
-		if (n == 0 || n == EAGAIN)
-			break;
-		// std::cout << RED"check n = " << n << RST << std::endl;
-		// break; // necessary has google will not stop the connection // will either block or loop forever if non blocking
-	}
-	if (n < 0)
-	{
-		std::cerr << "error: failure to receive request\n";
+
+		// ? A priori connect obligatoire pour chaque nouvelle requete
+		if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+		{
+			std::cerr << RED"error: failure to connect socket"RST << std::endl;
+			return -1;
+		}
+		std::cout << GRE"Connect successful\n"RST;
+
+		// TODO fix erreur lié envoi lors du send de la str
+		// char request[MAXLINE] = "GET / HTTP/1.1\nHost: example.com\r\n\r\n";
+		if (send(sockfd, it->c_str(), std::strlen(it->c_str()), 0 ) == -1)
+		{
+			std::cerr << RED"error: failure to send request\n"RST;
+			return 1;
+		}
+
+		std::vector<unsigned char> buf(MAXLINE);
+		ssize_t n = 0;
+
+		while ( (n = recv(sockfd, buf.data(), MAXLINE - 1, 0)) > 0)
+		{
+			std::cout << buf.data() << std::endl;
+			if (n == 0 || n == EAGAIN)
+				break;
+		}
+		if (n < 0)
+		{
+			std::cerr << RED"error: failure to receive request\n"RST;
+			close(sockfd);
+			return 1;
+		}
+
+		std::cout << BLU"data received\n"RST;
 		close(sockfd);
-		return -1;
 	}
-
-	// while(n)
-	// {
-	// 	n = recv(sockfd, buf.data(), buf.size() - 1, 0);
-	// 	if (n < 0)
-	// 	{
-	// 		std::cerr << "error: failure to send request\n";
-	// 		close(sockfd);
-	// 		return -1;
-	// 	}
-	// 	// else if (n >= buf.capacity())
-	// 	// 	buf.resize(n + 2);
-	// 	std::cout << buf.data() << std::endl;
-		// std::cout << "check n = " << n << std::endl; 
-		// switch (n)
-		// {
-		// 	case -1:
-		// 		std::cerr << "error: failure to send request\n";
-		// 		return -1;
-		// 	case 0:
-		// 		break;
-		// 	default:
-		// 		if (n >= buf.size())
-		// 		{
-		// 			std::cout << "check n = " << n << " size = " << buf.size() << " cap = " << buf.capacity() << "\n";
-		// 			// buf.reserve(n);
-		// 			buf.resize(n * 2);
-		// 		}
-		// 		std::cout << "check n = " << n << " size = " << buf.size() << " cap = " << buf.capacity() << "\n";
-		// 		std::cout << buf.data() << std::endl;
-		// 		break;
-		// }
-	// }
-
-	std::cout << "data received\n";
-	close(sockfd);
-	return 1;
+	return 0;
 }
