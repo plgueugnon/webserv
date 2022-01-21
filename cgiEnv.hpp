@@ -1,12 +1,15 @@
+#ifndef CGIENV_HPP
+#define CGIENV_HPP
+
 /**
  Liste des variables CGI
 
-Variables en rapport avec le serveur
+//! Variables en rapport avec le serveur
  @param SERVER_SOFTWARE 	: Le nom et la version du serveur HTTP répondant à la requête. (Format : nom/version)
  @param SERVER_NAME 		: Le nom d'hôte, alias DNS ou adresse IP du serveur.
  @param GATEWAY_INTERFACE : La révision de la spécification CGI que le serveur utilise. (Format : CGI/révision)
 
-Variables spécifiques à la requête
+//! Variables spécifiques à la requête
  @param SERVER_PROTOCOL 	: Le nom et la révision du protocole dans lequel la requête a été faite (Format : protocole/révision)
  @param SERVER_PORT 		: Le numéro de port sur lequel la requête a été envoyée.
  @param REQUEST_METHOD		: La méthode utilisée pour faire la requête. Pour HTTP, elle contient généralement « GET » ou « POST ».
@@ -22,7 +25,7 @@ Variables spécifiques à la requête
  @param CONTENT_TYPE 		: Le type de contenu attaché à la requête, si des données sont attachées (comme lorsqu'un formulaire est envoyé avec la méthode « POST »).
  @param CONTENT_LENGTH 		: La longueur du contenu envoyé par le client.  
 
-Variables provenant du client 
+//! Variables provenant du client 
 Toutes les variables qui sont envoyées par le client sont aussi passées au script CGI, après que le serveur a rajouté le préfixe « HTTP_ ». 
 Voici quelques exemples de variables possibles :
 
@@ -67,3 +70,5 @@ Voici quelques exemples de variables possibles :
 
 // SERVER_SOFTWARE = Apache/2.4.25 (Debian)
 // UNIQUE_ID = Yelk9X8AAQEAACKjB2cAAAAD
+
+#endif /* CGIENV_HPP */
