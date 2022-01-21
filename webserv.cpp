@@ -1,5 +1,13 @@
 /* ************************************************************************** */
-/* ygeslin                                                                    */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
+/*   Updated: 2022/01/21 16:14:10 by ygeslin          ###   ########.fr       */
+/*                                                                            */
 /* ************************************************************************** */
 
 // System headers
@@ -10,7 +18,7 @@
 #include <cstdlib>
 
 // Custom headers
-#include "utils.h"
+#include "utils.hpp"
 
 // Parsing context flags to parse the token (AST)
 #define HTTP_CONTEXT 1
@@ -581,6 +589,17 @@ void webserv::tokenizeConfigFile(std::string & src)
 	vec_erase_empty(token);
 	vec_enum(token);
 	parseToken(token);
+
+	cgi cgi;
+	vec_enum(cgi.env);
+	cgi.convertToC();
+	std::cout << "-------------------" << std::endl;
+	i = 0;
+	while (cgi.Cenv[i -1 ])
+	{
+		printf("%lu : %s\n", i, cgi.Cenv[i]);
+		i++;
+	}
 	return ;
 }
 

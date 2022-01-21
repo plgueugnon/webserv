@@ -1,23 +1,30 @@
 /* ************************************************************************** */
-/* ygeslin                                                                    */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   webserv.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
+/*   Updated: 2022/01/21 17:16:20 by ygeslin          ###   ########.fr       */
+/*                                                                            */
 /* ************************************************************************** */
 
 #ifndef WEBSERV_HPP
 #define WEBSERV_HPP
 
 #include <iostream>
-#include "utils.h"
+#include "utils.hpp"
 #include "httpContext.hpp"
 
 class webserv
 {
-	/* private attributes */
-	private :
-		std::string _file_name;
-		t_http 		_config;
-
 	/* public attributes */
 	public :
+		std::string _file_name;
+		t_http 		_config;
+		listen 		socket;
+
 
 		/* CONSTRUCTOR */
 		webserv ( void );

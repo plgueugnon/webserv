@@ -1,6 +1,39 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
+/*   Updated: 2022/01/21 17:03:17 by ygeslin          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* 
+check args
+open and copy config file 
+convert into token
+fill struct with token
+check errors "double key, unvalid value"
+fill servers struct with http default settings if empty
+create listen socket according to servers listen ports
+
+wait for requests
+parse requests
+return response
+
+if CGI
+fill CGI env std::string
+convert to char **
+exec cgi
+
+
+*/
+
 #include <iostream>
 #include <stdlib.h>
-#include "colors.h"
+#include "colors.hpp"
 #include "webserv.hpp"
 
 void print_welcome( void )

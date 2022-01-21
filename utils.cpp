@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 // Custom headers
-#include "utils.h"
+#include "utils.hpp"
 
 // print all nodes of a vector
 void    vec_enum(std::vector<std::string> &vec)
