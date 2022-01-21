@@ -4,7 +4,7 @@
 Variables en rapport avec le serveur
  @param SERVER_SOFTWARE 	: Le nom et la version du serveur HTTP répondant à la requête. (Format : nom/version)
  @param SERVER_NAME 		: Le nom d'hôte, alias DNS ou adresse IP du serveur.
- @param GATEWAY_INTERFACE 	: La révision de la spécification CGI que le serveur utilise. (Format : CGI/révision)
+ @param GATEWAY_INTERFACE : La révision de la spécification CGI que le serveur utilise. (Format : CGI/révision)
 
 Variables spécifiques à la requête
  @param SERVER_PROTOCOL 	: Le nom et la révision du protocole dans lequel la requête a été faite (Format : protocole/révision)
