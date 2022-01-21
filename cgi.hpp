@@ -1,6 +1,8 @@
 #ifndef CGI_HPP
 #define CGI_HPP
 
+#define NB_CGI_VAR 21
+
 class cgi
 {
 	public :
@@ -30,8 +32,10 @@ class cgi
 		HTTP_REFERER,
 	};
 	
-	 std::vector<std::string> env;
+	 std::vector<std::string> 	env;
+	 const char 				*Cenv[NB_CGI_VAR + 1];
 	 cgi ( void );
+	 void convertToC ( void );
 };
 /**
  Liste des variables CGI

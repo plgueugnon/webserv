@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 14:52:50 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/21 16:14:10 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -592,6 +592,14 @@ void webserv::tokenizeConfigFile(std::string & src)
 
 	cgi cgi;
 	vec_enum(cgi.env);
+	cgi.convertToC();
+	std::cout << "-------------------" << std::endl;
+	i = 0;
+	while (cgi.Cenv[i -1 ])
+	{
+		printf("%lu : %s\n", i, cgi.Cenv[i]);
+		i++;
+	}
 	return ;
 }
 

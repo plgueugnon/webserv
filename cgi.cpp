@@ -1,11 +1,13 @@
 #include "utils.hpp"
+#include "cgi.hpp"
 
 cgi::cgi (void)
 {
+	bzero(&Cenv, sizeof(Cenv[NB_CGI_VAR + 1]));
 	env.push_back("SERVER_SOFTWARE=nginx/1.21.5");
 	env.push_back("SERVER_NAME=");
-	env.push_back("GATEWAY_INTERFACE=");
-	env.push_back("SERVER_PROTOCOL=");
+	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("SERVER_PORT=");
 	env.push_back("REQUEST_METHOD=");
 	env.push_back("PATH_INFO=");
@@ -24,4 +26,15 @@ cgi::cgi (void)
 	env.push_back("HTTP_USER_AGENT=");
 	env.push_back("HTTP_COOKIE=");
 	env.push_back("HTTP_REFERER=");
+}
+
+void cgi::convertToC ( void )
+{
+	std::vector<std::string>::iterator it = env.begin();
+	int i = 0;
+	for ( ; it != env.end(); it++)
+	{
+		Cenv[i] = (env[i].c_str());
+		i++;
+	}
 }
