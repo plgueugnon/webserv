@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 10:41:13 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/21 14:11:06 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #define WEBSERV_HPP
 
 #include <iostream>
-#include "utils.h"
+#include "utils.hpp"
 #include "httpContext.hpp"
 
 class webserv

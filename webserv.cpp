@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 10:41:21 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/21 14:10:59 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <cstdlib>
 
 // Custom headers
-#include "utils.h"
+#include "utils.hpp"
 
 // Parsing context flags to parse the token (AST)
 #define HTTP_CONTEXT 1

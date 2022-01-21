@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
+/*   Updated: 2022/01/21 14:10:50 by ygeslin          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <iostream>
 #include <stdlib.h>
-#include "colors.h"
+#include "colors.hpp"
 #include "webserv.hpp"
 
 void print_welcome( void )

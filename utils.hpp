@@ -2,8 +2,8 @@
 /* ygeslin                                                                    */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILS_HPP
+#define UTILS_HPP
 
 // System headers
 #include <iostream>
@@ -14,7 +14,7 @@
 
 // Custom headers
 #include "webserv.hpp"
-#include "colors.h"
+#include "colors.hpp"
 #include "httpContext.hpp"
 
 // print all nodes of a vector
@@ -23,4 +23,4 @@ void    vec_enum(std::vector<std::string> &vec);
 void    vec_erase_empty(std::vector<std::string> &vec);
 
 
-#endif
+#endif /* UTILS_HPP */
