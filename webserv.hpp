@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 14:11:06 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/21 17:16:20 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,12 @@
 
 class webserv
 {
-	/* private attributes */
-	private :
-		std::string _file_name;
-		t_http 		_config;
-
 	/* public attributes */
 	public :
+		std::string _file_name;
+		t_http 		_config;
+		listen 		socket;
+
 
 		/* CONSTRUCTOR */
 		webserv ( void );
