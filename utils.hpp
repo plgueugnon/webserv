@@ -16,6 +16,7 @@
 #include "webserv.hpp"
 #include "colors.hpp"
 #include "httpContext.hpp"
+#include "cgi.hpp"
 
 // print all nodes of a vector
 void    vec_enum(std::vector<std::string> &vec);

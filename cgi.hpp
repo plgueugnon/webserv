@@ -1,13 +1,45 @@
-#ifndef CGIENV_HPP
-#define CGIENV_HPP
+#ifndef CGI_HPP
+#define CGI_HPP
 
+class cgi
+{
+	public :
+	enum index
+	{
+		SERVER_SOFTWARE,
+		SERVER_NAME,
+		GATEWAY_INTERFACE,
+		SERVER_PROTOCOL,
+		SERVER_PORT,
+		REQUEST_METHOD,
+		PATH_INFO,
+		PATH_TRANSLATED,
+		SCRIPT_NAME,
+		QUERY_STRING,
+		REMOTE_HOST,
+		REMOTE_ADDR,
+		AUTH_TYPE,
+		REMOTE_USER,
+		REMOTE_IDENT,
+		CONTENT_TYPE,
+		CONTENT_LENGTH,
+		HTTP_ACCEPT,
+		HTTP_ACCEPT_LANGUAGE,
+		HTTP_USER_AGENT,
+		HTTP_COOKIE,
+		HTTP_REFERER,
+	};
+	
+	 std::vector<std::string> env;
+	 cgi ( void );
+};
 /**
  Liste des variables CGI
 
 //! Variables en rapport avec le serveur
  @param SERVER_SOFTWARE 	: Le nom et la version du serveur HTTP répondant à la requête. (Format : nom/version)
  @param SERVER_NAME 		: Le nom d'hôte, alias DNS ou adresse IP du serveur.
- @param GATEWAY_INTERFACE : La révision de la spécification CGI que le serveur utilise. (Format : CGI/révision)
+ @param GATEWAY_INTERFACE 	: La révision de la spécification CGI que le serveur utilise. (Format : CGI/révision)
 
 //! Variables spécifiques à la requête
  @param SERVER_PROTOCOL 	: Le nom et la révision du protocole dans lequel la requête a été faite (Format : protocole/révision)
@@ -71,4 +103,4 @@ Voici quelques exemples de variables possibles :
 // SERVER_SOFTWARE = Apache/2.4.25 (Debian)
 // UNIQUE_ID = Yelk9X8AAQEAACKjB2cAAAAD
 
-#endif /* CGIENV_HPP */
+#endif /* CGI_HPP */

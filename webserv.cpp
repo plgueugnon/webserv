@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 14:10:59 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/21 14:52:50 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -589,6 +589,9 @@ void webserv::tokenizeConfigFile(std::string & src)
 	vec_erase_empty(token);
 	vec_enum(token);
 	parseToken(token);
+
+	cgi cgi;
+	vec_enum(cgi.env);
 	return ;
 }
 
