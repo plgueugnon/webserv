@@ -1,7 +1,6 @@
 #include "colors.hpp"
 #include "headers.hpp"
 
-
 class SocketCreationFailure : public std::exception {
 
 public:
@@ -59,9 +58,8 @@ int	gen_listen_socket(int port)
 	// ! par défaut toute IP est acceptée
 	// serv_addr.sin_addr.s_addr = inet_addr(IP);
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
-	// ! Recupérer ici port indiqué dans fichier de config
 
-	// port = 8080;
+	// ! Recupérer ici port indiqué dans fichier de config
 	// ! Verifie que le port est bien viable avant d'en config l'endianess
 	if ( port < 0 || port > 65535 )
 		throw InvalidPort();
@@ -76,9 +74,11 @@ int	gen_listen_socket(int port)
 	if ( ( bind(server_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr) ) ) < 0 )
 		throw BindFailure();
 
+	// ! place la nouvelle socket créé en état d'écoute
 	if ( (listen(server_sock, 1024)) < 0 )
 		throw ListenFailure();
 
+	// ! renvoie la nouvelle socket ainsi créée
 	return ( server_sock );
 }
 

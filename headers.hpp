@@ -2,9 +2,9 @@
 #define __HEADERS_H__
 
 #ifdef	DEBUG
-#define	DEBUG_TEST 1
+#define	VERBOSE 1
 #else
-#define	DEBUG_TEST 0
+#define	VERBOSE 0
 #endif
  
 // * stream header
@@ -25,8 +25,19 @@
 #include <signal.h>
 #include <unistd.h>
 
+typedef struct s_request {
+	std::string	method;
+	std::string	headers;
+	std::string	body;
+
+}	t_request;
+
 // * functions
+void	listener();
 int	gen_listen_socket(int port);
+void	receive_request(int client_sock);
+void	manage_request(int client_sock, t_request *request);
+
 
 // request line
 // Method

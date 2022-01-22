@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/22 10:47:56 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/01/22 18:17:49 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,10 @@ DEPENDS			= $(OBJECTS:.o=.d)
 
 SRCS			= 	main \
 					webserv \
-					server_socket_generator
+					listener \
+					server_socket_generator \
+					request \
+					response
 
 
 #________________________________Building rules________________________________#
