@@ -23,7 +23,10 @@ int	main(int argc, char **argv)
 		if (ifs.is_open())
 		{
 			while (std::getline(ifs, line))
+			{
 				content += line;
+				content += "\n";
+			}
 		}
 		else
 		{
@@ -67,7 +70,7 @@ int	main(int argc, char **argv)
 		serv_addr.sin_family = AF_INET;
 
 
-		// ? A priori connect obligatoire pour chaque nouvelle requete
+		// ? A priori connect obligatoire pour chaque nouvelle requete - pas possible hors loop
 		if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
 		{
 			std::cerr << RED"error: failure to connect socket"RST << std::endl;
@@ -75,8 +78,6 @@ int	main(int argc, char **argv)
 		}
 		std::cout << GRE"Connect successful\n"RST;
 
-		// TODO fix erreur lié envoi lors du send de la str
-		// char request[MAXLINE] = "GET / HTTP/1.1\nHost: example.com\r\n\r\n";
 		if (send(sockfd, it->c_str(), std::strlen(it->c_str()), 0 ) == -1)
 		{
 			std::cerr << RED"error: failure to send request\n"RST;

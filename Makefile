@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/11 16:05:45 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/01/22 10:47:56 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,8 @@ DEPENDS			= $(OBJECTS:.o=.d)
 #_______________________________Sources filenames______________________________#
 
 SRCS			= 	main \
-					webserv
+					webserv \
+					server_socket_generator
 
 
 #________________________________Building rules________________________________#
@@ -69,7 +70,10 @@ debug:	CXXFLAGS += $(DEBUG_LEAK)
 debug:	all
 
 thread:	CXXFLAGS += $(DEBUG_THREAD)
-thread: all
+thread:	all
+
+verbose:	CXXFLAGS += -D DEBUG
+verbose:	all
 
 #________________________________Cleaning rules________________________________#
 
@@ -86,7 +90,7 @@ re:				fclean all
 #_____________________________________Hooks____________________________________#
 
 init_hooks:
-			if [[ -e .git/hooks/commit-msg ]];\
+			@if [[ -e .git/hooks/commit-msg ]];\
 			then :;\
 			else ln -h .hooks/commit-msg .git/hooks/commit-msg;\
 			fi

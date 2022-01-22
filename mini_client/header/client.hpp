@@ -15,7 +15,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#define SERVER_PORT 80
 #define MAXLINE 4096
 
 #ifdef	DEBUG

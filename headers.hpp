@@ -1,6 +1,33 @@
 #ifndef __HEADERS_H__
 #define __HEADERS_H__
 
+#ifdef	DEBUG
+#define	DEBUG_TEST 1
+#else
+#define	DEBUG_TEST 0
+#endif
+ 
+// * stream header
+#include <iostream>
+#include <fstream>
+
+// * socket header
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/select.h>
+#include <fcntl.h>
+
+// * basic header
+#include <string>
+#include <vector>
+#include <signal.h>
+#include <unistd.h>
+
+// * functions
+int	gen_listen_socket(int port);
+
 // request line
 // Method
 // path
