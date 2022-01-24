@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
+#    By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/22 18:17:49 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/01/24 10:56:33 by ygeslin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,7 +44,11 @@ SRCS			= 	main \
 					listener \
 					server_socket_generator \
 					request \
-					response
+					response \
+					httpContext \
+					utils \
+					cgi \
+					webserv
 
 
 #________________________________Building rules________________________________#
