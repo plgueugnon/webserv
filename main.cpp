@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 17:03:17 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 11:14:22 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ exec cgi
 #include <stdlib.h>
 #include "colors.hpp"
 #include "webserv.hpp"
-#include "headers.hpp"
 
 void print_welcome( void )
 {
@@ -87,9 +86,6 @@ int main (int ac, char **av, char **env)
 
 	print_welcome();
 
-	// TODO fonction listener a insérer plus proprement dans code et après config parse
-	listener();
-
 	if (ac > 2)
 		usage_too_many_args();
 	else
@@ -117,6 +113,7 @@ int main (int ac, char **av, char **env)
 		std::cerr << RESET;
 		return -1;
 	}
+	
 
 	return (1);
 }

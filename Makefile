@@ -6,7 +6,7 @@
 #    By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/24 10:56:33 by ygeslin          ###   ########.fr        #
+#    Updated: 2022/01/24 11:13:26 by ygeslin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,12 +40,10 @@ DEPENDS			= $(OBJECTS:.o=.d)
 #_______________________________Sources filenames______________________________#
 
 SRCS			= 	main \
-					webserv \
 					listener \
 					server_socket_generator \
 					request \
 					response \
-					httpContext \
 					utils \
 					cgi \
 					webserv

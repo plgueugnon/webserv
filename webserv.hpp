@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 17:16:20 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 11:07:57 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class webserv
 	public :
 		std::string _file_name;
 		t_http 		_config;
-		listen 		socket;
+		// listen 		socket;
 
 
 		/* CONSTRUCTOR */
