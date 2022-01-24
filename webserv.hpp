@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 15:06:20 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 18:26:00 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class webserv
 		void errorPageCheck(void);
 		void maxBodyCheck(void);
 		void limitExceptCheck(void);
+		void fillDefaultSettings(void);
 
 } ; // webserv class
 

@@ -93,3 +93,15 @@ bool     is_error_code ( int  code)
     else
         return (false);
 }
+
+bool     onlyDigits ( const char *  str)
+{
+    int i = 0;
+    while (str[i])
+    {
+        if (!std::isdigit(str[i]))
+            return false;
+        i++;
+    }
+    return true;
+}

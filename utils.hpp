@@ -30,5 +30,6 @@ void    vec_erase_empty(std::vector<std::string> &vec);
 void    print_env_c(const char ** env);
 
 bool     is_error_code ( int  code);
+bool     onlyDigits ( const char *  str);
 
 #endif /* UTILS_HPP */

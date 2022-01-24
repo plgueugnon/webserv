@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 18:20:00 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 18:37:23 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 #define ERR_INDEX_ARG "index, Missing semicolomn ';'."
 #define ERR_ROOT_ARG "root, Missing semicolomn ';'."
 #define ERR_LISTEN_ARG "listen, Missing semicolomn ';'."
+#define ERR_LISTEN_DIGIT "listen, only digits allowed."
 #define ERR_SERVER_NAME_ARG "server_name, Missing semicolomn ';'."
 #define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
 #define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
@@ -336,9 +337,11 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 			it++;
 			_config.server[srv_nb].listen = (*it);
+			if ( onlyDigits(it->c_str()) == false )
+				throw std::invalid_argument(ERR_LISTEN_DIGIT);
 			it++;
 			if (it->compare(";") != 0)
-				throw std::invalid_argument(ERR_ROOT_ARG);
+				throw std::invalid_argument(ERR_LISTEN_ARG);
 			it++;
 		}
 		// SERVER NAME
@@ -348,7 +351,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			_config.server[srv_nb].server_name = (*it);
 			it++;
 			if (it->compare(";") != 0)
-				throw std::invalid_argument(ERR_ROOT_ARG);
+				throw std::invalid_argument(ERR_SERVER_NAME_ARG);
 			it++;
 		}
 		// ERROR PAGE
@@ -716,7 +719,6 @@ void webserv::limitExceptCheck ( void )
 	std::vector<t_location>::iterator 	loc_it;
 
 	std::vector<std::string>::iterator	it;
-	std::vector<std::string>::iterator	it2;
 
 	// ! iterate servers
 	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
@@ -741,12 +743,17 @@ void webserv::limitExceptCheck ( void )
 	}
 
 }
+void webserv::fillDefaultSettings ( void )
+{
+
+}
 
 void webserv::checkParseError ( void )
 {
 	listenCheck();
 	errorPageCheck();
 	limitExceptCheck();
+	fillDefaultSettings();
 }
 
 void webserv::parseConfigFile ( void )
