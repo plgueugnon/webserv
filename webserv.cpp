@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 19:11:39 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 19:26:11 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -622,6 +622,7 @@ void webserv::tokenizeConfigFile(std::string & src)
 	return ;
 }
 
+// check if the listen ports are part of the ports range
 void webserv::listenCheck ( void )
 {
 	std::vector<t_server> 				srv = _config.server;
@@ -648,6 +649,7 @@ void webserv::listenCheck ( void )
 	}
 }
 
+// check if error_page codes are known error codes and if a token begin with /, we check if it's the last : syntax = code ... code /URI;
 void webserv::errorPageCheck ( void )
 {
 	std::vector<t_server> 				srv = _config.server;
@@ -725,6 +727,7 @@ void webserv::errorPageCheck ( void )
 	}
 }
 
+// check if limited methode are GET POST or DELETE
 void webserv::limitExceptCheck ( void )
 {
 	std::vector<t_server> 				srv = _config.server;
@@ -756,6 +759,11 @@ void webserv::limitExceptCheck ( void )
 		}
 	}
 }
+
+/*
+if some server settings are missing, we fill it with http context settings
+if some location settings are missing, we fill it with server context settings
+*/
 void webserv::fillDefaultSettings ( void )
 {
 	std::vector<t_server> 				srv = _config.server;
@@ -813,12 +821,21 @@ void webserv::fillDefaultSettings ( void )
 
 }
 
+// Check if a non-optional setting is missing
+void webserv::emptySettingCheck ( void )
+{
+
+}
+
+// main loop for checking parsing errors
 void webserv::checkParseError ( void )
 {
 	listenCheck();
 	errorPageCheck();
+	// TODO errorReturnCheck
 	limitExceptCheck();
 	fillDefaultSettings();
+	emptySettingCheck();
 	printHttpConfig();
 }
 
