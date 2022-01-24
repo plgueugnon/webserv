@@ -46,7 +46,7 @@ typedef struct s_http
 	std::string 					root;
 	std::vector < std::string >		error_page;
 	std::vector < t_server >		server;
-	std::vector < t_location >		location;
+	// std::vector < t_location >		location;
 }				t_http;
 
 #endif
