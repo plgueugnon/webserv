@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 18:37:23 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 19:11:39 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -367,6 +367,18 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				throw std::invalid_argument(ERR_ERROR_PAGE_ARG);
 			it++;
 		}
+		else if (it->compare("return") == 0 && flag == SERVER_CONTEXT)
+		{
+			it++;
+			while(it->compare(";") != 0)
+			{
+				_config.server[srv_nb].return_dir.push_back(*it);
+				it++;
+			}
+			if (it->compare(";") != 0)
+				throw std::invalid_argument(ERR_RETURN_ARG);
+			it++;
+		}
 		// ! ----------- SERVER CONTEXT ------------ END
 
 		// ! ----------- LOCATION CONTEXT ------------ BEGINING
@@ -441,12 +453,12 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 		}
 		// RETURN	
-		else if (it->compare("return") == 0 && flag == SERVER_CONTEXT)
+		else if (it->compare("return") == 0 && flag == LOCATION_CONTEXT)
 		{
 			it++;
 			while(it->compare(";") != 0)
 			{
-				_config.server[srv_nb].return_dir.push_back(*it);
+				_config.server[srv_nb].location[loc_nb].return_dir.push_back(*it);
 				it++;
 			}
 			if (it->compare(";") != 0)
@@ -503,6 +515,8 @@ void printLocationConfig ( std::vector< t_location> & loc)
 		// limit except
 		for (it = loc_it->limit_except.begin(); it != loc_it->limit_except.end(); it++)
 			std::cout << "limit_except : \t\t'" << *it << "'" << std::endl;
+		for (it = loc_it->return_dir.begin(); it != loc_it->return_dir.end(); it++)
+			std::cout << "return_dir : \t\t'" << *it << "'" << std::endl;
 		loc_nb++;
 	}
 	std::cout << RESET;
@@ -741,10 +755,61 @@ void webserv::limitExceptCheck ( void )
 			}
 		}
 	}
-
 }
 void webserv::fillDefaultSettings ( void )
 {
+	std::vector<t_server> 				srv = _config.server;
+
+	std::vector<t_server>::iterator 	srv_it;
+	std::vector<t_location>::iterator 	loc_it;
+
+	std::vector<std::string>::iterator	it;
+
+	int		srv_nb = 0;
+	int		loc_nb = 0;
+
+	// ! iterate servers
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+		loc_nb = 0;
+		if (srv_it->client_max_body_size == 0)
+			_config.server[srv_nb].client_max_body_size = _config.client_max_body_size;
+		if (srv_it->autoindex.empty() == true)
+			_config.server[srv_nb].autoindex = _config.autoindex;
+		if (srv_it->index.empty() == true)
+			_config.server[srv_nb].index = _config.index;
+		if (srv_it->root.empty() == true)
+			_config.server[srv_nb].root = _config.root;
+		if (srv_it->error_page.empty() == true)
+			_config.server[srv_nb].error_page = _config.error_page;
+		// ! iterate location
+		for (loc_it = srv_it->location.begin();
+			 loc_it != srv_it->location.end();
+			 loc_it++)
+		{
+			if (loc_it->client_max_body_size == 0)
+				_config.server[srv_nb].location[loc_nb].client_max_body_size =
+					_config.server[srv_nb].client_max_body_size;
+			if (loc_it->autoindex.empty())
+				_config.server[srv_nb].location[loc_nb].autoindex =
+					_config.server[srv_nb].autoindex;
+			if (loc_it->index.empty())
+				_config.server[srv_nb].location[loc_nb].index =
+					_config.server[srv_nb].index;
+			if (loc_it->root.empty())
+				_config.server[srv_nb].location[loc_nb].root =
+					_config.server[srv_nb].root;
+			if (loc_it->error_page.empty())
+				_config.server[srv_nb].location[loc_nb].error_page =
+					_config.server[srv_nb].error_page;
+			if (loc_it->return_dir.empty())
+				_config.server[srv_nb].location[loc_nb].return_dir =
+					_config.server[srv_nb].return_dir;
+			loc_nb++;
+		}
+		srv_nb++;
+	}
+
 
 }
 
@@ -754,6 +819,7 @@ void webserv::checkParseError ( void )
 	errorPageCheck();
 	limitExceptCheck();
 	fillDefaultSettings();
+	printHttpConfig();
 }
 
 void webserv::parseConfigFile ( void )
