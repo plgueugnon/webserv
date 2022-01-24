@@ -33,7 +33,7 @@ class cgi
 	};
 	
 	 std::vector<std::string> 	env;
-	 const char 				*Cenv[NB_CGI_VAR + 1];
+	 const char 				*c_env[NB_CGI_VAR + 1];
 	 cgi ( void );
 	 void convertToC ( void );
 };

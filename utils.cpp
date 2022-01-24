@@ -31,6 +31,24 @@ void    vec_enum(std::vector<std::string> &vec)
     }
 }
 
+void    vec_enum(std::vector<int> &vec)
+{
+    std::vector<int>::iterator it;
+    std::vector<int>::iterator it2;
+
+    it = vec.begin();
+    it2 = vec.end();
+	int i = 0;
+
+    std::cout << std::endl;
+    while (it != it2) 
+	{
+        std::cout << "vector[" << i << "] : '" <<*it << "'"<<std::endl;
+        it++;
+		i++;
+    }
+}
+
 // erase empty token in the vector
 void    vec_erase_empty(std::vector<std::string> &vec)
 {
@@ -43,5 +61,18 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 		if (it == vec.end())
 			break;
 	}
+}
+
+void    print_env_c(const char ** env)
+{
+    int i = 0;
+    std::cout << "-------------------" << std::endl;
+    while (env[i - 1])
+    {
+        printf("%i : %s\n", i, env[i]);
+        i++;
+    }
+    std::cout << "-------------------" << std::endl;
+    return ;
 }
 

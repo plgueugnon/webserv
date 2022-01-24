@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 16:14:10 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 14:37:46 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,12 @@
 #define ERR_SERVER_NAME_ARG "server_name, Missing semicolomn ';'."
 #define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
 #define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
+#define ERR_LOCATION_SLASH "location route must begin by '/'."
 #define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
 #define ERR_LIMIT_EXCEPT_ARG "except_limit, Missing semicolomn ';'."
 #define ERR_RETURN_ARG "except_limit, Missing semicolomn ';'."
+#define ERR_WRONG_DIRECTIVE "unknown directive or open brackets"
+#define ERR_WRONG_PORT_RANGE "wrong port range, min 0, max 65 535."
 
 /*
  * LIST OF CONTEXTS to implement
@@ -241,6 +244,11 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 
 		}
+		else if (it->compare("}") == 0 && flag == HTTP_CONTEXT)
+		{
+			flag = -1;
+			it++;
+		}
 		// ! ----------- HTTP CONTEXT ------------ END
 
 		// ! ----------- SERVER CONTEXT ------------ BEGINING
@@ -249,6 +257,8 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 			it++;
 			tmp = *it;
+			if (tmp[0] != '/')
+				 throw std::invalid_argument(ERR_LOCATION_SLASH);
 			// add location here later
 			it++;
 			if (it->compare("{") != 0)
@@ -272,10 +282,6 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 		}
 
-		else if (it->compare("}") == 0 && flag == HTTP_CONTEXT)
-		{
-			flag = -1;
-		}
 		else if (it->compare("autoindex") == 0 && flag == SERVER_CONTEXT)
 		{
 			it++;
@@ -444,6 +450,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		// ! ----------- LOCATION CONTEXT ------------ END
 		else
 		{
+
 			// print erreur ici si bracket pas fermee ou directive inconnue
 			it--;
 		std::cout << "-----------"  << std::endl;
@@ -455,12 +462,14 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		std::cout << "context : " << flag << std::endl;
 			it++;
 			// return ;
+			throw std::invalid_argument(ERR_WRONG_DIRECTIVE);
 
 		}
 
 
 	}
-	printHttpConfig();
+	if (VERBOSE)
+		printHttpConfig();
 	return;
 }
 
@@ -587,20 +596,41 @@ void webserv::tokenizeConfigFile(std::string & src)
 		i = j;
 	}
 	vec_erase_empty(token);
-	vec_enum(token);
+	if (VERBOSE)
+		vec_enum(token);
 	parseToken(token);
-
-	cgi cgi;
-	vec_enum(cgi.env);
-	cgi.convertToC();
-	std::cout << "-------------------" << std::endl;
-	i = 0;
-	while (cgi.Cenv[i -1 ])
-	{
-		printf("%lu : %s\n", i, cgi.Cenv[i]);
-		i++;
-	}
 	return ;
+}
+
+void webserv::listenCheck ( void )
+{
+	std::vector<t_server> 				srv = _config.server;
+
+	std::vector<t_server>::iterator 	srv_it;
+	std::vector<std::string>::iterator	it;
+
+	int 	port = -1;
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+		port = atoi(srv_it->listen.c_str());
+		if ( port < PORT_MIN || port > PORT_MAX )
+			throw std::invalid_argument(ERR_WRONG_PORT_RANGE);
+		else
+			listenPorts.push_back(port);
+	}
+	if (VERBOSE)
+	{
+		std::cout << "listen Ports\n";
+		vec_enum(listenPorts);
+	}
+}
+
+void webserv::checkParseError ( void )
+{
+	listenCheck();
+	// errorPageCheck();
+	// maxBodyCheck();
+	// limitExceptCheck();
 }
 
 void webserv::parseConfigFile ( void )
@@ -625,12 +655,6 @@ void webserv::parseConfigFile ( void )
 		tokenizeConfigFile(config_string);
 	}
 	else
-	{
-		std::cerr << RED;
-		std::cerr << "Unable to open '";
-		std::cerr << _file_name;
-		std::cerr << "' file." << std::endl;
-		std::cerr << RESET;
-	}
+		std::cerr << RED"Unable to open '" << _file_name << "' file.\n"RESET;
 	return ;
 }

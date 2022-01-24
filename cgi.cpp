@@ -3,7 +3,7 @@
 
 cgi::cgi (void)
 {
-	bzero(&Cenv, sizeof(Cenv[NB_CGI_VAR + 1]));
+	bzero(&c_env, sizeof(c_env[NB_CGI_VAR + 1]));
 	env.push_back("SERVER_SOFTWARE=nginx/1.21.5");
 	env.push_back("SERVER_NAME=");
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
@@ -34,7 +34,7 @@ void cgi::convertToC ( void )
 	int i = 0;
 	for ( ; it != env.end(); it++)
 	{
-		Cenv[i] = (env[i].c_str());
+		c_env[i] = (env[i].c_str());
 		i++;
 	}
 }

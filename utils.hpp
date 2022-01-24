@@ -17,11 +17,17 @@
 #include "colors.hpp"
 #include "httpContext.hpp"
 #include "cgi.hpp"
+#include "headers.hpp"
+
+#define PORT_MAX 65535
+#define PORT_MIN 1
 
 // print all nodes of a vector
 void    vec_enum(std::vector<std::string> &vec);
+void    vec_enum(std::vector<int> &vec);
 // erase empty token in the vector
 void    vec_erase_empty(std::vector<std::string> &vec);
+void    print_env_c(const char ** env);
 
 
 #endif /* UTILS_HPP */

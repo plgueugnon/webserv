@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 11:14:22 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 14:38:59 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ exec cgi
 #include <stdlib.h>
 #include "colors.hpp"
 #include "webserv.hpp"
+#include "utils.hpp"
 
 void print_welcome( void )
 {
@@ -104,16 +105,32 @@ int main (int ac, char **av, char **env)
 	try 
 	{
 		server.parseConfigFile();
+		server.checkParseError();
 	}
 	  catch (std::invalid_argument& e)
     {
-		std::cerr << RED;
-		std::cerr << "Error : ";
-		std::cerr << e.what() << std::endl;
-		std::cerr << RESET;
+		std::cerr << RED"Error : " << e.what() << std::endl << RESET;
 		return -1;
 	}
+	// send ports number to socket vector<int>
+
+// ! CGI env
+	cgi cgi;
+	if (VERBOSE)
+	{
+		vec_enum(cgi.env);
+		cgi.convertToC();
+		print_env_c(cgi.c_env);
+	}
+	
 	
 
 	return (1);
 }
+/*
+1. parse cofing // gestion erreur de config
+2. listener (recoit config en class)
+3. receive request -> gerer parsing body + gerer chunk request
+4. parsing request  -> appel cgi ? init class var cgi ? listing directory ? detection erreur / requete valide / (que parsing ici)
+5. manage response -> appel cgi + stockage reponse cgi + choix du code de retour (que exec ici) -> retour a la boucle listener 
+*/

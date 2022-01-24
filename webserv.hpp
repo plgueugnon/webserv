@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 11:07:57 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 15:06:20 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,9 @@ class webserv
 {
 	/* public attributes */
 	public :
-		std::string _file_name;
-		t_http 		_config;
+		std::string 		_file_name;
+		t_http 				_config;
+		std::vector<int>	listenPorts;
 		// listen 		socket;
 
 
@@ -39,8 +40,16 @@ class webserv
 		void parseConfigFile ( void );
 		void tokenizeConfigFile(std::string &src);
 		void parseToken (std::vector<std::string> &vec);
+
+		/* PARSING ERROR */
 		void printHttpConfig ( void );
 		void printServerConfig( void );
+
+		void checkParseError( void );
+		void listenCheck(void);
+		void errorPageCheck(void);
+		void maxBodyCheck(void);
+		void limitExceptCheck(void);
 
 } ; // webserv class
 
