@@ -70,4 +70,3 @@
 #define CODE_511 "HTTP/1.1 511 Network Authentication Required"
 
 #endif /* HTTPCODES_HPP */
-#define 100 Continue

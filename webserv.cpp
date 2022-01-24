@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 14:37:46 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 17:58:43 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@
 #define ERR_RETURN_ARG "except_limit, Missing semicolomn ';'."
 #define ERR_WRONG_DIRECTIVE "unknown directive or open brackets"
 #define ERR_WRONG_PORT_RANGE "wrong port range, min 0, max 65 535."
+#define ERR_WRONG_ERR_CODE "error_page code unknown."
+#define ERR_WRONG_ERR_URI "multiple error_page URI is not allowed."
 
 /*
  * LIST OF CONTEXTS to implement
@@ -607,7 +609,10 @@ void webserv::listenCheck ( void )
 	std::vector<t_server> 				srv = _config.server;
 
 	std::vector<t_server>::iterator 	srv_it;
+	std::vector<t_location>::iterator	loc_it;
+
 	std::vector<std::string>::iterator	it;
+	std::vector<std::string>::iterator 	it2;
 
 	int 	port = -1;
 	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
@@ -625,10 +630,87 @@ void webserv::listenCheck ( void )
 	}
 }
 
+void webserv::errorPageCheck ( void )
+{
+	std::vector<t_server> 				srv = _config.server;
+
+	std::vector<t_server>::iterator 	srv_it;
+	std::vector<t_location>::iterator 	loc_it;
+
+	std::vector<std::string>::iterator	it;
+	std::vector<std::string>::iterator	it2;
+
+	int 	code = -1;
+	// ! check HTTP error_pages
+	for (it = _config.error_page.begin(); it != _config.error_page.end(); it++)
+	{
+		if (VERBOSE)
+			std::cout << *it << "\n";
+		// * syntax : code code [...] /URI
+		if (it->compare("/") != 0)
+		{
+			code = atoi(it->c_str());
+			if (is_error_code(code) == false)
+				throw std::invalid_argument(ERR_WRONG_ERR_CODE);
+		}
+		else 
+		{
+			// * if token commence par '/', alors token = URI
+			// * verifier que c'est bien le dernier token
+			if (it != (_config.error_page.end() - 1))
+				throw std::invalid_argument(ERR_WRONG_ERR_URI);
+		}
+	}
+	// ! check server error_pages
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+		for (it = srv_it->error_page.begin(); it != srv_it->error_page.end(); it++)
+		{
+			if (VERBOSE)
+				std::cout << *it << "\n";
+			if (it[0][0] != '/')
+			{
+				code = atoi(it->c_str());
+				if (is_error_code(code) == false)
+					throw std::invalid_argument(ERR_WRONG_ERR_CODE);
+			}
+			else
+			{
+				if (it != (srv_it->error_page.end() - 1))
+					throw std::invalid_argument(ERR_WRONG_ERR_URI);
+			}
+		}
+		// ! check location error_pages
+		for (loc_it = srv_it->location.begin();
+			 loc_it != srv_it->location.end();
+			 loc_it++)
+		{
+			for (it2 = loc_it->error_page.begin();
+				 it2 != loc_it->error_page.end();
+				 it2++)
+			{
+				if (VERBOSE)
+					std::cout << *it2 << "\n";
+				if (it2[0][0] != '/')
+				{
+					code = atoi(it2->c_str());
+					if (is_error_code(code) == false)
+						throw std::invalid_argument(ERR_WRONG_ERR_CODE);
+				}
+				else
+				{
+					if (it2 != (loc_it->error_page.end() - 1))
+						throw std::invalid_argument(ERR_WRONG_ERR_URI);
+				}
+			}
+		}
+	}
+}
+
 void webserv::checkParseError ( void )
 {
 	listenCheck();
-	// errorPageCheck();
+	errorPageCheck();
 	// maxBodyCheck();
 	// limitExceptCheck();
 }
