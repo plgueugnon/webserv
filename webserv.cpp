@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 17:58:43 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/24 18:20:00 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@
 #define ERR_WRONG_PORT_RANGE "wrong port range, min 0, max 65 535."
 #define ERR_WRONG_ERR_CODE "error_page code unknown."
 #define ERR_WRONG_ERR_URI "multiple error_page URI is not allowed."
+#define ERR_WRONG_METHOD "limit_except : wrong method."
 
 /*
  * LIST OF CONTEXTS to implement
@@ -707,12 +708,45 @@ void webserv::errorPageCheck ( void )
 	}
 }
 
+void webserv::limitExceptCheck ( void )
+{
+	std::vector<t_server> 				srv = _config.server;
+
+	std::vector<t_server>::iterator 	srv_it;
+	std::vector<t_location>::iterator 	loc_it;
+
+	std::vector<std::string>::iterator	it;
+	std::vector<std::string>::iterator	it2;
+
+	// ! iterate servers
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+		// ! iterate location
+		for (loc_it = srv_it->location.begin();
+			 loc_it != srv_it->location.end();
+			 loc_it++)
+		{
+			for (it = loc_it->limit_except.begin();
+				 it != loc_it->limit_except.end();
+				 it++)
+			{
+				if (VERBOSE)
+					std::cout << *it << "\n";
+				if (	it->compare("GET") != 0 &&
+						it->compare("POST") != 0 && 
+						it->compare("DELETE") != 0 )
+					throw std::invalid_argument(ERR_WRONG_METHOD);
+			}
+		}
+	}
+
+}
+
 void webserv::checkParseError ( void )
 {
 	listenCheck();
 	errorPageCheck();
-	// maxBodyCheck();
-	// limitExceptCheck();
+	limitExceptCheck();
 }
 
 void webserv::parseConfigFile ( void )
