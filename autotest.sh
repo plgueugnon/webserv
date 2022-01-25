@@ -1,44 +1,44 @@
 #!/bin/bash
 
-./webserv /etc/missing_args
-./webserv /etc/http_missing
+./webserv ./etc/missing_args.conf
+./webserv ./etc/http_missing.conf
 
-./webserv /etc/autoindex_semicolon
-./webserv /etc/autoindex_wrong
-./webserv /etc/autoindex_missing
+./webserv ./etc/autoindex_semicolon.conf
+./webserv ./etc/autoindex_wrong.conf
+./webserv ./etc/autoindex_missing.conf
 
-./webserv /etc/index_semicolon
-./webserv /etc/index_wrong
-./webserv /etc/index_missing
+./webserv ./etc/index_semicolon.conf
+./webserv ./etc/index_wrong.conf
+./webserv ./etc/index_missing.conf
 
-./webserv /etc/root_semicolon
-# ./webserv /etc/root_wrong
-./webserv /etc/root_missing
+./webserv ./etc/root_semicolon.conf
+# ./webserv /etc/root_wrong.conf
+./webserv ./etc/root_missing.conf
 
-./webserv /etc/body_size_missing
-./webserv /etc/body_size_neg
-./webserv /etc/body_size_digit
+./webserv ./etc/body_size_missing.conf
+./webserv ./etc/body_size_neg.conf
+./webserv ./etc/body_size_digit.conf
 
-./webserv /etc/listen_digit
-./webserv /etc/listen_port_range
-./webserv /etc/listen_semicolon
-./webserv /etc/listen_missing
+./webserv ./etc/listen_digit.conf
+./webserv ./etc/listen_port_range.conf
+./webserv ./etc/listen_semicolon.conf
+./webserv ./etc/listen_missing.conf
 
-./webserv /etc/server_bracket
+./webserv ./etc/server_bracket.conf
 
-./webserv /etc/server_name_missing
-./webserv /etc/server_name_semicolon
+./webserv ./etc/server_name_missing.conf
+./webserv ./etc/server_name_semicolon.conf
 
-./webserv /etc/location_bracket
-./webserv /etc/location_slash
+./webserv ./etc/location_bracket.conf
+./webserv ./etc/location_slash.conf
 
-./webserv /etc/error_page_semicolon
-./webserv /etc/error_page_code
-./webserv /etc/error_page_uri
+./webserv ./etc/error_page_semicolon.conf
+./webserv ./etc/error_page_code.conf
+./webserv ./etc/error_page_uri.conf
 
-./webserv /etc/except_method
-./webserv /etc/except_semicolon
+./webserv ./etc/except_method.conf.conf
+./webserv ./etc/except_semicolon.conf
 
-./webserv /etc/return_semicolon
-./webserv /etc/return_code
-./webserv /etc/return_URI
+./webserv ./etc/return_semicolon.conf
+./webserv ./etc/return_code.conf
+./webserv ./etc/return_uri.conf

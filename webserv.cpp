@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/25 11:42:35 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/25 14:53:12 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -928,7 +928,8 @@ void webserv::checkParseError ( void )
 	limitExceptCheck();
 	fillDefaultSettings();
 	emptySettingCheck();
-	printHttpConfig();
+	if (VERBOSE)
+		printHttpConfig();
 }
 
 void webserv::parseConfigFile ( void )
