@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/24 18:02:59 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/01/25 10:49:33 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -95,9 +95,9 @@ re:				fclean all
 #_____________________________________Hooks____________________________________#
 
 init_hooks:
-			@if [[ -e .git/hooks/commit-msg ]];\
+			@if [ -e .git/hooks/commit-msg ];\
 			then :;\
-			else ln -h .hooks/commit-msg .git/hooks/commit-msg;\
+			else cp .hooks/commit-msg .git/hooks/commit-msg;\
 			fi
 
 #_____________________________________Misc.____________________________________#

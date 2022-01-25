@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 18:04:08 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/01/25 11:02:58 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,33 +89,33 @@ int main (int ac, char **av, char **env)
 
 	listener();
 
-	if (ac > 2)
-		usage_too_many_args();
-	else
-	{
-		if (ac == 1)
-		{
-			usage_one_arg();
-			server.setFileName("etc/webserv.conf");
-		}
-		if (ac == 2)
-		{
-			usage_two_args(av[1]);
-			server.setFileName(av[1]);
-		}
-	}
-	try 
-	{
-		server.parseConfigFile();
-	}
-	  catch (std::invalid_argument& e)
-    {
-		std::cerr << RED;
-		std::cerr << "Error : ";
-		std::cerr << e.what() << std::endl;
-		std::cerr << RESET;
-		return -1;
-	}
+	// if (ac > 2)
+	// 	usage_too_many_args();
+	// else
+	// {
+	// 	if (ac == 1)
+	// 	{
+	// 		usage_one_arg();
+	// 		server.setFileName("etc/webserv.conf");
+	// 	}
+	// 	if (ac == 2)
+	// 	{
+	// 		usage_two_args(av[1]);
+	// 		server.setFileName(av[1]);
+	// 	}
+	// }
+	// try 
+	// {
+	// 	server.parseConfigFile();
+	// }
+	//   catch (std::invalid_argument& e)
+    // {
+	// 	std::cerr << RED;
+	// 	std::cerr << "Error : ";
+	// 	std::cerr << e.what() << std::endl;
+	// 	std::cerr << RESET;
+	// 	return -1;
+	// }
 
 	return (1);
 }

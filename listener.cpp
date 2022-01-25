@@ -5,7 +5,7 @@
 void	listener()
 {
 	int port1 = 18000;
-	int port2 = 820;
+	int port2 = 8200;
 	int port3 = 8080;
 
 	std::vector<int> ports;

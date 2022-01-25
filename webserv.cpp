@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 16:14:10 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/25 10:54:59 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -612,7 +612,7 @@ void webserv::parseConfigFile ( void )
 
 	std::vector<std::string> 	token;
 
-	file.open(_file_name );
+	file.open(_file_name.c_str() );
 
 	if (file.is_open())
 	{

@@ -6,7 +6,7 @@ void	receive_request(int client_sock)
 	ssize_t n = 0;
 	std::vector<char> buf(4096);
 	t_request	request;
-	int	c = 0;
+	// int	c = 0;
 
 	// ! Keep-alive request pas traité par défaut
 	// ? A implémenter ?
