@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/25 10:14:55 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/25 11:42:35 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 #define ERR_ROOT_ARG "root, Missing semicolomn ';'."
 #define ERR_LISTEN_ARG "listen, Missing semicolomn ';'."
 #define ERR_LISTEN_DIGIT "listen, only digits allowed."
+#define ERR_MAX_BODY_DIGIT "client_max_body_size, only digits allowed."
 #define ERR_SERVER_NAME_ARG "server_name, Missing semicolomn ';'."
 #define ERR_SERVER_BRACKET "server block, Missing opening bracket '{'."
 #define ERR_LOCATION_BRACKET "location block, Missing opening bracket '{'."
@@ -47,6 +48,12 @@
 #define ERR_WRONG_ERR_CODE "error_page code unknown."
 #define ERR_WRONG_ERR_URI "multiple error_page URI is not allowed."
 #define ERR_WRONG_METHOD "limit_except : wrong method."
+#define ERR_BODY_MISSING "client_max_body_size argument is missing."
+#define ERR_AUTOINDEX_MISSING "autoindex argument is missing."
+#define ERR_INDEX_MISSING "index argument is missing."
+#define ERR_ROOT_MISSING "root argument is missing."
+#define ERR_LISTEN_MISSING "listen argument is missing."
+#define ERR_SERVER_NAME_MISSING "server_name argument is missing."
 
 /*
  * LIST OF CONTEXTS to implement
@@ -196,6 +203,8 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 		
 			it++;
+			if ( onlyDigits(it->c_str()) == false )
+				throw std::invalid_argument(ERR_MAX_BODY_DIGIT);
 			int 	n = atoi(it->c_str());
 			if (n >= 0)
 				_config.client_max_body_size = n;
@@ -263,7 +272,6 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			tmp = *it;
 			if (tmp[0] != '/')
 				 throw std::invalid_argument(ERR_LOCATION_SLASH);
-			// add location here later
 			it++;
 			if (it->compare("{") != 0)
 				 throw std::invalid_argument(ERR_LOCATION_BRACKET);
@@ -302,6 +310,8 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 		
 			it++;
+			if ( onlyDigits(it->c_str()) == false )
+				throw std::invalid_argument(ERR_MAX_BODY_DIGIT);
 			int 	n = atoi(it->c_str());
 			if (n >= 0)
 				_config.server[srv_nb].client_max_body_size = n;
@@ -395,10 +405,12 @@ void webserv::parseToken(std::vector<std::string> & vec)
 				 throw std::invalid_argument(ERR_WRONG_AUTOINDEX_ARG);
 			it++;
 		}
+		// CLIENT MAX BODY SIZE
 		else if (it->compare("client_max_body_size") == 0 && flag == LOCATION_CONTEXT)
 		{
-		
 			it++;
+			if ( onlyDigits(it->c_str()) == false )
+				throw std::invalid_argument(ERR_MAX_BODY_DIGIT);
 			int 	n = atoi(it->c_str());
 			if (n >= 0)
 				_config.server[srv_nb].location[loc_nb].client_max_body_size = n;
@@ -650,6 +662,65 @@ void webserv::listenCheck ( void )
 }
 
 // check if error_page codes are known error codes and if a token begin with /, we check if it's the last : syntax = code ... code /URI;
+void webserv::errorReturnCheck ( void )
+{
+	std::vector<t_server> 				srv = _config.server;
+
+	std::vector<t_server>::iterator 	srv_it;
+	std::vector<t_location>::iterator 	loc_it;
+
+	std::vector<std::string>::iterator	it;
+	std::vector<std::string>::iterator	it2;
+
+	int 	code = -1;
+	// ! check server return directive
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+		for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
+		{
+			if (VERBOSE)
+				std::cout << *it << "\n";
+			if (it[0][0] != '/')
+			{
+				code = atoi(it->c_str());
+				if (is_error_code(code) == false)
+					throw std::invalid_argument(ERR_WRONG_ERR_CODE);
+			}
+			else
+			{
+				if (it != (srv_it->return_dir.end() - 1))
+					throw std::invalid_argument(ERR_WRONG_ERR_URI);
+			}
+		}
+		// ! check location return directive
+		for (loc_it = srv_it->location.begin();
+			 loc_it != srv_it->location.end();
+			 loc_it++)
+		{
+			for (it2 = loc_it->return_dir.begin();
+				 it2 != loc_it->return_dir.end();
+				 it2++)
+			{
+				if (VERBOSE)
+					std::cout << *it2 << "\n";
+				if (it2[0][0] != '/')
+				{
+					code = atoi(it2->c_str());
+					if (is_error_code(code) == false)
+						throw std::invalid_argument(ERR_WRONG_ERR_CODE);
+				}
+				else
+				{
+					if (it2 != (loc_it->return_dir.end() - 1))
+						throw std::invalid_argument(ERR_WRONG_ERR_URI);
+				}
+			}
+		}
+	}
+}
+
+
+// check if error_page codes are known error codes and if a token begin with /, we check if it's the last : syntax = code ... code /URI;
 void webserv::errorPageCheck ( void )
 {
 	std::vector<t_server> 				srv = _config.server;
@@ -824,7 +895,28 @@ void webserv::fillDefaultSettings ( void )
 // Check if a non-optional setting is missing
 void webserv::emptySettingCheck ( void )
 {
+	std::vector<t_server> 				srv = _config.server;
 
+	std::vector<t_server>::iterator 	srv_it;
+
+	std::vector<std::string>::iterator	it;
+
+	// ! iterate servers
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+		if (srv_it->client_max_body_size == 0)
+			throw std::invalid_argument(ERR_BODY_MISSING);
+		if (srv_it->autoindex.empty() == true)
+			throw std::invalid_argument(ERR_AUTOINDEX_MISSING);
+		if (srv_it->index.empty() == true)
+			throw std::invalid_argument(ERR_INDEX_MISSING);
+		if (srv_it->root.empty() == true)
+			throw std::invalid_argument(ERR_ROOT_MISSING);
+		if (srv_it->server_name.empty() == true)
+			throw std::invalid_argument(ERR_SERVER_NAME_MISSING);
+		if (srv_it->listen.empty() == true)
+			throw std::invalid_argument(ERR_LISTEN_MISSING);
+	}
 }
 
 // main loop for checking parsing errors
@@ -832,7 +924,7 @@ void webserv::checkParseError ( void )
 {
 	listenCheck();
 	errorPageCheck();
-	// TODO errorReturnCheck
+	errorReturnCheck();
 	limitExceptCheck();
 	fillDefaultSettings();
 	emptySettingCheck();
