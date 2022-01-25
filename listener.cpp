@@ -2,16 +2,16 @@
 #include "colors.hpp"
 
 // ! Faire passer ici en arg les spec de configs
-void	listener()
+void	listener(std::vector<int> ports)
 {
-	int port1 = 18000;
-	int port2 = 820;
-	int port3 = 8080;
+	// int port1 = 18000;
+	// int port2 = 820;
+	// int port3 = 8080;
 
-	std::vector<int> ports;
-	ports.push_back(port1);
-	ports.push_back(port2);
-	ports.push_back(port3);
+	// std::vector<int> ports;
+	// ports.push_back(port1);
+	// ports.push_back(port2);
+	// ports.push_back(port3);
 
 	// ! fd_set de lecture -> pour déterminer si le socket server est prêt pour lecture
 	fd_set	read_fs;

@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/25 11:03:52 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/25 17:11:29 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class webserv
 
 		/* GETTER */
 		std::string const & getFileName() const;
+		std::vector<int> const & getListenPorts() const;
 
 		/* PARSING */
 		void parseConfigFile ( void );

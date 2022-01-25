@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/25 14:53:12 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/25 17:12:24 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,10 @@ void webserv::setFileName (std::string name)
 std::string const & webserv::getFileName ( void ) const
 {
 	return _file_name ;
+}
+std::vector<int> const & webserv::getListenPorts() const
+{
+	return listenPorts;
 }
 
 // return an empty location struct to push_back in the vectors
