@@ -6,7 +6,7 @@
 #    By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/24 13:35:29 by ygeslin          ###   ########.fr        #
+#    Updated: 2022/01/25 10:12:24 by ygeslin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,7 +51,7 @@ SRCS			= 	main \
 
 #________________________________Building rules________________________________#
 
-all:			init_hooks init $(NAME)
+all:			init $(NAME)
 
 init:
 		@ if test -f $(NAME);\
@@ -94,11 +94,11 @@ re:				fclean all
 
 #_____________________________________Hooks____________________________________#
 
-init_hooks:
-			@if [[ -e .git/hooks/commit-msg ]];\
-			then :;\
-			else ln -h .hooks/commit-msg .git/hooks/commit-msg;\
-			fi
+# init_hooks:
+# 			@if [[ -e .git/hooks/commit-msg ]];\
+# 			then :;\
+# 			else ln -h .hooks/commit-msg .git/hooks/commit-msg;\
+# 			fi
 
 #_____________________________________Misc.____________________________________#
 

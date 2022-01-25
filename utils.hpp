@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <string.h>
 
 // Custom headers
 #include "webserv.hpp"

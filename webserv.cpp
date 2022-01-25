@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/24 19:26:11 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/25 10:14:55 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -848,7 +848,7 @@ void webserv::parseConfigFile ( void )
 
 	std::vector<std::string> 	token;
 
-	file.open(_file_name );
+	file.open(_file_name.c_str() );
 
 	if (file.is_open())
 	{
