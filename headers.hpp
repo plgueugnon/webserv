@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/select.h>
 #include <fcntl.h>
+#include <sys/event.h>
 
 // * basic header
 #include <string>
@@ -35,7 +36,7 @@ typedef struct s_request {
 // * functions
 void	listener();
 int	gen_listen_socket(int port);
-void	receive_request(int client_sock);
+int	receive_request(int client_sock);
 void	manage_request(int client_sock, t_request *request);
 
 

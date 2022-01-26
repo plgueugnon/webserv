@@ -1,11 +1,27 @@
 #include "colors.hpp"
 #include "headers.hpp"
 
-void	receive_request(int client_sock)
+#define MAX_MSG_SIZE 4096
+
+int	receive_request(int client_sock)
+{
+	char	tab[MAX_MSG_SIZE];
+	ssize_t n = recv(client_sock, tab, MAX_MSG_SIZE - 1, 0);
+	if (n < 0)
+	{
+		std::cerr << YELLOW"error: failure to receive request\n"RESET;
+		return 0;
+	}
+	tab[n] = 0;
+	std::cout << tab;
+	return 1;
+}
+
+void	receive_request_select(int client_sock)
 {
 	ssize_t n = 0;
 	std::vector<char> buf(4096);
-	char	tab[256];
+	char	tab[80];
 	t_request	request;
 	// int	c = 0;
 
@@ -16,7 +32,7 @@ void	receive_request(int client_sock)
 
 	// ! PAS VALIDE .data = c++11
 	// if ( (n = recv(client_sock, buf.data(), 4096 - 1, 0)) > 0)
-	while ( (n = recv(client_sock, tab, 256 - 1, 0)) > 0)
+	while ( (n = recv(client_sock, tab, 80 - 1, 0)) > 0)
 	{
 		// ! Rajouter le cas des chunk request
 		// * https://fr.wikipedia.org/wiki/Chunked_transfer_encoding
