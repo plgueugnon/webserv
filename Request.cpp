@@ -1,7 +1,7 @@
 #include "colors.hpp"
 #include "headers.hpp"
 
-#define MAX_MSG_SIZE 4096
+#define MAX_MSG_SIZE 256
 
 int	receive_request(int client_sock)
 {

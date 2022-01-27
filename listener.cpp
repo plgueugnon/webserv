@@ -50,6 +50,15 @@ void send_welcome_msg(int fd)
 	send(fd, s.c_str(), s.size(), 0);
 }
 
+int	cycle_fd(std::vector<int> listen_sockets, int fd)
+{
+	for(int i = 0; i < 3; i++)
+		if ( fd == listen_sockets[i] )
+			return listen_sockets[i];
+	return 0;
+}
+
+
 void	listener() // ! kqueue
 {
 // **************************************************
@@ -92,6 +101,7 @@ void	listener() // ! kqueue
     * };
 	*/
 	struct kevent	evSet[3]; // events to monitor
+	// struct kevent	evSet; // events to monitor
 	struct kevent	evList[10]; // events that will be triggered
 
 	// * init kqueue = Creates a new kernel event queue and returns a descriptor
@@ -102,13 +112,19 @@ void	listener() // ! kqueue
 	// for( std::vector<int>::iterator it = listen_sockets.begin(), int i = 0; it != listen_sockets.end(), i < 3; it++, i++ )
 	for (int i = 0; i < 3; i++)
 	{
-		EV_SET(&(evSet[i]),listen_sockets[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+		EV_SET(&evSet[i],listen_sockets[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
 		// * on stocke les évènements qui vont être monitoré
-		if (kevent(kq, &(evSet[i]), 1, NULL, 0, NULL) == -1)
-		{
-			std::cerr << RED"error: kevent 1 failure\n"RESET;
-			return ;
-		}
+		// if (kevent(kq, &(evSet[i]), 1, NULL, 0, NULL) == -1)
+		// {
+		// 	std::cerr << RED"error: kevent 1 failure\n"RESET;
+		// 	return ;
+		// }
+	}
+
+	if (kevent(kq, evSet, 3, NULL, 0, NULL) == -1)
+	{
+		std::cerr << RED"error: kevent 1 failure\n"RESET;
+		return ;
 	}
 
 	struct kevent	evCon; // struct pour stocker les events des sockets clients
@@ -130,7 +146,7 @@ void	listener() // ! kqueue
 		for (int i = 0; i < num_events; i++)
 		{
 				// Si je trouve le même fd dans evList -> un client est prêt (en read) pour connexion
-				if (evList[i].ident == (unsigned long)listen_sockets[i])
+				if (cycle_fd(listen_sockets, evList[i].ident))
 				{
 					// * on accepte la connexion : on crée un fd client
 					client_sock = accept(evList[i].ident, NULL, NULL);
