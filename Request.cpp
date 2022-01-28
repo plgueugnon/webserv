@@ -37,9 +37,9 @@ void	receive_request(int client_sock)
 	manage_request(client_sock, &request);
 }
 
-bool 	is_crlf(char[2] str)
+bool 	is_crlf(char str[2])
 {
-	if (char[0] == '\n' && char[1] == '\n')
+	if (str[0] == '\n' && str[1] == '\n')
 		return (true);
 	return (false);
 }

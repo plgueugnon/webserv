@@ -20,6 +20,7 @@
 #include "cgi.hpp"
 #include "headers.hpp"
 #include "listener.hpp"
+#include "request.hpp"
 
 #define PORT_MAX 65535
 #define PORT_MIN 1
