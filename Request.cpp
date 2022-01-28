@@ -115,6 +115,13 @@ void request::parseHeader(void)
 	return ;
 }
 
+std::vector<std::string> split(std::string str)
+{
+	std::vector<std::string>  vec;
+
+
+}
+
 void request::fillRequestLine(void)
 {
 	int i = 0;
