@@ -74,6 +74,8 @@ void	receive_request(int client_sock)
 	// manage_request(client_sock, &request);
 }
 
+// return -1 if str doesn't contain \r\n
+// return the pos of the \r
 int 	containsCrlf(std::string str)
 {
 	std::string::iterator 	it = str.begin();
@@ -94,16 +96,53 @@ void request::parseHeader(void)
 {
 	int 	pos = containsCrlf(buf);
 
-	// std::cout << "POS:"<< pos << '\n';
-	// std::cout << "---------------------" << std::endl;
+	// if pos < 0, the buffer doesn't contain \r\n
+	// so return to recv to receive the end of the headers
 	if (pos < 0)
 		return;
 	isBody = true;
-	body = buf.substr(pos, buf.size());
-	buf.erase(pos);
+	// save the beginning of the body, saved in the buffer
+	// + 2 to skip \r\n
+	body = buf.substr(pos + 2, buf.size());
+	// erase the end of the buffer to extract only headers
+	buf.erase(pos - 1);
+	// save requestline and header in headerBuffer
 	headerbuf = buf;
 	buf.clear();
+	fillRequestLine();
+	fillHeaders();
 
+	return ;
+}
+
+void request::fillRequestLine(void)
+{
+	int i = 0;
+	char *token = 0;
+	
+	int pos = headerbuf.find('\n');
+	std::string tmp = headerbuf.substr(0, pos);
+	token = (char *)tmp.c_str();
+	token = strtok(token, " ");
+	token = strtok(token, " ");
+	while (token != NULL && i < 3)
+	{
+		std::cout << i << "\n";
+		if (i == 0)
+			header[METHOD] += token;
+		if (i == 1)
+			header[PATH] += token;
+		if (i == 2)
+			header[HTTP_VERSION] += token;
+		token = strtok(token, " ");
+		i++;
+	}
+
+	return ;
+}
+
+void request::fillHeaders(void)
+{
 	return ;
 }
 
@@ -116,10 +155,15 @@ void request::redirectBody(void)
 
 void request::printRequest(void)
 {
+
 	std::cout << "is Body : " << isBody << std::endl;
 	std::cout << "---------------------" << std::endl;
 	std::cout << "header: \n" << headerbuf << std::endl;
 	std::cout << "---------------------" << std::endl;
 	std::cout << "Body: \n" << body << std::endl;
+	std::cout << "---------------------" << std::endl;
+	std::cout << "method :" << requestLine[METHOD] << std::endl;
+	std::cout << "path :" << requestLine[PATH] << std::endl;
+	std::cout << "http version :" << requestLine[HTTP_VERSION] << std::endl;
 	return ;
 }

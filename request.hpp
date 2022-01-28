@@ -46,6 +46,8 @@ class request
 
 	void parseHeader ( void );
 	void redirectBody ( void );
+	void fillRequestLine ( void );
+	void fillHeaders ( void );
 	void printRequest ( void );
 }; // request class
 #endif /* REQUEST_HPP */

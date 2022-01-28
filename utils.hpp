@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <cstring> // strtok
 #include <string.h>
 
 // Custom headers
