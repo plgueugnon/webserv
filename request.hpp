@@ -10,6 +10,7 @@ class request
 {
 	public :
 	// buffer filled with recv
+	bool 						isBody;
 	std::string 				buf;
 
 	enum requestLineIndex
@@ -18,7 +19,7 @@ class request
 		PATH,
 		QUERY,
 		HTTP_VERSION,
-	}
+	}; // requestLineIndex
 
 	enum headerIndex
 	{
@@ -33,10 +34,18 @@ class request
 		REFERER,
 		TRANSFER_ENCODING,
 		USER_AGENT,
-	}
+	}; // headerIndex
 
 	std::vector<std::string> 	requestLine;
 	std::vector<std::string> 	header;
+	std::string 				headerbuf;
 	std::string 				body;
-}
+
+	// constructor
+	request ( void );
+
+	void parseHeader ( void );
+	void redirectBody ( void );
+	void printRequest ( void );
+}; // request class
 #endif /* REQUEST_HPP */
