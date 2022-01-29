@@ -115,35 +115,30 @@ void request::parseHeader(void)
 	return ;
 }
 
-std::vector<std::string> split(std::string str)
+std::vector<std::string> split(std::string str, char delim)
 {
 	std::vector<std::string>  vec;
-
-
+	std::string token ;
+	unsigned long pos;
+	while ( (pos = str.find (delim)) != std::string::npos)
+	{  
+		vec.push_back(str.substr(0, pos)); 
+		str.erase(0, pos + 1);  /* erase() function store the current positon and move to next token. */   
+	}  
+		vec.push_back(str.substr(0, pos)); 
+		return vec;
 }
 
 void request::fillRequestLine(void)
 {
-	int i = 0;
-	char *token = 0;
+	// int i = 0;
 	
-	int pos = headerbuf.find('\n');
-	std::string tmp = headerbuf.substr(0, pos);
-	token = (char *)tmp.c_str();
-	token = strtok(token, " ");
-	token = strtok(token, " ");
-	while (token != NULL && i < 3)
-	{
-		std::cout << i << "\n";
-		if (i == 0)
-			header[METHOD] += token;
-		if (i == 1)
-			header[PATH] += token;
-		if (i == 2)
-			header[HTTP_VERSION] += token;
-		token = strtok(token, " ");
-		i++;
-	}
+	unsigned long pos = headerbuf.find('\n');
+	std::string str = headerbuf.substr(0, pos);
+	requestLine = split(str, ' ');
+	header = split(headerbuf, '\n');
+	vec_enum(requestLine);
+	vec_enum(header);
 
 	return ;
 }
