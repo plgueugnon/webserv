@@ -131,20 +131,27 @@ std::vector<std::string> split(std::string str, char delim)
 
 void request::fillRequestLine(void)
 {
-	// int i = 0;
-	
+	// TODO add vector on stack
+	// TODO if vector size > 3 -> error
+	// TODO match vector with requestLine vector
 	unsigned long pos = headerbuf.find('\n');
 	std::string str = headerbuf.substr(0, pos);
+	headerbuf.erase(0, pos + 1);  /* erase() function store the current positon and move to next token. */   
 	requestLine = split(str, ' ');
-	header = split(headerbuf, '\n');
+	requestLine[HTTP_VERSION] = requestLine[2];
 	vec_enum(requestLine);
-	vec_enum(header);
 
 	return ;
 }
 
 void request::fillHeaders(void)
 {
+	// initialize a vector with strings to search
+	// itirate threw the vector, if compare == 0
+	// erase from 0 to string to compare lenght
+	// fill the corresponding header vector according to the matched string
+	header = split(headerbuf, '\n');
+	vec_enum(header);
 	return ;
 }
 
