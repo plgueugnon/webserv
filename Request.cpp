@@ -144,14 +144,56 @@ void request::fillRequestLine(void)
 	return ;
 }
 
+std::vector<std::string> headerKeysToSearch ( void )
+{
+	std::vector<std::string> vec;
+
+	vec.push_back("Authorization: ");
+	vec.push_back("Accept: ");
+	vec.push_back("Accept-Charset: ");
+	vec.push_back("Accept-Encoding: ");
+	vec.push_back("Accept-Language: ");
+	vec.push_back("Content-Type: ");
+	vec.push_back("Content-Lenght: ");
+	vec.push_back("Date: ");
+	vec.push_back("Referer: ");
+	vec.push_back("Transfer-Encoding: ");
+	vec.push_back("User-Agent: ");
+	vec_enum(vec);
+	return vec;
+
+}
+
 void request::fillHeaders(void)
 {
+	header = split(headerbuf, '\n');
+	vec_enum(header);
+	std::string 	tmp;
+	std::string 	tmp2;
+	std::vector<std::string> ToSearch = headerKeysToSearch();
+	std::vector<std::string>::iterator it;
+	std::vector<std::string>::iterator it2;
+	std::vector<std::string>::iterator end = header.end();
+	std::vector<std::string>::iterator end2 = ToSearch.end();
+
+	for (it = header.begin(); it != end; it++)
+	{
+		tmp2 = *it;
+		for (it2 = ToSearch.begin(); it2 != end2; it2++)
+		{
+			tmp = *it2;
+			if (it->compare(0, tmp.length(), tmp) == 0)
+			{
+				std::cout << "header :" << tmp << "; comp :" << tmp2 << "\n";
+			// fill the corresponding header vector according to the matched string
+			// erase from 0 to string to compare lenght
+			}
+		}
+	}
 	// initialize a vector with strings to search
 	// itirate threw the vector, if compare == 0
 	// erase from 0 to string to compare lenght
 	// fill the corresponding header vector according to the matched string
-	header = split(headerbuf, '\n');
-	vec_enum(header);
 	return ;
 }
 
