@@ -111,6 +111,8 @@ void request::parseHeader(void)
 	buf.clear();
 	fillRequestLine();
 	fillHeaders();
+	// ! faire check erreur si version http differente de 1.1
+	// ! faire check erreur si headers trop longs
 
 	return ;
 }
@@ -131,18 +133,16 @@ std::vector<std::string> split(std::string str, char delim)
 
 void request::fillRequestLine(void)
 {
-	// TODO add vector on stack
-	// TODO if vector size > 3 -> error
-	// TODO match vector with requestLine vector
-
+	// TODO gestion exception et erreur, a voir quand on saura comment et ou on implement les reponses
 	// extract first line of the buffer
-	unsigned long pos = headerbuf.find('\n');
-	std::string str = headerbuf.substr(0, pos);
+	unsigned long	pos = headerbuf.find('\n');
+	std::string 	str = headerbuf.substr(0, pos);
 
 	// erase first line of the buffer (request line)
 	headerbuf.erase(0, pos + 1);
 	std::vector<std::string> vec = split(str, ' ');
 	if (vec.size() != 3)
+	// ! mettre exception a terme
 		std::cerr << "Wrong arg nb in request line\n";
 	requestLine[METHOD] = vec[0];
 	requestLine[HTTP_VERSION] = vec[2];
@@ -150,6 +150,7 @@ void request::fillRequestLine(void)
 	// v1
 	vec = split(vec[1], '?');
 	if (vec.size() != 2)
+	// ! mettre exception a terme
 		std::cerr << RED"multiple ? in query \n"RESET;
 	requestLine[PATH] = vec[0];
 	if (vec.size() == 2)
@@ -197,7 +198,7 @@ void request::fillHeaders(void)
 	std::vector<std::string>::iterator requestHeaders = buf.begin();
 	std::vector<std::string>::iterator headerToSearch = toSearch.begin();
 
-	std::vector<std::string>::iterator end = buf.end();
+	std::vector<std::string>::iterator end 	= buf.end();
 	std::vector<std::string>::iterator end2 = toSearch.end();
 
 	int 	headerIndex = 0;
