@@ -134,12 +134,36 @@ void request::fillRequestLine(void)
 	// TODO add vector on stack
 	// TODO if vector size > 3 -> error
 	// TODO match vector with requestLine vector
+
+	// extract first line of the buffer
 	unsigned long pos = headerbuf.find('\n');
 	std::string str = headerbuf.substr(0, pos);
-	headerbuf.erase(0, pos + 1);  /* erase() function store the current positon and move to next token. */   
-	requestLine = split(str, ' ');
-	requestLine[HTTP_VERSION] = requestLine[2];
 
+	// erase first line of the buffer (request line)
+	headerbuf.erase(0, pos + 1);
+	std::vector<std::string> vec = split(str, ' ');
+	if (vec.size() != 3)
+		std::cerr << "Wrong arg nb in request line\n";
+	requestLine[METHOD] = vec[0];
+	requestLine[HTTP_VERSION] = vec[2];
+	// extracting query
+	// v1
+	vec = split(vec[1], '?');
+	if (vec.size() != 2)
+		std::cerr << RED"multiple ? in query \n"RESET;
+	requestLine[PATH] = vec[0];
+	if (vec.size() == 2)
+		requestLine[QUERY] = vec[1];
+	// v2
+	// pos = vec[1].find('?');
+	// if (pos != std::string::npos)
+	// {
+	// 	requestLine[PATH] = vec[1].substr(0, pos);
+	// 	requestLine[QUERY] = vec[1].substr(pos + 1, vec[1].length());
+	// }
+	// else
+	// 	requestLine[PATH] = vec[1];
+	// vec_enum(vec);
 	return ;
 }
 
@@ -167,40 +191,30 @@ std::vector<std::string> headerKeysToSearch ( void )
 
 void request::fillHeaders(void)
 {
-	std::string 	tmp;
-	std::string 	tmp2;
-	std::vector<std::string> ToSearch = headerKeysToSearch();
-	std::vector<std::string> buf = split(headerbuf, '\n');
-	std::vector<std::string>::iterator it;
-	std::vector<std::string>::iterator it2;
-	std::vector<std::string>::iterator end = buf.end();
-	std::vector<std::string>::iterator end2 = ToSearch.end();
+	std::vector<std::string> toSearch 	= headerKeysToSearch();
+	std::vector<std::string> buf 		= split(headerbuf, '\n');
+	
+	std::vector<std::string>::iterator requestHeaders = buf.begin();
+	std::vector<std::string>::iterator headerToSearch = toSearch.begin();
 
-	// vec_enum(buf);
+	std::vector<std::string>::iterator end = buf.end();
+	std::vector<std::string>::iterator end2 = toSearch.end();
+
 	int 	headerIndex = 0;
 
-	for (it = buf.begin(); it != end; it++)
+	for (; requestHeaders != end; requestHeaders++)
 	{
-		tmp2 = *it;
-		for (it2 = ToSearch.begin(); it2 != end2; it2++)
+		for (; headerToSearch != end2; headerToSearch++)
 		{
-			tmp = *it2;
-			if (it->compare(0, tmp.length(), tmp) == 0)
+			if (requestHeaders->compare(0, headerToSearch->length(), *headerToSearch) == 0)
 			{
-				tmp2.erase(0, tmp.length());
-				header[headerIndex] = tmp2;
-				// std::cout << "header :" << tmp << "; comp :" << tmp2 << "\n";
-			// fill the corresponding header vector according to the matched string
-			// erase from 0 to string to compare lenght
+				requestHeaders->erase(0, headerToSearch->length());
+				header[headerIndex] = *requestHeaders;
 			}
 			headerIndex++;
 		}
 		headerIndex = 0;
 	}
-	// initialize a vector with strings to search
-	// itirate threw the vector, if compare == 0
-	// erase from 0 to string to compare lenght
-	// fill the corresponding header vector according to the matched string
 	headerbuf.clear();
 	return ;
 }
