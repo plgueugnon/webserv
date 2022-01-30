@@ -117,8 +117,8 @@ void request::parseHeader(void)
 
 std::vector<std::string> split(std::string str, char delim)
 {
-	std::vector<std::string>  vec;
-	std::string token ;
+	std::vector<std::string>	vec;
+	std::string 				token;
 	unsigned long pos;
 	while ( (pos = str.find (delim)) != std::string::npos)
 	{  
@@ -139,15 +139,17 @@ void request::fillRequestLine(void)
 	headerbuf.erase(0, pos + 1);  /* erase() function store the current positon and move to next token. */   
 	requestLine = split(str, ' ');
 	requestLine[HTTP_VERSION] = requestLine[2];
-	vec_enum(requestLine);
 
 	return ;
 }
 
+// order of the words match enum index of headers in the class
 std::vector<std::string> headerKeysToSearch ( void )
 {
 	std::vector<std::string> vec;
 
+	vec.push_back("Host: ");
+	vec.push_back("Connection: ");
 	vec.push_back("Authorization: ");
 	vec.push_back("Accept: ");
 	vec.push_back("Accept-Charset: ");
@@ -159,24 +161,25 @@ std::vector<std::string> headerKeysToSearch ( void )
 	vec.push_back("Referer: ");
 	vec.push_back("Transfer-Encoding: ");
 	vec.push_back("User-Agent: ");
-	vec_enum(vec);
 	return vec;
 
 }
 
 void request::fillHeaders(void)
 {
-	header = split(headerbuf, '\n');
-	vec_enum(header);
 	std::string 	tmp;
 	std::string 	tmp2;
 	std::vector<std::string> ToSearch = headerKeysToSearch();
+	std::vector<std::string> buf = split(headerbuf, '\n');
 	std::vector<std::string>::iterator it;
 	std::vector<std::string>::iterator it2;
-	std::vector<std::string>::iterator end = header.end();
+	std::vector<std::string>::iterator end = buf.end();
 	std::vector<std::string>::iterator end2 = ToSearch.end();
 
-	for (it = header.begin(); it != end; it++)
+	// vec_enum(buf);
+	int 	headerIndex = 0;
+
+	for (it = buf.begin(); it != end; it++)
 	{
 		tmp2 = *it;
 		for (it2 = ToSearch.begin(); it2 != end2; it2++)
@@ -184,16 +187,21 @@ void request::fillHeaders(void)
 			tmp = *it2;
 			if (it->compare(0, tmp.length(), tmp) == 0)
 			{
-				std::cout << "header :" << tmp << "; comp :" << tmp2 << "\n";
+				tmp2.erase(0, tmp.length());
+				header[headerIndex] = tmp2;
+				// std::cout << "header :" << tmp << "; comp :" << tmp2 << "\n";
 			// fill the corresponding header vector according to the matched string
 			// erase from 0 to string to compare lenght
 			}
+			headerIndex++;
 		}
+		headerIndex = 0;
 	}
 	// initialize a vector with strings to search
 	// itirate threw the vector, if compare == 0
 	// erase from 0 to string to compare lenght
 	// fill the corresponding header vector according to the matched string
+	headerbuf.clear();
 	return ;
 }
 
@@ -206,15 +214,19 @@ void request::redirectBody(void)
 
 void request::printRequest(void)
 {
+	std::vector<std::string> ToSearch = headerKeysToSearch();
 
 	std::cout << "is Body : " << isBody << std::endl;
 	std::cout << "---------------------" << std::endl;
-	std::cout << "header: \n" << headerbuf << std::endl;
+	std::cout << "header: \n" ;
+	for (size_t i = 0; i < HEADER_ARGS - 1; i++)
+		std::cout << i << "- " << ToSearch[i] << header[i] << std::endl;
 	std::cout << "---------------------" << std::endl;
 	std::cout << "Body: \n" << body << std::endl;
 	std::cout << "---------------------" << std::endl;
 	std::cout << "method :" << requestLine[METHOD] << std::endl;
 	std::cout << "path :" << requestLine[PATH] << std::endl;
+	std::cout << "query :" << requestLine[QUERY] << std::endl;
 	std::cout << "http version :" << requestLine[HTTP_VERSION] << std::endl;
 	return ;
 }

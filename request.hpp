@@ -4,7 +4,7 @@
 #include "utils.hpp"
 
 #define REQUEST_LINE_ARGS 4
-#define HEADER_ARGS 12
+#define HEADER_ARGS 14
 
 class request
 {
@@ -23,6 +23,8 @@ class request
 
 	enum headerIndex
 	{
+		HOST,
+		CONNECTION,
 		AUTHORIZATION,
 		ACCEPT,
 		ACCEPT_CHARSET,
