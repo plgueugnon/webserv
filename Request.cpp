@@ -27,7 +27,7 @@ void	receive_request(int client_sock)
 
 	// ! Keep-alive request pas traité par défaut
 	// ? A implémenter ?
-	// TODO ajouter détection CRLF pour trouver le body
+	// // TODO ajouter détection CRLF pour trouver le body
 	while ( (n = recv(client_sock, &buffer, BUFFER_SIZE - 1, 0)) > 0)
 	{
 		buffer[n] = '\0';
@@ -125,7 +125,7 @@ std::vector<std::string> split(std::string str, char delim)
 	while ( (pos = str.find (delim)) != std::string::npos)
 	{  
 		vec.push_back(str.substr(0, pos)); 
-		str.erase(0, pos + 1);  /* erase() function store the current positon and move to next token. */   
+		str.erase(0, pos + 1);
 	}  
 		vec.push_back(str.substr(0, pos)); 
 		return vec;
@@ -192,11 +192,15 @@ std::vector<std::string> headerKeysToSearch ( void )
 
 void request::fillHeaders(void)
 {
-	std::vector<std::string> toSearch 	= headerKeysToSearch();
+	// vector with the key string to search in the headers
+	std::vector<std::string> toSearch 	= headerKeysToSearch(); 
+	// vector with one vector node for one request header line
 	std::vector<std::string> buf 		= split(headerbuf, '\n');
-	vec_enum(buf);
+	// vec_enum(buf);
 	
+	// iterator on request headers lines
 	std::vector<std::string>::iterator requestHeaders;
+	// iterator on key headers strings to search
 	std::vector<std::string>::iterator headerToSearch;
 
 	std::vector<std::string>::iterator end 	= buf.end();
