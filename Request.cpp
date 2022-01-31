@@ -192,6 +192,8 @@ std::vector<std::string> headerKeysToSearch ( void )
 
 void request::fillHeaders(void)
 {
+	std::string 				headerTmp;
+	std::string 				toSearchTmp;
 	std::vector<std::string> toSearch 	= headerKeysToSearch();
 	std::vector<std::string> buf 		= split(headerbuf, '\n');
 	
@@ -203,10 +205,12 @@ void request::fillHeaders(void)
 
 	int 	headerIndex = 0;
 
-	for (; requestHeaders != end; requestHeaders++)
+	for (requestHeaders = buf.begin(); requestHeaders != end; requestHeaders++)
 	{
-		for (; headerToSearch != end2; headerToSearch++)
+		// headerTmp = *requestHeaders;
+		for (headerToSearch = toSearch.begin(); headerToSearch != end2; headerToSearch++)
 		{
+			// toSearchTmp = *headerToSearch;
 			if (requestHeaders->compare(0, headerToSearch->length(), *headerToSearch) == 0)
 			{
 				requestHeaders->erase(0, headerToSearch->length());
