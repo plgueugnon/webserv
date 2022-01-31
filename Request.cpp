@@ -67,7 +67,7 @@ void	receive_request(int client_sock, t_http config)
 		close(client_sock);
 		return ;
 	}
-	request.printRequest();
+	// request.printRequest();
 	// std::cout << request.buf << std::endl;
 	// close(client_sock);
 	// std::cout << "close socket" << std::endl;
