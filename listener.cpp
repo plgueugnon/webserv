@@ -71,7 +71,11 @@ void	listener() // ! kqueue
 	ports.push_back(port2);
 	ports.push_back(port3);
 // **************************************************
-
+	struct timespec	timeout;
+	timeout.tv_nsec = 1000;
+	timeout.tv_sec = 10;
+	char	late[] = "connection timeout !\n";
+// **************************************************
 	// ! je stocke les sockets d'écoute dans un tableau
 	std::vector<int> listen_sockets;
 	for( std::vector<int>::iterator it = ports.begin(); it != ports.end(); it++ )
@@ -132,6 +136,7 @@ void	listener() // ! kqueue
 
 	while (1)
 	{
+		// int time = 0;
 		// * equivalent a select
 		/*
 		* arg 1 = fd event queue to monitor (en read ou write, il faut 1 queue par filtre specifique (fd read, fd write, signal, etc))
@@ -142,7 +147,21 @@ void	listener() // ! kqueue
 		* arg 6 = timeout
 		*/
 		std::cout << BLUE"Waiting for connection...\n"RESET;
-		int	num_events = kevent(kq, NULL, 0, evList, 10, NULL);
+		int	num_events = kevent(kq, NULL, 0, evList, 10, &timeout);
+		std::cout << "timer = " << num_events << std::endl;
+		if (num_events == 0)
+		{
+			for(int i = 0; i < NUM_CLIENTS; i++)
+			{
+				if (clients[i].fd != 0)
+				{
+					std::cout << GREEN"client #" << clients[i].fd << " timeout\n";
+					send(clients[i].fd, late, strlen(late), 0);
+					del_client_socket(clients[i].fd);
+					close(clients[i].fd);
+				}
+			}
+		}
 		for (int i = 0; i < num_events; i++)
 		{
 				// Si je trouve le même fd dans evList -> un client est prêt (en read) pour connexion
@@ -180,6 +199,14 @@ void	listener() // ! kqueue
 						kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
 						del_client_socket(evList[i].ident);
 					}
+				}
+				if (num_events == 0)
+				{
+					std::cout << GREEN"client #" << get_client_socket(evList[i].ident) << " timeout\n";
+					send(get_client_socket(evList[i].ident), late, strlen(late), 0);
+					EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+					kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
+					del_client_socket(evList[i].ident);
 				}
 		}
 
