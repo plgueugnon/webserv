@@ -23,6 +23,7 @@
 #include "listener.hpp"
 #include "request.hpp"
 #include "response.hpp"
+#include "httpCodes.hpp"
 
 #define PORT_MAX 65535
 #define PORT_MIN 1

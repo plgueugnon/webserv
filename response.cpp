@@ -6,6 +6,54 @@ response::response ( void )
 {
 }
 
+response::response (request *request, t_server config)
+{
+	req = request;
+	conf = config;
+	ret = "";
+}
+
+void response::handleGet ( void )
+{
+	return;
+}
+
+void response::handleDelete ( void )
+{
+	return;
+}
+
+void response::handlePost ( void )
+{
+	return;
+}
+
+void response::parse ( void )
+{
+	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
+		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
+		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+	{
+		ret += CODE_400;
+		ret += "\r\n\r\n";
+		ret += "Method not handled my man !";
+		return ;
+	}
+	if ((req->requestLine[request::HTTP_VERSION]).compare("HTTP/1.1") != 0)
+	{
+		ret += CODE_400;
+		ret += "\r\n\r\n";
+		ret += "Wrong http version man";
+		return ;
+	}
+	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
+		handleGet();
+	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
+		handleDelete();
+	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
+		handlePost();
+}
+
 
 void	answer_client(int client_sock, std::string answer)
 {
@@ -25,15 +73,16 @@ void	answer_client(int client_sock, std::string answer)
 
 // TODO créer parsing complet et remplissage dynamique de la réponse à donner
 // ? Problème si le statut disponible en écriture du client pas vérifié ?
-void	manage_request(int client_sock, request *request, t_http config)
+void	manage_request(int client_sock, request *request, t_server config)
 {
-	response 	response;
+	response 	response(request, config);
 	(void)config;
-	std::string	answer;
-	if (request->requestLine[request::METHOD].compare(0, 3, "GET") != 0)
-		answer.assign("HTTP/1.1 400 Bad Request\r\n\r\n");
-	else
-		answer.assign("HTTP/1.1 200 OK\r\n\r\n Wesh ma gueule, bien ou bien !?");
+	response.parse();
+	// if (request->requestLine[request::METHOD].compare(0, 3, "GET") != 0)
+	// 	answer.assign("HTTP/1.1 400 Bad Request\r\n\r\n");
+	// else
+	// 	answer.assign("HTTP/1.1 200 OK\r\n\r\n Wesh ma gueule, bien ou bien !?");
+	std::string	answer = response.ret;
 	answer_client(client_sock, answer);
 }
 

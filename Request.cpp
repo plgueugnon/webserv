@@ -71,7 +71,7 @@ void	receive_request(int client_sock, t_http config)
 	// std::cout << request.buf << std::endl;
 	// close(client_sock);
 	// std::cout << "close socket" << std::endl;
-	manage_request(client_sock, &request, config);
+	manage_request(client_sock, &request, config.server[0]);
 }
 
 // return -1 if str doesn't contain \r\n
