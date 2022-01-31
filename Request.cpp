@@ -149,7 +149,7 @@ void request::fillRequestLine(void)
 	// extracting query
 	// v1
 	vec = split(vec[1], '?');
-	if (vec.size() != 2)
+	if (vec.size() > 2)
 	// ! mettre exception a terme
 		std::cerr << RED"multiple ? in query \n"RESET;
 	requestLine[PATH] = vec[0];
@@ -194,6 +194,7 @@ void request::fillHeaders(void)
 {
 	std::vector<std::string> toSearch 	= headerKeysToSearch();
 	std::vector<std::string> buf 		= split(headerbuf, '\n');
+	vec_enum(buf);
 	
 	std::vector<std::string>::iterator requestHeaders = buf.begin();
 	std::vector<std::string>::iterator headerToSearch = toSearch.begin();
@@ -203,7 +204,7 @@ void request::fillHeaders(void)
 
 	int 	headerIndex = 0;
 
-	for (; requestHeaders != end; requestHeaders++)
+	for (requestHeaders = buf.begin(); requestHeaders != end; requestHeaders++)
 	{
 		for (; headerToSearch != end2; headerToSearch++)
 		{
@@ -211,6 +212,7 @@ void request::fillHeaders(void)
 			{
 				requestHeaders->erase(0, headerToSearch->length());
 				header[headerIndex] = *requestHeaders;
+				std::cout << *requestHeaders << '\n';
 			}
 			headerIndex++;
 		}
