@@ -20,6 +20,9 @@
 #include <fcntl.h>
 #include <sys/event.h>
 
+// * time header
+#include <sys/time.h>
+
 // * basic header
 #include <string>
 #include <vector>

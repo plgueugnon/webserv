@@ -1,12 +1,31 @@
 #include "headers.hpp"
 #include "colors.hpp"
 
-#define NUM_CLIENTS 100
+// * https://www.nginx.com/blog/tuning-nginx/
+// ! nginx accepts by default 512 connections per worker
+// * as we are not authorized to use fork to create separate workers, max number of connections
+// * is therefore set to nginx max default value
+#define NUM_CLIENTS 512
+
+
+unsigned int	gettime(void)
+{
+	long	time;
+	struct timeval	ctime;
+
+	time = 0;
+	if (gettimeofday(&ctime, NULL))
+		std::cerr << RED"Error: fail to get time\n"RESET;
+	time = ctime.tv_sec * 1000 + ctime.tv_usec / 1000;
+	return (time);
+}
+
 
 // * struct pour stocker les fd clients
 // ? A remplacer par un vector ou list avec pushback ?
 struct client_data {
     int fd;
+	long time;
 } clients[NUM_CLIENTS];
 
 int	get_client_socket(int fd) // va cherche le fd et renvoie son index
@@ -25,7 +44,19 @@ int	add_client_socket(int fd)
 	if ((i = get_client_socket(0)) == -1) // je cherche une place dispo dans struct clients
 		return -1; // plus de place disponible
 	clients[i].fd = fd; // stocke le socket client dans struct clients a l'index récupéré
+	clients[i].time = gettime();
 	return 0;
+}
+
+int	update_client_time(int fd)
+{
+	int i;
+	if (fd < 1)
+		return 0;
+	if ((i = get_client_socket(fd)) == -1)
+		return 0;
+	clients[i].time = gettime() + (30 * 1000);
+	return 1;
 }
 
 int	del_client_socket(int fd) // supprime le socket_client client, libère sa place et le close
@@ -36,6 +67,7 @@ int	del_client_socket(int fd) // supprime le socket_client client, libère sa pl
 	if ((i = get_client_socket(fd)) == -1)
 		return -1;
 	clients[i].fd = 0;
+	clients[i].time = 0;
 	return (close(fd));
 }
 
@@ -148,17 +180,31 @@ void	listener() // ! kqueue
 		*/
 		std::cout << BLUE"Waiting for connection...\n"RESET;
 		int	num_events = kevent(kq, NULL, 0, evList, 10, &timeout);
-		std::cout << "timer = " << num_events << std::endl;
+		// std::cout << "timer = " << num_events << std::endl;
 		if (num_events == 0)
 		{
+			unsigned int now = gettime();
+			std::cout << "actual time = " << now << "\n";
 			for(int i = 0; i < NUM_CLIENTS; i++)
 			{
 				if (clients[i].fd != 0)
 				{
-					std::cout << GREEN"client #" << clients[i].fd << " timeout\n";
-					send(clients[i].fd, late, strlen(late), 0);
-					del_client_socket(clients[i].fd);
-					close(clients[i].fd);
+					std::cout << "client #" << i << " time left = " << clients[i].time - now << "\n";
+					if (clients[i].time - now <= 0)
+					{
+						std::cout << GREEN"client #" << clients[i].fd << " timeout\n";
+						for (int j = 0; j < 10; j++)
+						{
+							if (evList[j].filter == EVFILT_READ && evList[j].ident == (unsigned long)clients[i].fd)
+							{
+								send(clients[i].fd, late, strlen(late), 0);
+								EV_SET(&evCon, evList[j].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+								kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
+								del_client_socket(evList[j].ident);
+								break ;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -199,15 +245,21 @@ void	listener() // ! kqueue
 						kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
 						del_client_socket(evList[i].ident);
 					}
+					else
+					{
+						update_client_time(evList[i].ident);
+						int j = get_client_socket(evList[i].ident);
+						std::cout << "client #" << j << " updated time = " << clients[j].time << "\n";
+					}
 				}
-				if (num_events == 0)
-				{
-					std::cout << GREEN"client #" << get_client_socket(evList[i].ident) << " timeout\n";
-					send(get_client_socket(evList[i].ident), late, strlen(late), 0);
-					EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-					kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
-					del_client_socket(evList[i].ident);
-				}
+				// if (num_events == 0)
+				// {
+				// 	std::cout << GREEN"client #" << get_client_socket(evList[i].ident) << " timeout\n";
+				// 	send(get_client_socket(evList[i].ident), late, strlen(late), 0);
+				// 	EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+				// 	kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
+				// 	del_client_socket(evList[i].ident);
+				// }
 		}
 
 	}
