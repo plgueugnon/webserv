@@ -149,12 +149,12 @@ void request::fillRequestLine(void)
 	// extracting query
 	// v1
 	vec = split(vec[1], '?');
-	if (vec.size() > 2)
-	// ! mettre exception a terme
-		std::cerr << RED"multiple ? in query \n"RESET;
 	requestLine[PATH] = vec[0];
 	if (vec.size() == 2)
 		requestLine[QUERY] = vec[1];
+	if (vec.size() > 2)
+	// ! mettre exception a terme
+		std::cerr << RED"multiple ? in query \n"RESET;
 	// v2
 	// pos = vec[1].find('?');
 	// if (pos != std::string::npos)
