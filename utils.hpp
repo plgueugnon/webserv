@@ -22,9 +22,11 @@
 #include "headers.hpp"
 #include "listener.hpp"
 #include "request.hpp"
+#include "response.hpp"
 
 #define PORT_MAX 65535
 #define PORT_MIN 1
+
 
 // print all nodes of a vector
 void    vec_enum(std::vector<std::string> &vec);
@@ -35,5 +37,6 @@ void    print_env_c(const char ** env);
 
 bool     is_error_code ( int  code);
 bool     onlyDigits ( const char *  str);
+
 
 #endif /* UTILS_HPP */

@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/25 17:12:52 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/01/31 14:50:50 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ int main (int ac, char **av, char **env)
 		return -1;
 	}
 	// send ports number to socket vector<int>
-	listener(server.getListenPorts());
+	listener(&server);
 
 // ! CGI env
 	cgi cgi;

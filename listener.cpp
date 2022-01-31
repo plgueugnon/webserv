@@ -1,9 +1,11 @@
 #include "headers.hpp"
 #include "colors.hpp"
+#include "utils.hpp"
 
 // ! Faire passer ici en arg les spec de configs
-void	listener(std::vector<int> ports)
+void	listener(webserv *server)
 {
+	std::vector<int> ports = server->listenPorts;
 	// int port1 = 18000;
 	// int port2 = 820;
 	// int port3 = 8080;
@@ -66,7 +68,7 @@ void	listener(std::vector<int> ports)
 					std::cout << GREEN"New client connection...\n"RESET;
 			}
 
-		receive_request(client_sock);
+		receive_request(client_sock, server->_config);
 	}
 	// TODO Ajouter boucle de fermeture des sockets serveur
 	// ? Capture du signal pour terminer programme ? Doit être géré ?

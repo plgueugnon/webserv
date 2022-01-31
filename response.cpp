@@ -1,5 +1,11 @@
 #include "colors.hpp"
 #include "headers.hpp"
+#include "utils.hpp"
+
+response::response ( void ) 
+{
+}
+
 
 void	answer_client(int client_sock, std::string answer)
 {
@@ -19,12 +25,19 @@ void	answer_client(int client_sock, std::string answer)
 
 // TODO créer parsing complet et remplissage dynamique de la réponse à donner
 // ? Problème si le statut disponible en écriture du client pas vérifié ?
-void	manage_request(int client_sock, t_request *request)
+void	manage_request(int client_sock, request *request, t_http config)
 {
+	response 	response;
+	(void)config;
 	std::string	answer;
-	if (request->method.compare(0, 3, "GET") != 0)
+	if (request->requestLine[request::METHOD].compare(0, 3, "GET") != 0)
 		answer.assign("HTTP/1.1 400 Bad Request\r\n\r\n");
 	else
 		answer.assign("HTTP/1.1 200 OK\r\n\r\n Wesh ma gueule, bien ou bien !?");
 	answer_client(client_sock, answer);
 }
+
+				// if (	it->compare("GET") != 0 &&
+				// 		it->compare("POST") != 0 && 
+				// 		it->compare("DELETE") != 0 )
+				// 	throw std::invalid_argument(ERR_WRONG_METHOD);

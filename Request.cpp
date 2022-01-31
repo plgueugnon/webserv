@@ -15,7 +15,7 @@ body("")
 
 #define BUFFER_SIZE 12
 
-void	receive_request(int client_sock)
+void	receive_request(int client_sock, t_http config)
 {
 	ssize_t n = 0;
 	// std::vector<char> buf(4096);
@@ -69,9 +69,9 @@ void	receive_request(int client_sock)
 	}
 	request.printRequest();
 	// std::cout << request.buf << std::endl;
-	close(client_sock);
+	// close(client_sock);
 	// std::cout << "close socket" << std::endl;
-	// manage_request(client_sock, &request);
+	manage_request(client_sock, &request, config);
 }
 
 // return -1 if str doesn't contain \r\n
@@ -216,7 +216,7 @@ void request::fillHeaders(void)
 			{
 				requestHeaders->erase(0, headerToSearch->length());
 				header[headerIndex] = *requestHeaders;
-				std::cout << *requestHeaders << '\n';
+				// std::cout << *requestHeaders << '\n';
 			}
 			headerIndex++;
 		}
