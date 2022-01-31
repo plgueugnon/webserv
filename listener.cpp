@@ -5,6 +5,9 @@
 // ! nginx accepts by default 512 connections per worker
 // * as we are not authorized to use fork to create separate workers, max number of connections
 // * is therefore set to nginx max default value
+
+// TODO Rajouter class/struct avec serveur, port et socket pour yann
+
 #define NUM_CLIENTS 512
 
 
@@ -23,8 +26,9 @@ unsigned int	gettime(void)
 
 // * struct pour stocker les fd clients
 // ? A remplacer par un vector ou list avec pushback ?
-struct client_data {
-    int fd;
+struct client_data 
+{
+	int fd;
 	long time;
 } clients[NUM_CLIENTS];
 
@@ -184,7 +188,7 @@ void	listener() // ! kqueue
 		if (num_events == 0)
 		{
 			unsigned int now = gettime();
-			std::cout << "actual time = " << now << "\n";
+			// std::cout << "actual time = " << now << "\n";
 			for(int i = 0; i < NUM_CLIENTS; i++)
 			{
 				if (clients[i].fd != 0)
@@ -192,18 +196,23 @@ void	listener() // ! kqueue
 					std::cout << "client #" << i << " time left = " << clients[i].time - now << "\n";
 					if (clients[i].time - now <= 0)
 					{
-						std::cout << GREEN"client #" << clients[i].fd << " timeout\n";
+						std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << "with fd #" << clients[i].fd << " timeout\n"RESET;
+						// shutdown(clients[i].fd, SHUT_RDWR);
+						send(clients[i].fd, late, strlen(late), 0);
+						close(clients[i].fd);
 						for (int j = 0; j < 10; j++)
 						{
-							if (evList[j].filter == EVFILT_READ && evList[j].ident == (unsigned long)clients[i].fd)
+							if (evList[j].ident == (unsigned long)clients[i].fd)
 							{
-								send(clients[i].fd, late, strlen(late), 0);
+								std::cout << "entry test for client # " << i << " or " << j << std::endl;
+								// send(clients[i].fd, late, strlen(late), 0);
 								EV_SET(&evCon, evList[j].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
 								kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
-								del_client_socket(evList[j].ident);
+								// shutdown(evList[j].ident, SHUT_RDWR);
 								break ;
 							}
 						}
+						del_client_socket(clients[i].fd);
 					}
 				}
 			}
@@ -239,6 +248,8 @@ void	listener() // ! kqueue
 				}
 				else if (evList[i].filter == EVFILT_READ)
 				{
+					int r = get_client_socket(evList[i].ident);
+					std::cout << "client #" << r << " old time = " << clients[r].time << "\n";
 					if (!receive_request(evList[i].ident))
 					{
 						EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
@@ -249,7 +260,7 @@ void	listener() // ! kqueue
 					{
 						update_client_time(evList[i].ident);
 						int j = get_client_socket(evList[i].ident);
-						std::cout << "client #" << j << " updated time = " << clients[j].time << "\n";
+						std::cout << "client #" << j << " updated time = " << clients[j].time << " with fd #" << clients[j].fd << "\n";
 					}
 				}
 				// if (num_events == 0)
