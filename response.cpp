@@ -1,6 +1,4 @@
-#include "colors.hpp"
-#include "headers.hpp"
-#include "utils.hpp"
+#include "Aincludes.hpp"
 
 response::response ( void ) 
 {

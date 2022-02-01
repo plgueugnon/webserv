@@ -1,6 +1,8 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
+#include "Aincludes.hpp"
+
 #define REQUEST_LINE_ARGS 4
 #define HEADER_ARGS 14
 
