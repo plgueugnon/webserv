@@ -18,6 +18,10 @@
 #include <sys/types.h>
 #include <sys/select.h>
 #include <fcntl.h>
+#include <sys/event.h>
+
+// * time header
+#include <sys/time.h>
 
 // * basic header
 #include <string>
@@ -35,6 +39,10 @@
 // * functions
 // void	receive_request(int client_sock);
 // void	manage_request(int client_sock, request *request);
+void	listener();
+int	gen_listen_socket(int port);
+int	receive_request(int client_sock);
+void	manage_request(int client_sock, t_request *request);
 
 
 // request line

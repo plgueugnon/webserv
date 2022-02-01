@@ -72,7 +72,10 @@ int	gen_listen_socket(int port)
 
 	// ! associe le IP et port a un fd pour créer un socket d'écoute
 	if ( ( bind(server_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr) ) ) < 0 )
+	{
+		std::cerr << RED"Failure with port : " << port << "\n"RESET;
 		throw BindFailure();
+	}
 
 	// ! place la nouvelle socket créé en état d'écoute
 	if ( (listen(server_sock, 1024)) < 0 )

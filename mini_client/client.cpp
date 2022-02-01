@@ -78,7 +78,7 @@ int	main(int argc, char **argv)
 		}
 		std::cout << GRE"Connect successful\n"RST;
 
-		if (send(sockfd, it->c_str(), std::strlen(it->c_str()), 0 ) == -1)
+		if (send(sockfd, it->c_str(), strlen(it->c_str()), 0 ) == -1)
 		{
 			std::cerr << RED"error: failure to send request\n"RST;
 			return 1;

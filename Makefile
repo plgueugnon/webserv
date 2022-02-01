@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+         #
+#    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/01/31 13:50:20 by ygeslin          ###   ########.fr        #
+#    Updated: 2022/02/01 14:17:43 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,7 +42,7 @@ DEPENDS			= $(OBJECTS:.o=.d)
 SRCS			= 	main \
 					listener \
 					server_socket_generator \
-					request \
+					Request \
 					response \
 					utils \
 					cgi \

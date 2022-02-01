@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/31 14:50:50 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/01 14:17:26 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ exec cgi
 #include "colors.hpp"
 #include "webserv.hpp"
 #include "utils.hpp"
+// #include "headers.hpp" // ! choix a faire entre headers et utils
 
 void print_welcome( void )
 {

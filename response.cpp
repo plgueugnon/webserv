@@ -115,3 +115,14 @@ void	manage_request(int client_sock, request *request, t_server config)
 				// 		it->compare("POST") != 0 && 
 				// 		it->compare("DELETE") != 0 )
 				// 	throw std::invalid_argument(ERR_WRONG_METHOD);
+
+// TODO 1. Check si Bad Request = check method, puis store path et check protocol
+// TODO 2. Check header validity et update cgi env
+// TODO 2bis pasrse n store request uri
+// TODO 3ter si POST method -> check transfer method (MIME or HTML form)
+// TODO 3. go to response
+
+// ! Response
+// TODO 1. check selon method -> GET -> file/path exist ? -> DELETE = idem ? et POST -> A voir
+// TODO 2. Check si appel cgi et storage contenu renvoyé
+// TODO 3. Assemblage reponse (entete + body) et send
