@@ -10,6 +10,11 @@
 
 #define NUM_CLIENTS 512
 
+typedef struct s_set
+{
+	struct kevent rset;
+	struct kevent wset;
+}	t_set;
 
 unsigned int	gettime(void)
 {
@@ -88,7 +93,7 @@ void send_welcome_msg(int fd)
 
 int	cycle_fd(std::vector<int> listen_sockets, int fd)
 {
-	for(int i = 0; i < 3; i++)
+	for(size_t i = 0; i < listen_sockets.size(); i++)
 		if ( fd == listen_sockets[i] )
 			return listen_sockets[i];
 	return 0;
@@ -140,8 +145,8 @@ void	listener() // ! kqueue
 	*    uint64_t  ext[4];	     extensions
     * };
 	*/
-	struct kevent	evSet[3]; // events to monitor
-	// struct kevent	evSet; // events to monitor
+	// struct kevent	evSet[3]; // events to monitor
+	std::vector<t_set>      evSet(3);
 	struct kevent	evList[10]; // events that will be triggered
 
 	// * init kqueue = Creates a new kernel event queue and returns a descriptor
@@ -152,19 +157,15 @@ void	listener() // ! kqueue
 	// for( std::vector<int>::iterator it = listen_sockets.begin(), int i = 0; it != listen_sockets.end(), i < 3; it++, i++ )
 	for (int i = 0; i < 3; i++)
 	{
-		EV_SET(&evSet[i],listen_sockets[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+		EV_SET(&evSet[i].rset,listen_sockets[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+		// EV_SET(&evSet[i],listen_sockets[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
 		// * on stocke les évènements qui vont être monitoré
 		// if (kevent(kq, &(evSet[i]), 1, NULL, 0, NULL) == -1)
-		// {
-		// 	std::cerr << RED"error: kevent 1 failure\n"RESET;
-		// 	return ;
-		// }
-	}
-
-	if (kevent(kq, evSet, 3, NULL, 0, NULL) == -1)
-	{
-		std::cerr << RED"error: kevent 1 failure\n"RESET;
-		return ;
+		if (kevent(kq, &(evSet[i].rset), 1, NULL, 0, NULL) == -1)
+		{
+			std::cerr << RED"error: kevent 1 failure\n"RESET;
+			return ;
+		}
 	}
 
 	struct kevent	evCon; // struct pour stocker les events des sockets clients
@@ -172,7 +173,6 @@ void	listener() // ! kqueue
 
 	while (1)
 	{
-		// int time = 0;
 		// * equivalent a select
 		/*
 		* arg 1 = fd event queue to monitor (en read ou write, il faut 1 queue par filtre specifique (fd read, fd write, signal, etc))
@@ -188,7 +188,6 @@ void	listener() // ! kqueue
 		if (num_events == 0)
 		{
 			unsigned int now = gettime();
-			// std::cout << "actual time = " << now << "\n";
 			for(int i = 0; i < NUM_CLIENTS; i++)
 			{
 				if (clients[i].fd != 0)
@@ -259,8 +258,8 @@ void	listener() // ! kqueue
 					else
 					{
 						update_client_time(evList[i].ident);
-						int j = get_client_socket(evList[i].ident);
-						std::cout << "client #" << j << " updated time = " << clients[j].time << " with fd #" << clients[j].fd << "\n";
+						// int j = get_client_socket(evList[i].ident);
+						// std::cout << "client #" << j << " updated time = " << clients[j].time << " with fd #" << clients[j].fd << "\n";
 					}
 				}
 				// if (num_events == 0)
