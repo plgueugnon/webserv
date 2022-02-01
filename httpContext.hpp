@@ -5,11 +5,7 @@
 #ifndef HTTPCONTEXT_HPP
 #define HTTPCONTEXT_HPP
 
-#include "colors.hpp"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
+#include "Aincludes.hpp"
 
 typedef struct s_location
 {

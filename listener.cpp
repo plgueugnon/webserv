@@ -1,41 +1,16 @@
-#include "headers.hpp"
-#include "colors.hpp"
-#include "utils.hpp"
-
-// ! Faire passer ici en arg les spec de configs
-void	listener(webserv *server)
-{
-	std::vector<int> ports = server->listenPorts;
-	// int port1 = 18000;
-	// int port2 = 820;
-	// int port3 = 8080;
-
-	// std::vector<int> ports;
-	// ports.push_back(port1);
-	// ports.push_back(port2);
-	// ports.push_back(port3);
-
-	// ! fd_set de lecture -> pour déterminer si le socket server est prêt pour lecture
-	fd_set	read_fs;
-	// ! obligatoire d'init la struct avec FD_ZERO pour pouvoir y stocker des sockets
-	FD_ZERO(&read_fs);
-	// fd_set	write_fs;
-	int	client_sock;
-
-	fd_set	reader = { 0 };
+#include "Aincludes.hpp"
 
 // * https://www.nginx.com/blog/tuning-nginx/
 // ! nginx accepts by default 512 connections per worker
 // * as we are not authorized to use fork to create separate workers, max number of connections
 // * is therefore set to nginx max default value
 
-// TODO Rajouter class/struct avec serveur, port et socket pour yann
-
 #define NUM_CLIENTS 512
 #define MAX_EVENTS 10
 #define REQUEST_TIMEOUT 30
 #define MONITOR_TIMEOUT_SEC 10
 #define MONITOR_TIMEOUT_NSEC 1000
+
 
 typedef struct s_set
 {
@@ -126,18 +101,20 @@ int	cycle_fd(std::vector<int> listen_sockets, int fd)
 	return 0;
 }
 
+// TODO Rajouter class/struct avec serveur, port et socket pour yann
 
-void	listener() // ! kqueue
+void	listener(webserv *server) // ! kqueue
 {
+	std::vector<int> ports = server->listenPorts;
 // **************************************************
-	int port1 = 18000;
-	int port2 = 8200;
-	int port3 = 8080;
+	// int port1 = 18000;
+	// int port2 = 8200;
+	// int port3 = 8080;
 
-	std::vector<int> ports;
-	ports.push_back(port1);
-	ports.push_back(port2);
-	ports.push_back(port3);
+	// std::vector<int> ports;
+	// ports.push_back(port1);
+	// ports.push_back(port2);
+	// ports.push_back(port3);
 // **************************************************
 	struct timespec	timeout;
 	timeout.tv_nsec = MONITOR_TIMEOUT_NSEC;
@@ -250,7 +227,7 @@ void	listener() // ! kqueue
 				{
 					int r = get_client_socket(evList[i].ident);
 					std::cout << "client #" << r << " old time = " << clients[r].time << "\n";
-					if (!receive_request(evList[i].ident))
+					if (!receive_request(evList[i].ident, server->_config))
 					{
 						EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);  // TODO RAjouter un kevent en write sur le meme fd
 						kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
@@ -267,9 +244,4 @@ void	listener() // ! kqueue
 
 	} // TODO Ajouter boucle de fermeture des sockets clients puis serveur en cas de signal
 		// TODO tester avec shutdown(clients[i].fd, SHUT_RDWR);
-
-		receive_request(client_sock, server->_config);
-	}
-	// TODO Ajouter boucle de fermeture des sockets serveur
-	// ? Capture du signal pour terminer programme ? Doit être géré ?
 }

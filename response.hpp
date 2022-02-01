@@ -20,6 +20,6 @@ class response
 
 
 };
-void	receive_request(int client_sock, t_http config);
+int	receive_request(int client_sock, t_http config);
 void	manage_request(int client_sock, request *request, t_server config);
 #endif /* RESPONSE_HPP */

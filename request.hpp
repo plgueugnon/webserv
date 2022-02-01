@@ -1,8 +1,6 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include "utils.hpp"
-
 #define REQUEST_LINE_ARGS 4
 #define HEADER_ARGS 14
 

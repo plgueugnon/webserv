@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/01 14:17:26 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/01 15:15:39 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,7 @@ exec cgi
 
 */
 
-#include <iostream>
-#include <stdlib.h>
-#include "colors.hpp"
-#include "webserv.hpp"
-#include "utils.hpp"
+#include "Aincludes.hpp"
 // #include "headers.hpp" // ! choix a faire entre headers et utils
 
 void print_welcome( void )

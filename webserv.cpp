@@ -6,19 +6,11 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/01 14:18:59 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/01 15:13:17 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// System headers
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <cstdlib>
-
-// Custom headers
-#include "utils.hpp"
+#include "Aincludes.hpp"
 
 // Parsing context flags to parse the token (AST)
 #define HTTP_CONTEXT 1

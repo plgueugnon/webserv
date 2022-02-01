@@ -3,12 +3,11 @@
 /*                                                        :::      ::::::::   */
 /*   serverConf.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 16:44:33 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/01/21 16:44:33 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/01 15:14:06 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "serverConf.hpp"
-#include "utils.hpp"
+#include "Aincludes.hpp"

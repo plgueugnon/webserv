@@ -1,5 +1,4 @@
-#include "utils.hpp"
-#include "cgi.hpp"
+#include "Aincludes.hpp"
 
 cgi::cgi (void)
 {

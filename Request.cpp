@@ -1,6 +1,4 @@
-#include "colors.hpp"
-#include "utils.hpp"
-#include "headers.hpp"
+#include "Aincludes.hpp"
 
 request::request ( void ) :
 isBody(false),
@@ -15,7 +13,7 @@ body("")
 
 #define BUFFER_SIZE 12
 
-void	receive_request(int client_sock, t_http config)
+int	receive_request(int client_sock, t_http config)
 {
 	ssize_t n = 0;
 	// std::vector<char> buf(4096);
@@ -57,10 +55,13 @@ void	receive_request(int client_sock, t_http config)
 		// if (VERBOSE)
 		// 	std::cout << buf.data() << std::endl;
 		if (n == 0 || n == EAGAIN )
-			return ;
+			return 0;
 		if (n < BUFFER_SIZE - 1)
 			break;
-
+	}
+	manage_request(client_sock, &request, config.server[0]);
+	return 1;
+}
 // ! @Yann -> ma merde a cleanup ensuite si plus de besoin pour toi
 // #define MAX_MSG_SIZE 256
 

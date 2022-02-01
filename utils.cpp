@@ -2,15 +2,7 @@
 /* ygeslin                                                                    */
 /* ************************************************************************** */
 
-// System headers
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <cstdlib>
-
-// Custom headers
-#include "utils.hpp"
+#include "Aincludes.hpp"
 
 // print all nodes of a vector
 void    vec_enum(std::vector<std::string> &vec)
