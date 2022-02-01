@@ -1,4 +1,6 @@
-#include "Aincludes.hpp"
+#include "colors.hpp"
+#include "headers.hpp"
+#include "utils.hpp"
 
 response::response ( void ) 
 {
@@ -11,7 +13,20 @@ response::response (request *request, t_server config)
 	ret = "";
 	req->printRequest();
 }
+/*
+ check if the request path match a location block
+ if the request path match a location block, 
+ check if there is a return directive
+	return the code
+ check if the method is allowed in this location block
+ change root and index and autoindex
+ if the path is a directory begin and finish with /
+ return auto index
+ if not, not found
+ check if there is error_pages for this location
+ */
 
+// filename = root + request path + index
 void response::handleGet ( void )
 {
 	std::fstream file;
