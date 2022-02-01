@@ -97,3 +97,25 @@ bool     onlyDigits ( const char *  str)
     }
     return true;
 }
+
+void printLocation ( t_location *loc)
+{
+    std::vector<std::string>::iterator it;
+
+    std::cout << "---------------------" << std::endl;
+    std::cout << " Location config " << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << "path : \t\t\t'" << loc->path << "'" << std::endl;
+    std::cout << "autoindex : \t\t'" << loc->autoindex << "'" << std::endl;
+    std::cout << "client_max_body_size :\t'" << loc->client_max_body_size << "'" << std::endl;
+    std::cout << "index : \t\t'" << loc->index << "'" << std::endl;
+    std::cout << "root : \t\t\t'" << loc->root << "'" << std::endl;
+    // error pages
+    for (it = loc->error_page.begin(); it != loc->error_page.end(); it++)
+        std::cout << "error_page : \t\t'" << *it << "'" << std::endl;
+    // limit except
+    for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
+        std::cout << "limit_except : \t\t'" << *it << "'" << std::endl;
+    for (it = loc->return_dir.begin(); it != loc->return_dir.end(); it++)
+        std::cout << "return_dir : \t\t'" << *it << "'" << std::endl;
+}

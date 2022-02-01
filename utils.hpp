@@ -16,5 +16,7 @@ void    print_env_c(const char ** env);
 bool     is_error_code ( int  code);
 bool     onlyDigits ( const char *  str);
 
+void printLocation ( t_location *loc);
+
 
 #endif /* UTILS_HPP */

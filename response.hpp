@@ -14,7 +14,7 @@ class response
 	response (request *request, t_server config);
 
 	void parse ( void );
-	void handleGet ( void );
+	void handleGet ( t_location *loc);
 	void handleDelete ( void );
 	void handlePost ( void );
 

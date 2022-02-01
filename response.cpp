@@ -25,15 +25,29 @@ response::response (request *request, t_server config)
  */
 
 // filename = root + request path + index
-void response::handleGet ( void )
+void response::handleGet ( t_location *loc )
 {
 	std::fstream file;
 	std::string fileName = "";
 	std::string line = "";
 	std::string output = "";
-	fileName += conf.root;
-	fileName += req->requestLine[request::PATH] + "/" ;
-	fileName += conf.index;
+
+	if (loc)
+	{
+		fileName += loc->root;
+		fileName += req->requestLine[request::PATH];
+		if (req->requestLine[request::PATH].back() == '/')
+			fileName += conf.index;
+	}
+	else 
+	{
+		fileName += conf.root;
+		fileName += req->requestLine[request::PATH];
+		if (req->requestLine[request::PATH].back() == '/')
+			fileName += conf.index;
+	}
+		// std::cout << RED<< req->requestLine[request::PATH].back();
+		// std::cout << "----\n"RESET;
 	// fileName = "www/pokemon/carapuce.png";
 
 	std::cout << YELLOW"\nfilename: " << fileName << "\n"RESET;
@@ -63,6 +77,10 @@ void response::handlePost ( void )
 
 void response::parse ( void )
 {
+	std::vector<t_location>::iterator	loc_it;
+
+	t_location 							tmp;
+
 	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
 		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
 		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
@@ -72,17 +90,17 @@ void response::parse ( void )
 		ret += "Method not handled my man !";
 		return ;
 	}
-	// std::cout << RED << (req->requestLine[request::HTTP_VERSION]) <<"|"<< RESET;
-	// // std::cout << RED << "HTTP/1.1" << "|"<< RESET;
-	// if ((req->requestLine[request::HTTP_VERSION]).compare("HTTP/1.1") != 0)
-	// {
-	// 	ret += CODE_400;
-	// 	ret += "\r\n\r\n";
-	// 	ret += "Wrong http version man";
-	// 	return ;
-	// }
+	// find location path (from server config) that match request path
+	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
+	{
+		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+			tmp = *loc_it;
+	}
+	// printLocationConfig
+	printLocation(&tmp);
+
 	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
-		handleGet();
+		handleGet(&tmp);
 	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
 		handleDelete();
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )

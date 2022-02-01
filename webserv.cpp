@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/01 15:13:17 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/01 17:29:59 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -266,7 +266,8 @@ void webserv::parseToken(std::vector<std::string> & vec)
 		{
 			it++;
 			tmp = *it;
-			if (tmp[0] != '/')
+			// debut de checking si location path se termine pas par /
+			if (tmp[0] != '/' )//&& tmp[tmp.size() - 1] != '/' )
 				 throw std::invalid_argument(ERR_LOCATION_SLASH);
 			it++;
 			if (it->compare("{") != 0)
