@@ -206,7 +206,7 @@ void	listener(webserv *server) // ! kqueue
 					{
 						EV_SET(&evCon, client_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL); // TODO RAjouter un kevent en write sur le meme fd
 						kevent(kq, &evCon, 1, NULL, 0, NULL); // TODO augmenter a 2
-						send_welcome_msg(client_sock);
+						// send_welcome_msg(client_sock);
 					}
 					else
 					{

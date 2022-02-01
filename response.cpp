@@ -111,7 +111,7 @@ void	answer_client(int client_sock, std::string answer)
 void	manage_request(int client_sock, request *request, t_server config)
 {
 	response 	response(request, config);
-	std::string	answer;
+	std::string	answer = "";
 	(void)config;
 	response.parse();
 	// if (request->requestLine[request::METHOD].compare(0, 3, "GET") != 0)
