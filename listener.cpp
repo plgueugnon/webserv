@@ -14,6 +14,7 @@
 
 typedef struct s_set
 {
+	int				server_socket;
 	struct kevent	rset;
 	int				port;
 }	t_set;
@@ -48,7 +49,7 @@ int	get_client_socket(int fd) // * va cherche le fd et renvoie son index
 	return -1;
 }
 
-int	add_client_socket(int fd)
+int	add_client_socket(int fd, int socket_port)
 {
 	int i;
 	if ( fd < 1)
@@ -57,6 +58,8 @@ int	add_client_socket(int fd)
 		return -1; // * plus de place disponible
 	clients[i].fd = fd; // * stocke le socket client dans struct clients a l'index récupéré
 	clients[i].time = gettime() + (REQUEST_TIMEOUT * 1000); // ! chaque requete commence avec 30 sec (nginx = 60)
+	clients[i].port = socket_port;
+	std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << "with fd #" << clients[i].fd << " and port " << socket_port << "\n"RESET;
 	return 0;
 }
 
@@ -94,12 +97,12 @@ void send_welcome_msg(int fd)
 	send(fd, s.c_str(), s.size(), 0);
 }
 
-int	cycle_fd(std::vector<int> listen_sockets, int fd)
+int	cycle_fd(std::vector<t_set> evSet, int fd)
 {
-	for(size_t i = 0; i < listen_sockets.size(); i++)
-		if ( fd == listen_sockets[i] )
-			return listen_sockets[i];
-	return 0;
+	for(size_t i = 0; i < evSet.size(); i++)
+		if ( fd == evSet[i].server_socket )
+			return i;
+	return -1;
 }
 
 // TODO Rajouter class/struct avec serveur, port et socket pour yann
@@ -123,12 +126,17 @@ void	listener(webserv *server) // ! kqueue
 	char	late[] = "connection timeout !\n";
 // **************************************************
 	// ! je stocke les sockets d'écoute dans un tableau
-	std::vector<int> listen_sockets; // TODO AJOUTER ici port dans t_set pour chaque listen socket
+	// std::vector<int> listen_sockets; // TODO AJOUTER ici port dans t_set pour chaque listen socket
+	std::vector<t_set> evSet(ports.size()); // * events to monitor
+	int t = 0;
 	for( std::vector<int>::iterator it = ports.begin(); it != ports.end(); it++ )
 	{
 		try
 		{
-			listen_sockets.push_back(gen_listen_socket(*it));
+			// listen_sockets.push_back(gen_listen_socket(*it));
+			evSet[t].server_socket = gen_listen_socket(*it);
+			evSet[t++].port = *it;
+			std::cout << "port " << *it << " added\n";
 		}
 		catch ( const std::exception &e )
 		{
@@ -138,7 +146,7 @@ void	listener(webserv *server) // ! kqueue
 	}
 // **************************************************
 
-	std::vector<t_set>      evSet(3); // * events to monitor
+	
 	struct kevent	evList[MAX_EVENTS]; // * events that will be triggered
 
 	// * init kqueue = Creates a new kernel event queue and returns a descriptor
@@ -146,9 +154,9 @@ void	listener(webserv *server) // ! kqueue
 
 	// * stocke socket serveur dans evSet en mode lecture = on crée un filtre d'évènement a surveiller pour chaque socket (si en lecture),
 	// * avec l'action correspondante (add + enable)
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < evSet.size(); i++)
 	{
-		EV_SET(&evSet[i].rset,listen_sockets[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
+		EV_SET(&evSet[i].rset, evSet[i].server_socket, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
 		// * on stocke les évènements qui vont être monitoré
 		if (kevent(kq, &(evSet[i].rset), 1, NULL, 0, NULL) == -1)
 		{
@@ -160,6 +168,7 @@ void	listener(webserv *server) // ! kqueue
 	struct kevent	evCon; // * struct pour stocker les events des sockets clients
 	int	client_sock;
 
+	std::cout << GREEN"Server up and ready...\n"RESET;
 	// * Listening loop
 	while (1)
 	{
@@ -198,11 +207,11 @@ void	listener(webserv *server) // ! kqueue
 		for (int i = 0; i < num_events; i++)
 		{
 				// * Si je trouve le même fd dans evList -> un client est prêt (en read) pour connexion
-				if (cycle_fd(listen_sockets, evList[i].ident))
+				if (int n = cycle_fd(evSet, evList[i].ident) != -1)
 				{
 					// * on accepte la connexion : on crée un fd client
 					client_sock = accept(evList[i].ident, NULL, NULL);
-					if (add_client_socket(client_sock) == 0) // ! NB A verifier : ajout de 1 seul socket mais avec 2 events
+					if (add_client_socket(client_sock, evSet[n].port) == 0) // ! NB A verifier : ajout de 1 seul socket mais avec 2 events
 					{
 						EV_SET(&evCon, client_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL); // TODO RAjouter un kevent en write sur le meme fd
 						kevent(kq, &evCon, 1, NULL, 0, NULL); // TODO augmenter a 2
@@ -222,12 +231,12 @@ void	listener(webserv *server) // ! kqueue
 					std::cout << GREEN"client #" << get_client_socket(evList[i].ident) << " disconnected\n";
 					EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);  // TODO RAjouter un kevent en write sur le meme fd
 					kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
-					del_client_socket(evList[i].ident); 
+					del_client_socket(evList[i].ident);
 				}
 				else if (evList[i].filter == EVFILT_READ)
 				{
 					int r = get_client_socket(evList[i].ident);
-					std::cout << "client #" << r << " old time = " << clients[r].time << "\n";
+					// std::cout << "client #" << r << " old time = " << clients[r].time << "\n";
 					if (!receive_request(clients[r].fd, server->_config))
 					{
 						EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);  // TODO RAjouter un kevent en write sur le meme fd
