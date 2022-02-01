@@ -1,5 +1,5 @@
-#ifndef __HEADERS_H__
-#define __HEADERS_H__
+#ifndef __INCLUDES_H__
+#define __INCLUDES_H__
 
 #ifdef	DEBUG
 #define	VERBOSE 1
@@ -28,6 +28,28 @@
 #include <vector>
 #include <signal.h>
 #include <unistd.h>
+
+// System headers
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
+#include <cstring> // strtok
+#include <string.h>
+
+// Custom headers
+#include "webserv.hpp"
+#include "colors.hpp"
+#include "httpContext.hpp"
+#include "cgi.hpp"
+#include "listener.hpp"
+#include "request.hpp"
+#include "response.hpp"
+#include "httpCodes.hpp"
+
+#define PORT_MAX 65535
+#define PORT_MIN 1
 
 // typedef struct s_request {
 // 	std::string	method;
@@ -136,5 +158,4 @@ void	manage_request(int client_sock, t_request *request);
 //    | 504  | Gateway Timeout               | Section 6.6.5            |
 //    | 505  | HTTP Version Not Supported 
 
-
-#endif // __HEADERS_H__
+#endif // __INCLUDES_H__
