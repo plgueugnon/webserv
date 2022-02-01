@@ -6,7 +6,7 @@
 // * is therefore set to nginx max default value
 
 #define NUM_CLIENTS 512
-#define MAX_EVENTS 10
+#define MAX_EVENTS 100
 #define REQUEST_TIMEOUT 30
 #define MONITOR_TIMEOUT_SEC 10
 #define MONITOR_TIMEOUT_NSEC 1000
