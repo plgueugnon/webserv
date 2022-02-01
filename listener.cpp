@@ -35,8 +35,9 @@ unsigned int	gettime(void)
 // ? A remplacer par un vector ou list avec pushback ?
 struct client_data 
 {
-	int fd;
-	long time;
+	int		fd;
+	long	time;
+	int		port;
 } clients[NUM_CLIENTS];
 
 int	get_client_socket(int fd) // * va cherche le fd et renvoie son index
@@ -227,7 +228,7 @@ void	listener(webserv *server) // ! kqueue
 				{
 					int r = get_client_socket(evList[i].ident);
 					std::cout << "client #" << r << " old time = " << clients[r].time << "\n";
-					if (!receive_request(evList[i].ident, server->_config))
+					if (!receive_request(clients[r].fd, server->_config))
 					{
 						EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);  // TODO RAjouter un kevent en write sur le meme fd
 						kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
