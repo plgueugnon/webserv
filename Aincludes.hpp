@@ -37,6 +37,7 @@
 #include <cstdlib>
 #include <cstring> // strtok
 #include <string.h>
+#include <dirent.h> // opendir
 
 // * Custom headers
 #include "httpContext.hpp"

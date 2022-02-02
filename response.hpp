@@ -17,6 +17,8 @@ class response
 	void handleGet ( t_location *loc);
 	void handleDelete ( void );
 	void handlePost ( void );
+	void setCode ( std::string code, std::string output );
+	std::string autoIndex ( t_location *loc );
 
 
 };

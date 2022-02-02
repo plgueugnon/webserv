@@ -23,9 +23,73 @@ response::response (request *request, t_server config)
  if not, not found
  check if there is error_pages for this location
  */
+std::string response::autoIndex(t_location *loc)
+{
+	std::vector<std::string> folder;
+	std::vector<std::string>::iterator it;
+	std::string 	output = "";
+	std::string 	fileName = "";
+	DIR 			*dir;
+	struct dirent 	*ent;
+
+	if (loc)
+		fileName += loc->root;
+	else
+		fileName += conf.root;
+	fileName += req->requestLine[request::PATH];
+	if (loc)
+	{
+		if (loc->autoindex.compare("on") != 0 &&
+			conf.autoindex.compare("on") != 0)
+			return output;
+	}
+	if ((dir = opendir(fileName.c_str())) != NULL)
+	{
+		/* print all the files and directories within directory */
+		while ((ent = readdir(dir)) != NULL)
+		{
+			folder.push_back(ent->d_name);
+			// printf("%s\n", ent->d_name);
+		}
+		closedir(dir);
+	}
+	else
+	{
+		/* could not open directory */
+		std::cerr << RED"can't open directory\n"RESET;
+		return output;
+	}
+	output += "<html>\n <head><title>Index of ";
+	output += fileName.c_str();
+	output += " folder.\n\n";
+	output += " </title></head>\n <body>\n";
+	output += "<h1>Index of ";
+	output += fileName.c_str();
+	output += " folder.\n\n";
+
+	for (it = folder.begin(); it != folder.end(); it++)
+	{
+		output += "<a href=\"";
+		output += fileName.c_str();
+		output += *it;
+		output += "/\">";
+		output += *it;
+		output += "/\"/a>\n";
+	}
+	output += "</ html>";
+	 return output;
+}
+
+void response::setCode(std::string code, std::string output)
+{
+	ret += code;
+	ret += "\r\n\r\n";
+	ret += output;
+	return ;
+}
 
 // filename = root + request path + index
-void response::handleGet ( t_location *loc )
+void response::handleGet(t_location *loc)
 {
 	std::fstream file;
 	std::string fileName = "";
@@ -39,15 +103,15 @@ void response::handleGet ( t_location *loc )
 		if (req->requestLine[request::PATH].back() == '/')
 			fileName += conf.index;
 	}
-	else 
+	else
 	{
 		fileName += conf.root;
 		fileName += req->requestLine[request::PATH];
 		if (req->requestLine[request::PATH].back() == '/')
 			fileName += conf.index;
 	}
-		// std::cout << RED<< req->requestLine[request::PATH].back();
-		// std::cout << "----\n"RESET;
+	// std::cout << RED<< req->requestLine[request::PATH].back();
+	// std::cout << "----\n"RESET;
 	// fileName = "www/pokemon/carapuce.png";
 
 	std::cout << YELLOW"\nfilename: " << fileName << "\n"RESET;
@@ -58,10 +122,13 @@ void response::handleGet ( t_location *loc )
 		while (getline(file, line))
 				output += line;
 	}
+	else
+		output += autoIndex(loc);
 	// std::cout << output << std::endl;
-	ret += CODE_200;
-	ret += "\r\n\r\n";
-	ret += output;
+	if (output.empty() == 1)
+		setCode(CODE_404, output);
+	else 
+		setCode(CODE_200, output);
 	return;
 }
 
@@ -80,6 +147,7 @@ void response::parse ( void )
 	std::vector<t_location>::iterator	loc_it;
 
 	t_location 							tmp;
+	std::string 						autoIndex;
 
 	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
 		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
