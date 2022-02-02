@@ -106,9 +106,9 @@ void response::handleGet(t_location *loc)
 	std::string line = "";
 	std::string output = "";
 
-	// if (loc->root.size() == 0)
+	if (loc->root.size() == 0)
 		fileName += conf.root;
-	// else 
+	else 
 		fileName += loc->root;
 	// std::cout << RED"conf ROOT : " << conf.root.size() << "\n"RESET;
 	// std::cout << RED"loc ROOT : " << loc->root.size() << "\n"RESET;
