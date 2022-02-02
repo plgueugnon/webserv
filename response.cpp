@@ -180,11 +180,28 @@ void response::handleDelete ( t_location *loc )
 void response::handlePost ( t_location *loc )
 {
 	(void) loc;
+	// ! CGI env
+	cgi cgi;
+	cgi.env[cgi::SERVER_NAME] += conf.server_name;
+	cgi.env[cgi::SERVER_PORT] += conf.listen;
+	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
+	cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
+	cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
+	cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
+	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
+	cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
+	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+	vec_enum(cgi.env);
+	cgi.convertToC();
+	print_env_c(cgi.c_env);
 	return;
 }
 
 void response::parse ( void )
 {
+	// ! add error pages
+	// ! except limit
+	// ! return
 	std::vector<t_location>::iterator	loc_it;
 
 	t_location 							tmp;
@@ -198,6 +215,7 @@ void response::parse ( void )
 		ret += "Method not handled my man !";
 		return ;
 	}
+	req->printRequest();
 	// find location path (from server config) that match request path
 	// for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
 	// {
