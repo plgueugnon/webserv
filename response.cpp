@@ -143,8 +143,37 @@ void response::handleGet(t_location *loc)
 	return;
 }
 
+// https://www.cplusplus.com/reference/cstdio/remove/
 void response::handleDelete ( void )
 {
+	std::fstream file;
+	std::string fileName = "";
+	std::string output = "";
+
+	if (loc->root.size() == 0)
+		fileName += conf.root;
+	else 
+		fileName += loc->root;
+
+	fileName += req->requestLine[request::PATH];
+	// if (req->requestLine[request::PATH].back() == '/')
+	// {
+	// 	if (loc->index.size() == 0)
+	// 		fileName += conf.index;
+	// 	else
+	// 		fileName += loc->index;
+	// }
+	if (remove(fileName.c_str()) != 0)
+	{
+		perror("Error deleting file");
+		setCode(CODE_404, output);
+	}
+	else
+	{
+		setCode(CODE_200, output);
+		puts("File successfully deleted");
+	}
+
 	return;
 }
 

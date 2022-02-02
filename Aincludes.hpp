@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <cstdio> // remove (file)
 #include <cstring> // strtok
 #include <string.h>
 #include <dirent.h> // opendir
