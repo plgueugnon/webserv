@@ -30,6 +30,7 @@ std::string response::autoIndex(t_location *loc)
 	std::string 	output = "";
 	std::string 	fileName = "";
 	std::string 	root = "";
+	std::string 	tmp = "";
 	DIR 			*dir;
 	struct dirent 	*ent;
 
@@ -52,7 +53,10 @@ std::string response::autoIndex(t_location *loc)
 		/* print all the files and directories within directory */
 		while ((ent = readdir(dir)) != NULL)
 		{
-			folder.push_back(ent->d_name);
+			tmp = ent->d_name;
+			if (ent->d_type == DT_DIR)
+				tmp += "/";
+			folder.push_back(tmp);
 			// printf("%s\n", ent->d_name);
 		}
 		closedir(dir);
@@ -64,20 +68,21 @@ std::string response::autoIndex(t_location *loc)
 		return output;
 	}
 	output += "<html>\n <head><title>Index of ";
-	output += root;
+	output += req->requestLine[request::PATH];
 	output += " folder.\n\n";
 	output += " </title></head>\n <body>\n";
 	output += "<h1>Index of ";
-	output += root;
+	output += req->requestLine[request::PATH];
 	output += " folder.\n\n</h1><hr><pre>";
+
 
 	for (it = folder.begin(); it != folder.end(); it++)
 	{
 		output += "<a href=\"";
 		output += *it;
-		output += "/\">";
+		output += "\">";
 		output += *it;
-		output += "/\n";
+		output += "\n";
 	}
 	output += "</pre><hr></body>";
 	output += "</ html>";
@@ -203,7 +208,6 @@ void	manage_request(int client_sock, request *request, t_server config)
 	response 	response(request, config);
 	std::string	answer = "";
 	(void)config;
-	std::cerr << YELLOW"TEST"RESET;
 	response.parse();
 	// if (request->requestLine[request::METHOD].compare(0, 3, "GET") != 0)
 	// 	answer.assign("HTTP/1.1 400 Bad Request\r\n\r\n");
