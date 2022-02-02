@@ -163,6 +163,7 @@ int 	containsCrlf(std::string str)
 void request::parseHeader(void)
 {
 	int 	pos = containsCrlf(buf);
+	// int 	size ;
 
 	// if pos < 0, the buffer doesn't contain \r\n
 	// so return to recv to receive the end of the headers
@@ -171,7 +172,12 @@ void request::parseHeader(void)
 	isBody = true;
 	// save the beginning of the body, saved in the buffer
 	// + 2 to skip \r\n
-	body = buf.substr(pos + 2, buf.size());
+	std::cout << "pos :" << pos << "\n";
+	std::cout << "bufsize :" << buf.size() << "\n";
+
+	if (buf.size() - pos - 2 > 0)
+		body = buf.substr(pos + 2, buf.size());
+	std::cerr << YELLOW"TEST"RESET;
 	// erase the end of the buffer to extract only headers
 	buf.erase(pos - 1);
 	// save requestline and header in headerBuffer

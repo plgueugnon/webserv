@@ -29,20 +29,24 @@ std::string response::autoIndex(t_location *loc)
 	std::vector<std::string>::iterator it;
 	std::string 	output = "";
 	std::string 	fileName = "";
+	std::string 	root = "";
 	DIR 			*dir;
 	struct dirent 	*ent;
 
-	if (loc)
-		fileName += loc->root;
+	if (loc->root.size() == 0)
+		root += conf.root;
 	else
-		fileName += conf.root;
+		root += loc->root;
+	fileName += root;
 	fileName += req->requestLine[request::PATH];
-	if (loc)
+	std::cout << RED"autoindex index : " << fileName << "\n"RESET;
+	if (loc->autoindex.size() == 0)
 	{
 		if (loc->autoindex.compare("on") != 0 &&
 			conf.autoindex.compare("on") != 0)
 			return output;
 	}
+	std::cout << RED"autoindex index : " << fileName << "\n"RESET;
 	if ((dir = opendir(fileName.c_str())) != NULL)
 	{
 		/* print all the files and directories within directory */
@@ -60,22 +64,22 @@ std::string response::autoIndex(t_location *loc)
 		return output;
 	}
 	output += "<html>\n <head><title>Index of ";
-	output += fileName.c_str();
+	output += root;
 	output += " folder.\n\n";
 	output += " </title></head>\n <body>\n";
 	output += "<h1>Index of ";
-	output += fileName.c_str();
-	output += " folder.\n\n";
+	output += root;
+	output += " folder.\n\n</h1><hr><pre>";
 
 	for (it = folder.begin(); it != folder.end(); it++)
 	{
 		output += "<a href=\"";
-		output += fileName.c_str();
 		output += *it;
 		output += "/\">";
 		output += *it;
-		output += "/\"/a>\n";
+		output += "/\n";
 	}
+	output += "</pre><hr></body>";
 	output += "</ html>";
 	 return output;
 }
@@ -96,19 +100,19 @@ void response::handleGet(t_location *loc)
 	std::string line = "";
 	std::string output = "";
 
-	if (loc)
-	{
-		fileName += loc->root;
-		fileName += req->requestLine[request::PATH];
-		if (req->requestLine[request::PATH].back() == '/')
-			fileName += conf.index;
-	}
-	else
-	{
+	// if (loc->root.size() == 0)
 		fileName += conf.root;
-		fileName += req->requestLine[request::PATH];
-		if (req->requestLine[request::PATH].back() == '/')
+	// else 
+		fileName += loc->root;
+	// std::cout << RED"conf ROOT : " << conf.root.size() << "\n"RESET;
+	// std::cout << RED"loc ROOT : " << loc->root.size() << "\n"RESET;
+	fileName += req->requestLine[request::PATH];
+	if (req->requestLine[request::PATH].back() == '/')
+	{
+		if (loc->index.size() == 0)
 			fileName += conf.index;
+		else
+			fileName += loc->index;
 	}
 	// std::cout << RED<< req->requestLine[request::PATH].back();
 	// std::cout << "----\n"RESET;
@@ -121,11 +125,12 @@ void response::handleGet(t_location *loc)
 	{
 		while (getline(file, line))
 				output += line;
+		file.close();
 	}
 	else
 		output += autoIndex(loc);
 	// std::cout << output << std::endl;
-	if (output.empty() == 1)
+	if (output.size() == 0)
 		setCode(CODE_404, output);
 	else 
 		setCode(CODE_200, output);
@@ -147,25 +152,24 @@ void response::parse ( void )
 	std::vector<t_location>::iterator	loc_it;
 
 	t_location 							tmp;
-	std::string 						autoIndex;
 
-	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
-	{
-		ret += CODE_400;
-		ret += "\r\n\r\n";
-		ret += "Method not handled my man !";
-		return ;
-	}
+	// if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
+	// 	(req->requestLine[request::METHOD]).compare("POST") != 0 &&
+	// 	(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+	// {
+	// 	ret += CODE_400;
+	// 	ret += "\r\n\r\n";
+	// 	ret += "Method not handled my man !";
+	// 	return ;
+	// }
 	// find location path (from server config) that match request path
-	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
-	{
-		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
-			tmp = *loc_it;
-	}
+	// for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
+	// {
+	// 	if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+	// 		tmp = *loc_it;
+	// }
 	// printLocationConfig
-	printLocation(&tmp);
+	// printLocation(&tmp);
 
 	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet(&tmp);
@@ -199,6 +203,7 @@ void	manage_request(int client_sock, request *request, t_server config)
 	response 	response(request, config);
 	std::string	answer = "";
 	(void)config;
+	std::cerr << YELLOW"TEST"RESET;
 	response.parse();
 	// if (request->requestLine[request::METHOD].compare(0, 3, "GET") != 0)
 	// 	answer.assign("HTTP/1.1 400 Bad Request\r\n\r\n");
