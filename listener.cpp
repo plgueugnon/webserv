@@ -174,7 +174,7 @@ void	listener(webserv *server) // ! kqueue
 	{
 		// * equivalent a select
 		std::cout << BLUE"Waiting for connection...\n"RESET;
-		int	num_events = kevent(kq, NULL, 0, evList, 10, &timeout);
+		int	num_events = kevent(kq, NULL, 0, evList, MAX_EVENTS, &timeout);
 		if (num_events == 0)
 		{
 			unsigned int now = gettime();
@@ -214,7 +214,8 @@ void	listener(webserv *server) // ! kqueue
 					if (add_client_socket(client_sock, evSet[n].port) == 0) // ! NB A verifier : ajout de 1 seul socket mais avec 2 events
 					{
 						EV_SET(&evCon, client_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL); // TODO RAjouter un kevent en write sur le meme fd
-						kevent(kq, &evCon, 1, NULL, 0, NULL); // TODO augmenter a 2
+						EV_SET(&evCon, client_sock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
+						kevent(kq, &evCon, 2, NULL, 0, NULL); // TODO augmenter a 2
 						// send_welcome_msg(client_sock);
 					}
 					else
@@ -230,7 +231,8 @@ void	listener(webserv *server) // ! kqueue
 				{
 					std::cout << GREEN"client #" << get_client_socket(evList[i].ident) << " disconnected\n";
 					EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);  // TODO RAjouter un kevent en write sur le meme fd
-					kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
+					EV_SET(&evCon, evList[i].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+					kevent(kq, &evCon, 2, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
 					del_client_socket(evList[i].ident);
 				}
 				else if (evList[i].filter == EVFILT_READ)
@@ -240,7 +242,8 @@ void	listener(webserv *server) // ! kqueue
 					if (!receive_request(clients[r].fd, server->_config))
 					{
 						EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);  // TODO RAjouter un kevent en write sur le meme fd
-						kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
+						EV_SET(&evCon, evList[i].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+						kevent(kq, &evCon, 2, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
 						del_client_socket(evList[i].ident);
 					}
 					else

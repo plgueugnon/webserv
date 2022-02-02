@@ -1,6 +1,7 @@
 .DS_Store
 #bin
 webserv
+client
 #coc-nvim
 .ccls-*
 # Prerequisites

@@ -42,10 +42,10 @@
 #include "httpContext.hpp"
 #include "webserv.hpp"
 #include "cgi.hpp"
-// #include "listener.hpp"
 #include "request.hpp"
 #include "response.hpp"
 #include "httpCodes.hpp"
+#include "Server.hpp"
 
 // * Utility headers
 #include "colors.hpp"
@@ -54,6 +54,16 @@
 // * global fixed variables
 #define PORT_MAX 65535
 #define PORT_MIN 1
+
+typedef struct s_client_data
+{
+	int		fd;
+	long	time;
+	int		port;
+}	t_client_data;
+
+
+
 
 // * functions (temporaire jusqu'a creation de classe)
 
