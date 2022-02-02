@@ -14,9 +14,9 @@ class response
 	response (request *request, t_server config);
 
 	void parse ( void );
-	void handleGet ( t_location *loc);
-	void handleDelete ( void );
-	void handlePost ( void );
+	void handleGet ( t_location *loc );
+	void handleDelete ( t_location *loc );
+	void handlePost (  t_location *loc );
 	void setCode ( std::string code, std::string output );
 	std::string autoIndex ( t_location *loc );
 

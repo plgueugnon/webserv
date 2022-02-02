@@ -144,7 +144,7 @@ void response::handleGet(t_location *loc)
 }
 
 // https://www.cplusplus.com/reference/cstdio/remove/
-void response::handleDelete ( void )
+void response::handleDelete ( t_location *loc )
 {
 	std::fstream file;
 	std::string fileName = "";
@@ -177,8 +177,9 @@ void response::handleDelete ( void )
 	return;
 }
 
-void response::handlePost ( void )
+void response::handlePost ( t_location *loc )
 {
+	(void) loc;
 	return;
 }
 
@@ -209,9 +210,9 @@ void response::parse ( void )
 	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet(&tmp);
 	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
-		handleDelete();
+		handleDelete(&tmp);
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
-		handlePost();
+		handlePost(&tmp);
 }
 
 
