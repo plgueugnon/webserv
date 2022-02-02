@@ -38,16 +38,17 @@ std::string response::autoIndex(t_location *loc)
 		root += conf.root;
 	else
 		root += loc->root;
+
 	fileName += root;
 	fileName += req->requestLine[request::PATH];
-	std::cout << RED"autoindex index : " << fileName << "\n"RESET;
+	// std::cout << RED"autoindex index : " << fileName << "\n"RESET;
 	if (loc->autoindex.size() == 0)
 	{
 		if (loc->autoindex.compare("on") != 0 &&
 			conf.autoindex.compare("on") != 0)
 			return output;
 	}
-	std::cout << RED"autoindex index : " << fileName << "\n"RESET;
+	// std::cout << RED"autoindex index : " << fileName << "\n"RESET;
 	if ((dir = opendir(fileName.c_str())) != NULL)
 	{
 		/* print all the files and directories within directory */
@@ -123,7 +124,7 @@ void response::handleGet(t_location *loc)
 	// std::cout << "----\n"RESET;
 	// fileName = "www/pokemon/carapuce.png";
 
-	std::cout << YELLOW"\nfilename: " << fileName << "\n"RESET;
+	// std::cout << YELLOW"\nfilename: " << fileName << "\n"RESET;
 	file.open(fileName.c_str());
 
 	if (file.is_open())
@@ -158,15 +159,15 @@ void response::parse ( void )
 
 	t_location 							tmp;
 
-	// if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
-	// 	(req->requestLine[request::METHOD]).compare("POST") != 0 &&
-	// 	(req->requestLine[request::METHOD]).compare("DELETE") != 0)
-	// {
-	// 	ret += CODE_400;
-	// 	ret += "\r\n\r\n";
-	// 	ret += "Method not handled my man !";
-	// 	return ;
-	// }
+	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
+		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
+		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+	{
+		ret += CODE_400;
+		ret += "\r\n\r\n";
+		ret += "Method not handled my man !";
+		return ;
+	}
 	// find location path (from server config) that match request path
 	// for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
 	// {
