@@ -6,7 +6,18 @@
 #else
 #define	VERBOSE 0
 #endif
- 
+
+// * global fixed variables
+#define PORT_MAX 65535
+#define PORT_MIN 1
+
+typedef struct s_client_data
+{
+	int		fd;
+	long	time;
+	int		port;
+}	t_client_data;
+
 // * stream header
 #include <iostream>
 #include <fstream>
@@ -50,19 +61,6 @@
 // * Utility headers
 #include "colors.hpp"
 #include "utils.hpp"
-
-// * global fixed variables
-#define PORT_MAX 65535
-#define PORT_MIN 1
-
-typedef struct s_client_data
-{
-	int		fd;
-	long	time;
-	int		port;
-}	t_client_data;
-
-
 
 
 // * functions (temporaire jusqu'a creation de classe)

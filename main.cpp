@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/01 15:15:39 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/02 15:18:49 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ int main (int ac, char **av, char **env)
 	(void)ac;
 	(void)av;
 	(void)env;
-	webserv		server;
+	webserv		server_config;
 
 	print_welcome();
 
@@ -91,18 +91,18 @@ int main (int ac, char **av, char **env)
 		if (ac == 1)
 		{
 			usage_one_arg();
-			server.setFileName("etc/webserv.conf");
+			server_config.setFileName("etc/webserv.conf");
 		}
 		if (ac == 2)
 		{
 			usage_two_args(av[1]);
-			server.setFileName(av[1]);
+			server_config.setFileName(av[1]);
 		}
 	}
 	try 
 	{
-		server.parseConfigFile();
-		server.checkParseError();
+		server_config.parseConfigFile();
+		server_config.checkParseError();
 	}
 	  catch (std::invalid_argument& e)
     {
@@ -110,7 +110,17 @@ int main (int ac, char **av, char **env)
 		return -1;
 	}
 	// send ports number to socket vector<int>
-	listener(&server);
+	// listener(&server);
+	try
+	{
+		Server	listener(&server_config);
+		listener.setup_config();
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << RED << e.what() << RESET << std::endl;
+		return -1;
+	}
 
 // ! CGI env
 	cgi cgi;
@@ -123,7 +133,7 @@ int main (int ac, char **av, char **env)
 	
 	
 
-	return (1);
+	return ( 0 );
 }
 /*
 1. parse cofing // gestion erreur de config

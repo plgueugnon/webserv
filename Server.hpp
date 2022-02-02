@@ -30,11 +30,11 @@ class Server
 	public:
 
 		Server( void );
-		Server( webserv &server );
+		Server( webserv *server );
 		~Server();
 
 		// * server config
-		void	setup_config( void );
+		void	setup_config(void);
 		int	generate_listen_socket(int port);
 
 
@@ -42,30 +42,31 @@ class Server
 		unsigned int	gettime(void);
 		int	update_client_time(int fd);
 
-
 		// * server loop
 		int	get_client_socket(int fd);
 		int	add_client_socket(int fd, int socket_port);
-		int	del_client_socket(int fd)
+		int	del_client_socket(int fd);
 		int	cycle_fd(std::vector<t_set> evSet, int fd);
+		void	run(void);
 
+		// * attributes
+	private:
+		int				_kq;
+		struct timespec	_timeout;
+		struct kevent	_evList[MAX_EVENTS];
 
-		// * class var
-		int	kq;
-		std::vector<int> ports;
-		struct timespec	timeout;
-		std::vector<t_set> evSet;
-		struct kevent	evList[MAX_EVENTS];
+	public:
+		std::vector<t_set>	evSet;
+		t_client_data		clients[NUM_CLIENTS];
+		webserv				*server_config;
 
-		t_client_data	clients[NUM_CLIENTS];
-		webserv server_config;
-
+		// std::vector<int> ports;
 		//* local var
 		// struct kevent	evCon;
 		// int	client_sock;
 
 		// * temp
-		char	late[] = "connection timeout !\n";
+		// char	late[] = "connection timeout !\n";
 
 };
 
@@ -94,7 +95,7 @@ class BindFailure : public std::exception {
 public:
 
 	virtual const char	*what( void ) const throw() {
-		return ( "error: socket bind failure\n" );
+		return ( "error: bind failure\n" );
 	}
 
 };
@@ -104,7 +105,7 @@ class ListenFailure : public std::exception {
 public:
 
 	virtual const char	*what( void ) const throw() {
-		return ( "error: socket listen failure\n" );
+		return ( "error: listen failure\n" );
 	}
 
 };
@@ -115,6 +116,16 @@ public:
 
 	virtual const char	*what( void ) const throw() {
 		return ( "error: server cannot start without config\n" );
+	}
+
+};
+
+class KeventFailure : public std::exception {
+
+public:
+
+	virtual const char	*what( void ) const throw() {
+		return ( "error: kevent failure\n" );
 	}
 
 };
