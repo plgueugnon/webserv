@@ -13,14 +13,14 @@ response::response (request *request, t_server config)
 }
 /*
  check if the request path match a location block
- if the request path match a location block, 
+// // if the request path match a location block, 
  check if there is a return directive
 	return the code
  check if the method is allowed in this location block
- change root and index and autoindex
- if the path is a directory begin and finish with /
- return auto index
- if not, not found
+// // change root and index and autoindex
+ // //if the path is a directory begin and finish with /
+ // //return auto index
+ // //if not, not found
  check if there is error_pages for this location
  */
 std::string response::autoIndex(t_location *loc)
