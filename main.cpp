@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/02 15:18:49 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/02 18:59:59 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,7 @@ int main (int ac, char **av, char **env)
 	{
 		Server	listener(&server_config);
 		listener.setup_config();
+		listener.run();
 	}
 	catch (std::exception& e)
 	{

@@ -14,7 +14,7 @@
 #define MAX_EVENTS 100
 #define REQUEST_TIMEOUT 30
 #define MONITOR_TIMEOUT_SEC 10
-#define MONITOR_TIMEOUT_NSEC 1000
+#define MONITOR_TIMEOUT_NSEC 100000
 
 typedef struct	s_set
 {
@@ -37,15 +37,16 @@ class Server
 		void	setup_config(void);
 		int	generate_listen_socket(int port);
 
-
 		// * client socket monitoring
 		unsigned int	gettime(void);
 		int	update_client_time(int fd);
 
 		// * server loop
+		void	update_events(int fd, int update);
 		int	get_client_socket(int fd);
 		int	add_client_socket(int fd, int socket_port);
 		int	del_client_socket(int fd);
+		void	clear_late_clients(void);
 		int	cycle_fd(std::vector<t_set> evSet, int fd);
 		void	run(void);
 
@@ -54,6 +55,7 @@ class Server
 		int				_kq;
 		struct timespec	_timeout;
 		struct kevent	_evList[MAX_EVENTS];
+		struct kevent	_evCon;
 
 	public:
 		std::vector<t_set>	evSet;

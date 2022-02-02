@@ -16,6 +16,7 @@ typedef struct s_client_data
 	int		fd;
 	long	time;
 	int		port;
+	bool	wready;
 }	t_client_data;
 
 // * stream header

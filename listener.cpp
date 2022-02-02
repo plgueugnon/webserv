@@ -195,7 +195,8 @@ void	listener(webserv *server) // ! kqueue
 							{
 								std::cout << "entry test for client # " << i << " or " << j << std::endl;
 								EV_SET(&evCon, evList[j].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL); // TODO RAjouter un kevent en write sur le meme fd
-								kevent(kq, &evCon, 1, NULL, 0, NULL); // actualise le fd set
+								EV_SET(&evCon, evList[j].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+								kevent(kq, &evCon, 2, NULL, 0, NULL); // actualise le fd set
 								break ;
 							}
 						}
@@ -230,7 +231,7 @@ void	listener(webserv *server) // ! kqueue
 				else if (evList[i].flags & EV_EOF)
 				{
 					std::cout << GREEN"client #" << get_client_socket(evList[i].ident) << " disconnected\n";
-					EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);  // TODO RAjouter un kevent en write sur le meme fd
+					EV_SET(&evCon, evList[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL); // TODO RAjouter un kevent en write sur le meme fd
 					EV_SET(&evCon, evList[i].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 					kevent(kq, &evCon, 2, NULL, 0, NULL); // actualise le fd set  // TODO augmenter a 2
 					del_client_socket(evList[i].ident);
