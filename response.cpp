@@ -9,7 +9,7 @@ response::response (request *request, t_server config)
 	req = request;
 	conf = config;
 	ret = "";
-	req->printRequest();
+	// req->printRequest();
 }
 /*
  check if the request path match a location block

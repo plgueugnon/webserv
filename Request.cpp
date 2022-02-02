@@ -172,15 +172,14 @@ void request::parseHeader(void)
 	isBody = true;
 	// save the beginning of the body, saved in the buffer
 	// + 2 to skip \r\n
-	std::cout << "pos :" << pos << "\n";
-	std::cout << "bufsize :" << buf.size() << "\n";
+	// std::cout << "pos :" << pos << "\n";
+	// std::cout << "bufsize :" << buf.size() << "\n";
 
 	if (buf.size() - pos - 2 > 0)
 	{
 		body = buf.substr(pos + 2, buf.size());
 		buf.erase(pos - 1);
 	}
-	std::cerr << YELLOW"TEST"RESET;
 	// erase the end of the buffer to extract only headers
 	// save requestline and header in headerBuffer
 	headerbuf = buf;
