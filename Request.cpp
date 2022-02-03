@@ -11,7 +11,7 @@ body("")
 	return ;
 }
 
-#define BUFFER_SIZE 12
+#define BUFFER_SIZE 4096
 
 int	receive_request(int client_sock, t_http config)
 {
@@ -163,6 +163,7 @@ int 	containsCrlf(std::string str)
 void request::parseHeader(void)
 {
 	int 	pos = containsCrlf(buf);
+	// int 	size ;
 
 	// if pos < 0, the buffer doesn't contain \r\n
 	// so return to recv to receive the end of the headers
@@ -171,9 +172,26 @@ void request::parseHeader(void)
 	isBody = true;
 	// save the beginning of the body, saved in the buffer
 	// + 2 to skip \r\n
-	body = buf.substr(pos + 2, buf.size());
+	if (VERBOSE)
+	{
+		std::cout << "pos :" << pos << "\n";
+		std::cout << "bufsize :" << buf.size() << "\n";
+		std::cout << "buf :" << buf << "\n";
+	}
+
+	if (VERBOSE)
+		std::cout << RED"BUG :\n"RESET;
+	// ! problem ici a regarder plus tard pour std out of range
+	if (buf.size() - pos - 2 > 0)
+	{
+		body = buf.substr(pos + 2, buf.size());
+		buf.erase(pos - 1);
+	}
+		body = buf.substr(pos , buf.size());
+		// buf.erase(pos - 1);
+
+	// std::cout << RED"BUG :\n"RESET;
 	// erase the end of the buffer to extract only headers
-	buf.erase(pos - 1);
 	// save requestline and header in headerBuffer
 	headerbuf = buf;
 	buf.clear();
@@ -194,9 +212,9 @@ std::vector<std::string> split(std::string str, char delim)
 	{  
 		vec.push_back(str.substr(0, pos)); 
 		str.erase(0, pos + 1);
-	}  
-		vec.push_back(str.substr(0, pos)); 
-		return vec;
+	}
+	vec.push_back(str.substr(0, pos));
+	return vec;
 }
 
 void request::fillRequestLine(void)
@@ -206,6 +224,7 @@ void request::fillRequestLine(void)
 	unsigned long	pos = headerbuf.find('\n');
 	std::string 	str = headerbuf.substr(0, pos);
 
+// std::cout << RED"pos :" << pos << "\n"RESET;
 	// erase first line of the buffer (request line)
 	headerbuf.erase(0, pos + 1);
 	std::vector<std::string> vec = split(str, ' ');

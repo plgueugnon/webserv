@@ -40,8 +40,14 @@ typedef struct s_client_data
 #include <csignal>
 #include <unistd.h>
 #include <cstdlib>
+#include <cstdio> // remove (file)
 #include <cstring> // strtok
+<<<<<<< HEAD
 // #include <string.h>
+=======
+#include <string.h>
+#include <dirent.h> // opendir
+>>>>>>> response
 
 // * Custom headers
 #include "httpContext.hpp"

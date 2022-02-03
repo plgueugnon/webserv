@@ -1,8 +1,6 @@
 #ifndef CGI_HPP
 #define CGI_HPP
 
-#define NB_CGI_VAR 21
-
 class cgi
 {
 	public :
@@ -30,10 +28,11 @@ class cgi
 		HTTP_USER_AGENT,
 		HTTP_COOKIE,
 		HTTP_REFERER,
+		NB_CGI_VAR,
 	};
 	
 	 std::vector<std::string> 	env;
-	 const char 				*c_env[NB_CGI_VAR + 1];
+	 char 				*c_env[NB_CGI_VAR + 1];
 	 cgi ( void );
 	 void convertToC ( void );
 };

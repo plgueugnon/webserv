@@ -1,0 +1,23 @@
+html {
+  background-color: #00539F;
+}
+h1 {
+	color: #003153;
+  }
+h3 {
+	color:brown
+  }
+h4 {
+	color:red;
+  }
+body {
+  width: 600px;
+  height: auto;
+  margin: auto;
+  margin-top: 500px;
+  text-align: center;
+  background-color: #FF9500;
+  padding: 1em;
+  border: 5px solid black;
+}
+

@@ -15,9 +15,9 @@ void    vec_enum(std::vector<std::string> &vec)
 	int i = 0;
 
     std::cout << std::endl;
-    while (it != it2) 
+    while (it != vec.end()) 
 	{
-        std::cout << "vector[" << i << "] : '" <<*it << "'"<<std::endl;
+        std::cout << "vector[" << i << "] : '" <<*it << "'" << std::endl;
         it++;
 		i++;
     }
@@ -55,11 +55,11 @@ void    vec_erase_empty(std::vector<std::string> &vec)
 	}
 }
 
-void    print_env_c(const char ** env)
+void    print_env_c(char ** env)
 {
     int i = 0;
     std::cout << "-------------------" << std::endl;
-    while (env[i - 1])
+    while (env[i] != 0)
     {
         printf("%i : %s\n", i, env[i]);
         i++;

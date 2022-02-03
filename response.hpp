@@ -8,17 +8,20 @@ class response
 	request 	*req;
 	t_server 	conf;
 	std::string ret;
+	int			code;
 
 	// constructors
 	response (void);
 	response (request *request, t_server config);
 
 	void parse ( void );
-	void handleGet ( t_location *loc);
-	void handleDelete ( void );
-	void handlePost ( void );
+	void handleGet ( t_location *loc );
+	void handleDelete ( t_location *loc );
+	void handlePost (  t_location *loc );
+	void setCode ( std::string code, std::string output );
+	std::string autoIndex ( t_location *loc );
 
-
+	bool methodIsAllowed (t_location *loc, std::string method);
 };
 int	receive_request(int client_sock, t_http config);
 void	manage_request(int client_sock, request *request, t_server config);

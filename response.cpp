@@ -1,5 +1,9 @@
 #include "Aincludes.hpp"
 
+#define NOT_ALLOWED " <!DOCTYPE html> <html> <body><h1> \
+					<h1 style=\"color:red;\"> \
+					METHOD NOT ALLOWED SORRY !</h1> </body> </html>"
+
 response::response ( void ) 
 {
 }
@@ -9,74 +13,228 @@ response::response (request *request, t_server config)
 	req = request;
 	conf = config;
 	ret = "";
-	req->printRequest();
+	// req->printRequest();
 }
 /*
  check if the request path match a location block
- if the request path match a location block, 
+// // if the request path match a location block, 
  check if there is a return directive
 	return the code
- check if the method is allowed in this location block
- change root and index and autoindex
- if the path is a directory begin and finish with /
- return auto index
- if not, not found
+ // // check if the method is allowed in this location block
+// // change root and index and autoindex
+ // //if the path is a directory begin and finish with /
+ // //return auto index
+ // //if not, not found
  check if there is error_pages for this location
  */
+std::string response::autoIndex(t_location *loc)
+{
+	std::vector<std::string> folder;
+	std::vector<std::string>::iterator it;
+	std::string 	output = "";
+	std::string 	fileName = "";
+	std::string 	root = "";
+	std::string 	tmp = "";
+	DIR 			*dir;
+	struct dirent 	*ent;
+
+	if (loc->root.size() == 0)
+		root += conf.root;
+	else
+		root += loc->root;
+
+	fileName += root;
+	fileName += req->requestLine[request::PATH];
+	// std::cout << RED"autoindex index : " << fileName << "\n"RESET;
+	if (loc->autoindex.size() == 0)
+	{
+		if (loc->autoindex.compare("on") != 0 &&
+			conf.autoindex.compare("on") != 0)
+			return output;
+	}
+	// std::cout << RED"autoindex index : " << fileName << "\n"RESET;
+	if ((dir = opendir(fileName.c_str())) != NULL)
+	{
+		/* print all the files and directories within directory */
+		while ((ent = readdir(dir)) != NULL)
+		{
+			tmp = ent->d_name;
+			if (ent->d_type == DT_DIR)
+				tmp += "/";
+			folder.push_back(tmp);
+			// printf("%s\n", ent->d_name);
+		}
+		closedir(dir);
+	}
+	else
+	{
+		/* could not open directory */
+		std::cerr << RED"can't open directory\n"RESET;
+		return output;
+	}
+	output += "<html>\n <head><title>Index of ";
+	output += req->requestLine[request::PATH];
+	output += " folder.\n\n";
+	output += " </title></head>\n <body>\n";
+	output += "<h1>Index of ";
+	output += req->requestLine[request::PATH];
+	output += " folder.\n\n</h1><hr><pre>";
+
+
+	for (it = folder.begin(); it != folder.end(); it++)
+	{
+		output += "<a href=\"";
+		output += *it;
+		output += "\">";
+		output += *it;
+		output += "\n";
+	}
+	output += "</pre><hr></body>";
+	output += "</ html>";
+	 return output;
+}
+
+void response::setCode(std::string code, std::string output)
+{
+	ret += code;
+	ret += "\r\n\r\n";
+	ret += output;
+	return ;
+}
+
+bool response::isRedirected (std::vector<std::string> vec)
+{
+
+}
+
+bool response::methodIsAllowed (t_location *loc, std::string method)
+{
+	std::vector<std::string>::iterator it;
+
+	// printLocation(loc);
+	if (loc->limit_except.size() == 0)
+		return (1);
+		// std::cout << "size 0\n";
+	for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
+	{
+		// std::cout << "limit : " << *it << '\n';
+		if ((*it).compare(method) == 0)
+			// std::cout << "hihi\n";
+			return (1);
+	}
+	return (0);
+}
 
 // filename = root + request path + index
-void response::handleGet ( t_location *loc )
+void response::handleGet(t_location *loc)
 {
 	std::fstream file;
 	std::string fileName = "";
 	std::string line = "";
 	std::string output = "";
 
-	if (loc)
-	{
-		fileName += loc->root;
-		fileName += req->requestLine[request::PATH];
-		if (req->requestLine[request::PATH].back() == '/')
-			fileName += conf.index;
-	}
-	else 
-	{
+	if (methodIsAllowed(loc, "GET") == 0)
+		return setCode(CODE_405, NOT_ALLOWED);
+	if (loc->root.size() == 0)
 		fileName += conf.root;
-		fileName += req->requestLine[request::PATH];
-		if (req->requestLine[request::PATH].back() == '/')
+	else 
+		fileName += loc->root;
+	// std::cout << RED"conf ROOT : " << conf.root.size() << "\n"RESET;
+	// std::cout << RED"loc ROOT : " << loc->root.size() << "\n"RESET;
+	fileName += req->requestLine[request::PATH];
+	if (req->requestLine[request::PATH].back() == '/')
+	{
+		if (loc->index.size() == 0)
 			fileName += conf.index;
+		else
+			fileName += loc->index;
 	}
-		// std::cout << RED<< req->requestLine[request::PATH].back();
-		// std::cout << "----\n"RESET;
+	// std::cout << RED<< req->requestLine[request::PATH].back();
+	// std::cout << "----\n"RESET;
 	// fileName = "www/pokemon/carapuce.png";
 
-	std::cout << YELLOW"\nfilename: " << fileName << "\n"RESET;
+	// std::cout << YELLOW"\nfilename: " << fileName << "\n"RESET;
 	file.open(fileName.c_str());
 
 	if (file.is_open())
 	{
 		while (getline(file, line))
 				output += line;
+		file.close();
 	}
+	else
+		output += autoIndex(loc);
 	// std::cout << output << std::endl;
-	ret += CODE_200;
-	ret += "\r\n\r\n";
-	ret += output;
+	if (output.size() == 0)
+		setCode(CODE_404, output);
+	else 
+		setCode(CODE_200, output);
 	return;
 }
 
-void response::handleDelete ( void )
+// https://www.cplusplus.com/reference/cstdio/remove/
+void response::handleDelete ( t_location *loc )
 {
+	std::fstream file;
+	std::string fileName = "";
+	std::string output = "";
+
+	if (methodIsAllowed(loc, "DELETE") == 0)
+		return setCode(CODE_405, NOT_ALLOWED);
+	if (loc->root.size() == 0)
+		fileName += conf.root;
+	else 
+		fileName += loc->root;
+
+	fileName += req->requestLine[request::PATH];
+	// if (req->requestLine[request::PATH].back() == '/')
+	// {
+	// 	if (loc->index.size() == 0)
+	// 		fileName += conf.index;
+	// 	else
+	// 		fileName += loc->index;
+	// }
+	if (remove(fileName.c_str()) != 0)
+	{
+		perror("Error deleting file");
+		setCode(CODE_404, output);
+	}
+	else
+	{
+		setCode(CODE_200, output);
+		puts("File successfully deleted");
+	}
+
 	return;
 }
 
-void response::handlePost ( void )
+void response::handlePost ( t_location *loc )
 {
+	if (methodIsAllowed(loc, "POST") == 0)
+		return setCode(CODE_405, NOT_ALLOWED);
+	(void) loc;
+	// ! CGI env
+	cgi cgi;
+	// cgi.env[cgi::SERVER_NAME] += conf.server_name;
+	// cgi.env[cgi::SERVER_PORT] += conf.listen;
+	// cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
+	// cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
+	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
+	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
+	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
+	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
+	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+	vec_enum(cgi.env);
+	cgi.convertToC();
+	print_env_c(cgi.c_env);
 	return;
 }
 
 void response::parse ( void )
 {
+	// ! add error pages
+	// ! except limit
+	// ! return
 	std::vector<t_location>::iterator	loc_it;
 
 	t_location 							tmp;
@@ -90,6 +248,9 @@ void response::parse ( void )
 		ret += "Method not handled my man !";
 		return ;
 	}
+	// req->printRequest();
+	// if all the server requests are redirected
+	if (isRedirected(conf.return_dir) == 1)
 	// find location path (from server config) that match request path
 	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
 	{
@@ -97,14 +258,14 @@ void response::parse ( void )
 			tmp = *loc_it;
 	}
 	// printLocationConfig
-	printLocation(&tmp);
+	// printLocation(&tmp);
 
 	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet(&tmp);
 	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
-		handleDelete();
+		handleDelete(&tmp);
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
-		handlePost();
+		handlePost(&tmp);
 }
 
 
