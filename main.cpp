@@ -112,14 +112,6 @@ int main (int ac, char **av, char **env)
 	// send ports number to socket vector<int>
 	listener(&server);
 
-// ! CGI env
-	cgi cgi;
-	if (VERBOSE)
-	{
-		vec_enum(cgi.env);
-		cgi.convertToC();
-		print_env_c(cgi.c_env);
-	}
 	
 	
 

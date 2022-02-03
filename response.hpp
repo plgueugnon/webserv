@@ -20,7 +20,7 @@ class response
 	void setCode ( std::string code, std::string output );
 	std::string autoIndex ( t_location *loc );
 
-
+	bool allowedMethod (t_location *loc, std::string method);
 };
 int	receive_request(int client_sock, t_http config);
 void	manage_request(int client_sock, request *request, t_server config);

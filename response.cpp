@@ -1,5 +1,9 @@
 #include "Aincludes.hpp"
 
+#define NOT_ALLOWED " <!DOCTYPE html> <html> <body><h1> \
+					<h1 style=\"color:red;\"> \
+					METHOD NOT ALLOWED SORRY !</h1> </body> </html>"
+
 response::response ( void ) 
 {
 }
@@ -97,6 +101,23 @@ void response::setCode(std::string code, std::string output)
 	ret += output;
 	return ;
 }
+bool response::allowedMethod (t_location *loc, std::string method)
+{
+	std::vector<std::string>::iterator it;
+
+	// printLocation(loc);
+	if (loc->limit_except.size() == 0)
+		return (1);
+		// std::cout << "size 0\n";
+	for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
+	{
+		// std::cout << "limit : " << *it << '\n';
+		if ((*it).compare(method) == 0)
+			// std::cout << "hihi\n";
+			return (1);
+	}
+	return (0);
+}
 
 // filename = root + request path + index
 void response::handleGet(t_location *loc)
@@ -106,6 +127,8 @@ void response::handleGet(t_location *loc)
 	std::string line = "";
 	std::string output = "";
 
+	if (allowedMethod(loc, "GET") == 0)
+		return setCode(CODE_405, NOT_ALLOWED);
 	if (loc->root.size() == 0)
 		fileName += conf.root;
 	else 
@@ -150,6 +173,8 @@ void response::handleDelete ( t_location *loc )
 	std::string fileName = "";
 	std::string output = "";
 
+	if (allowedMethod(loc, "DELETE") == 0)
+		return setCode(CODE_405, NOT_ALLOWED);
 	if (loc->root.size() == 0)
 		fileName += conf.root;
 	else 
@@ -179,6 +204,8 @@ void response::handleDelete ( t_location *loc )
 
 void response::handlePost ( t_location *loc )
 {
+	if (allowedMethod(loc, "POST") == 0)
+		return setCode(CODE_405, NOT_ALLOWED);
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
@@ -217,11 +244,11 @@ void response::parse ( void )
 	}
 	req->printRequest();
 	// find location path (from server config) that match request path
-	// for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
-	// {
-	// 	if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
-	// 		tmp = *loc_it;
-	// }
+	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
+	{
+		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+			tmp = *loc_it;
+	}
 	// printLocationConfig
 	// printLocation(&tmp);
 
