@@ -20,7 +20,7 @@ response::response (request *request, t_server config)
 // // if the request path match a location block, 
  check if there is a return directive
 	return the code
- check if the method is allowed in this location block
+ // // check if the method is allowed in this location block
 // // change root and index and autoindex
  // //if the path is a directory begin and finish with /
  // //return auto index
@@ -101,7 +101,13 @@ void response::setCode(std::string code, std::string output)
 	ret += output;
 	return ;
 }
-bool response::allowedMethod (t_location *loc, std::string method)
+
+bool response::isRedirected (std::vector<std::string> vec)
+{
+
+}
+
+bool response::methodIsAllowed (t_location *loc, std::string method)
 {
 	std::vector<std::string>::iterator it;
 
@@ -127,7 +133,7 @@ void response::handleGet(t_location *loc)
 	std::string line = "";
 	std::string output = "";
 
-	if (allowedMethod(loc, "GET") == 0)
+	if (methodIsAllowed(loc, "GET") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	if (loc->root.size() == 0)
 		fileName += conf.root;
@@ -173,7 +179,7 @@ void response::handleDelete ( t_location *loc )
 	std::string fileName = "";
 	std::string output = "";
 
-	if (allowedMethod(loc, "DELETE") == 0)
+	if (methodIsAllowed(loc, "DELETE") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	if (loc->root.size() == 0)
 		fileName += conf.root;
@@ -204,7 +210,7 @@ void response::handleDelete ( t_location *loc )
 
 void response::handlePost ( t_location *loc )
 {
-	if (allowedMethod(loc, "POST") == 0)
+	if (methodIsAllowed(loc, "POST") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	(void) loc;
 	// ! CGI env
@@ -242,7 +248,9 @@ void response::parse ( void )
 		ret += "Method not handled my man !";
 		return ;
 	}
-	req->printRequest();
+	// req->printRequest();
+	// if all the server requests are redirected
+	if (isRedirected(conf.return_dir) == 1)
 	// find location path (from server config) that match request path
 	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
 	{
