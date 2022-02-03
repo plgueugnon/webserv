@@ -22,6 +22,8 @@ class response
 	std::string autoIndex ( t_location *loc );
 
 	bool methodIsAllowed (t_location *loc, std::string method);
+	bool methodIsImplemented ( void );
+	bool isRedirected (std::vector<std::string> vec);
 };
 int	receive_request(int client_sock, t_http config);
 void	manage_request(int client_sock, request *request, t_server config);

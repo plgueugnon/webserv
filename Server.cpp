@@ -275,6 +275,6 @@ void	Server::run( void )
 		if (stop)
 			break ;
 	}
-	sleep(10);
+	// sleep(10);
 }
 
