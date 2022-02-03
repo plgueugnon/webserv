@@ -11,7 +11,7 @@ body("")
 	return ;
 }
 
-#define BUFFER_SIZE 12
+#define BUFFER_SIZE 4096
 
 int	receive_request(int client_sock, t_http config)
 {
