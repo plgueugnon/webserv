@@ -21,8 +21,10 @@ class response
 	void setCode ( std::string code, std::string output );
 	std::string autoIndex ( t_location *loc );
 
-	bool methodIsAllowed (t_location *loc, std::string method);
-	bool methodIsImplemented ( void );
+	void redirectRequest (std::vector<std::string> vec);
+
+	bool isMethodAllowed (t_location *loc, std::string method);
+	bool isMethodImplemented ( void );
 	bool isRedirected (std::vector<std::string> vec);
 };
 int	receive_request(int client_sock, t_http config);

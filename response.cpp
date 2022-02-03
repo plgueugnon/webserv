@@ -106,27 +106,6 @@ void response::setCode(std::string code, std::string output)
 	return ;
 }
 
-bool response::isRedirected (std::vector<std::string> vec)
-{
-	(void)vec;
-	return 1;
-
-}
-
-bool response::methodIsAllowed (t_location *loc, std::string method)
-{
-	std::vector<std::string>::iterator it;
-
-	if (loc->limit_except.size() == 0)
-		return (1);
-	for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
-	{
-		if ((*it).compare(method) == 0)
-			return (1);
-	}
-	return (0);
-}
-
 // filename = root + request path + index
 void response::handleGet(t_location *loc)
 {
@@ -135,7 +114,7 @@ void response::handleGet(t_location *loc)
 	std::string line = "";
 	std::string output = "";
 
-	if (methodIsAllowed(loc, "GET") == 0)
+	if (isMethodAllowed(loc, "GET") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	if (loc->root.size() == 0)
 		fileName += conf.root;
@@ -174,7 +153,7 @@ void response::handleDelete ( t_location *loc )
 	std::string fileName = "";
 	std::string output = "";
 
-	if (methodIsAllowed(loc, "DELETE") == 0)
+	if (isMethodAllowed(loc, "DELETE") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	if (loc->root.size() == 0)
 		fileName += conf.root;
@@ -205,7 +184,7 @@ void response::handleDelete ( t_location *loc )
 
 void response::handlePost ( t_location *loc )
 {
-	if (methodIsAllowed(loc, "POST") == 0)
+	if (isMethodAllowed(loc, "POST") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	(void) loc;
 	// ! CGI env
@@ -220,33 +199,57 @@ void response::handlePost ( t_location *loc )
 	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
 	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
 
-	char path[] = "./cgi/php-cgi_vMojave";
-	int		fd[2]
-	pid_t	pid;
-	int cfd = 0;
+	// char path[] = "./cgi/php-cgi_vMojave";
+	// int		fd[2];
+	// pid_t	pid;
+	// int cfd = 0;
 
-	pipe(fd);
-	pid = fork()
-	if (pid == -1)
-		std::cerr << RED"error : fork failure\n"RESET;
-	else if (pid == 0)
-	{
-		if (dup2(fd[1], STDOUT) < 0)
-		{
-			std::cerr << RED"error : dup2 failure\n"RESET;
-			return ;
-		}
+	// pipe(fd);
+	// pid = fork();
+	// if (pid == -1)
+	// 	std::cerr << RED"error : fork failure\n"RESET;
+	// else if (pid == 0)
+	// {
+	// 	if (dup2(fd[1], STDOUT) < 0)
+	// 	{
+	// 		std::cerr << RED"error : dup2 failure\n"RESET;
+	// 		return ;
+	// 	}
 		
-	}
+	// }
 
 
-	vec_enum(cgi.env);
-	cgi.convertToC();
-	print_env_c(cgi.c_env);
+	// vec_enum(cgi.env);
+	// cgi.convertToC();
+	// print_env_c(cgi.c_env);
 	return;
 }
 
-bool response::methodIsImplemented(void)
+bool response::isRedirected (std::vector<std::string> vec)
+{
+	std::vector<std::string>::iterator it;
+
+	if (vec.size() == 0)
+		return (false);
+	return (true);
+}
+
+bool response::isMethodAllowed (t_location *loc, std::string method)
+{
+	std::vector<std::string>::iterator it;
+
+	if (loc->limit_except.size() == 0)
+		return (true);
+	for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
+	{
+		if ((*it).compare(method) == 0)
+			return (true);
+	}
+	return (false);
+}
+
+
+bool response::isMethodImplemented(void)
 {
 	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
 		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
@@ -255,18 +258,32 @@ bool response::methodIsImplemented(void)
 	return (true);
 }
 
+void response::redirectRequest (std::vector<std::string> vec)
+{
+	(void)vec;
+	// std::vector<std::string>::iterator it = vec.begin();
+
+	// int redirectCode = atoi(*it++);
+	// std::string  redirectUrl = *it;
+
+}
+
 void response::parse ( void )
 {
 	std::vector<t_location>::iterator	loc_it;
 
 	t_location 							tmp;
 
-	if (methodIsImplemented() == 0)
+	ret += CODE_301;
+	ret += "\nLocation: http://localhost:8080/pikachu/";
+	// ret += "\r\n\r\n";
+	return ;
+	// if all the server requests are redirected
+	// if (isRedirected(conf.return_dir) == 1)
+	// 	return(redirectRequest(&conf.return_dir));
+	if (isMethodImplemented() == 0)
 		return (setCode(CODE_501, NOT_IMPLEMENTED));
 
-	// req->printRequest();
-	// if all the server requests are redirected
-	if (isRedirected(conf.return_dir) == 1)
 	// find location path (from server config) that match request path
 	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
 	{
