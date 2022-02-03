@@ -119,9 +119,9 @@ void	answer_client(int client_sock, std::string answer)
 	// ! Par défaut pas de connection keep-alive
 	// ? A implementer ?
 
-	if (VERBOSE)
-		std::cout << GREEN"Closing connection with client\n"RESET;
-	close(client_sock);
+	// if (VERBOSE)
+	// 	std::cout << GREEN"Closing connection with client\n"RESET;
+	// close(client_sock);
 }
 
 // TODO créer parsing complet et remplissage dynamique de la réponse à donner

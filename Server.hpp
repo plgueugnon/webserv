@@ -16,6 +16,14 @@
 #define MONITOR_TIMEOUT_SEC 10
 #define MONITOR_TIMEOUT_NSEC 100000
 
+typedef enum	e_events
+{
+	add_read,
+	add_write,
+	del_read,
+	del_write,
+}				t_events;
+
 typedef struct	s_set
 {
 	int				server_socket;

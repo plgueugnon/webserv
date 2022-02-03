@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/02 18:59:59 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/03 10:12:55 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,13 +124,13 @@ int main (int ac, char **av, char **env)
 	}
 
 // ! CGI env
-	cgi cgi;
-	if (VERBOSE)
-	{
-		vec_enum(cgi.env);
-		cgi.convertToC();
-		print_env_c(cgi.c_env);
-	}
+	// cgi cgi;
+	// if (VERBOSE)
+	// {
+	// 	vec_enum(cgi.env);
+	// 	cgi.convertToC();
+	// 	print_env_c(cgi.c_env);
+	// }
 	
 	
 
