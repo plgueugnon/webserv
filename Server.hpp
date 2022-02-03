@@ -66,8 +66,8 @@ class Server
 		struct kevent	_evCon;
 
 	public:
-		std::vector<t_set>	evSet;
-		t_client_data		clients[NUM_CLIENTS];
+		// std::vector<t_set>	evSet;
+		// t_client_data		clients[NUM_CLIENTS];
 		webserv				*server_config;
 
 		// std::vector<int> ports;

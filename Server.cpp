@@ -1,5 +1,9 @@
 #include "Aincludes.hpp"
 
+std::vector<t_set>	evSet;
+t_client_data		clients[NUM_CLIENTS];
+bool	stop = false;
+
 // * constructor
 Server::Server( void ) { throw VoidConfig(); }
 Server::Server( webserv *config ) : server_config(config)
@@ -193,12 +197,29 @@ void	Server::clear_late_clients( void )
 	}
 }
 
+void	sighandler(int signum)
+{
+	if (signum == SIGINT)
+	{
+		if (VERBOSE)
+			std::cout << GREEN"Shutting down server\n"RESET;
+		for (int i = 0; i < NUM_CLIENTS; i++)
+			// shutdown(clients[i].fd, SHUT_RDWR);
+			close(clients[i].fd);
+		for (size_t i = 0; i < evSet.size(); i++)
+			// shutdown(evSet[i].server_socket, SHUT_RDWR);
+			close(evSet[i].server_socket);
+		stop = true;
+	}
+}
+
 void	Server::run( void )
 {
 	int	client_sock;
 	int	num_events;
 	int	n;
 
+	signal(SIGINT, &sighandler);
 	if (VERBOSE)
 		std::cout << GREEN"Server up and ready...\n"RESET;
 	while (1)
@@ -251,6 +272,9 @@ void	Server::run( void )
 				del_client_socket(_evList[i].ident);
 			}
 		}
+		if (stop)
+			break ;
 	}
+	sleep(10);
 }
 

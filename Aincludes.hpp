@@ -37,17 +37,11 @@ typedef struct s_client_data
 // * basic header
 #include <string>
 #include <vector>
-#include <signal.h>
+#include <csignal>
 #include <unistd.h>
-
-// * System headers
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
 #include <cstdlib>
 #include <cstring> // strtok
-#include <string.h>
+// #include <string.h>
 
 // * Custom headers
 #include "httpContext.hpp"
