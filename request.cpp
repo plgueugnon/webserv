@@ -179,8 +179,8 @@ void request::parseHeader(void)
 		std::cout << "buf :" << buf << "\n";
 	}
 
-	if (VERBOSE)
-		std::cout << RED"BUG :\n"RESET;
+	// if (VERBOSE)
+	// 	std::cout << RED"BUG :\n"RESET;
 	// ! problem ici a regarder plus tard pour std out of range
 	if (buf.size() - pos - 2 > 0)
 	{

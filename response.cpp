@@ -220,40 +220,60 @@ void response::handlePost ( t_location *loc )
 	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
 	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
 
-	vec_enum(cgi.env);
+	// vec_enum(cgi.env);
 	cgi.convertToC();
-	print_env_c(cgi.c_env);
-
+	// print_env_c(cgi.c_env);
+	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
 	char path[] = "./cgi/php-cgi_vMojave";
-	int		fd[2]
+	int		fd[2];
 	pid_t	pid;
-	int cfd = 0;
+	// int cfd = 0;
 	char *str[2];
-	str[0] = strdup(req->body.c_str();)
+	str[0] = strdup(req->body.c_str());
 	str[1] = NULL;
+	char buffer[10000];
 
 	pipe(fd);
-	pid = fork()
+	pid = fork();
 	if (pid == -1)
 		std::cerr << RED"error : fork failure\n"RESET;
 	else if (pid == 0)
 	{
-		if (dup2(fd[1], STDOUT) < 0)
+		std::cout << BOLDWHITE"check child\n"RESET;
+		if (dup2(fd[1], STDOUT_FILENO) < 0)
 		{
 			std::cerr << RED"error : dup2 failure\n"RESET;
 			return ;
 		}
-		if (dup2(fd[0], STDIN) < 0)
+		if (dup2(fd[0], STDIN_FILENO) < 0)
 		{
 			std::cerr << RED"error : dup2 failure\n"RESET;
 			return ;
 		}
 		if (execve(path, str, cgi.c_env) < 0)
 		{
-			
+			std::cerr << RED"error : execve failure\n"RESET;
+			close(fd[0]);
+			close(fd[1]);
+			// kill(pid, SIGTERM);
 		}
 	}
-
+	else
+	{
+		std::cout << BOLDWHITE"check parent\n"RESET;
+		int r;
+		close(fd[1]);
+		waitpid(pid, NULL, -1);
+		while((r = read(fd[0], buffer, sizeof(buffer))) != 0)
+		{
+			if (r == -1)
+				std::cerr << RED"error : read failure\n"RESET;
+			buffer[r] = 0;
+			std::cout << buffer << std::endl;
+			bzero(buffer, sizeof(buffer));
+		}
+		close(fd[0]);
+	}
 
 	return;
 }
