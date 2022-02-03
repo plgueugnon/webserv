@@ -224,6 +224,27 @@ void response::handlePost ( t_location *loc )
 	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
 	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
 	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+
+	char path[] = "./cgi/php-cgi_vMojave";
+	int		fd[2]
+	pid_t	pid;
+	int cfd = 0;
+
+	pipe(fd);
+	pid = fork()
+	if (pid == -1)
+		std::cerr << RED"error : fork failure\n"RESET;
+	else if (pid == 0)
+	{
+		if (dup2(fd[1], STDOUT) < 0)
+		{
+			std::cerr << RED"error : dup2 failure\n"RESET;
+			return ;
+		}
+		
+	}
+
+
 	vec_enum(cgi.env);
 	cgi.convertToC();
 	print_env_c(cgi.c_env);
