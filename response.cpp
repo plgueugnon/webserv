@@ -2,7 +2,10 @@
 
 #define NOT_ALLOWED " <!DOCTYPE html> <html> <body><h1> \
 					<h1 style=\"color:red;\"> \
-					METHOD NOT ALLOWED SORRY !</h1> </body> </html>"
+					METHOD IS NOT ALLOWED SORRY !</h1> </body> </html>"
+#define NOT_IMPLEMENTED " <!DOCTYPE html> <html> <body><h1> \
+					<h1 style=\"color:red;\"> \
+					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
 
 response::response ( void ) 
 {
@@ -13,6 +16,7 @@ response::response (request *request, t_server config)
 	req = request;
 	conf = config;
 	ret = "";
+	code = 0;
 	// req->printRequest();
 }
 /*
@@ -104,6 +108,8 @@ void response::setCode(std::string code, std::string output)
 
 bool response::isRedirected (std::vector<std::string> vec)
 {
+	(void)vec;
+	return 1;
 
 }
 
@@ -139,8 +145,6 @@ void response::handleGet(t_location *loc)
 		fileName += conf.root;
 	else 
 		fileName += loc->root;
-	// std::cout << RED"conf ROOT : " << conf.root.size() << "\n"RESET;
-	// std::cout << RED"loc ROOT : " << loc->root.size() << "\n"RESET;
 	fileName += req->requestLine[request::PATH];
 	if (req->requestLine[request::PATH].back() == '/')
 	{
@@ -149,11 +153,6 @@ void response::handleGet(t_location *loc)
 		else
 			fileName += loc->index;
 	}
-	// std::cout << RED<< req->requestLine[request::PATH].back();
-	// std::cout << "----\n"RESET;
-	// fileName = "www/pokemon/carapuce.png";
-
-	// std::cout << YELLOW"\nfilename: " << fileName << "\n"RESET;
 	file.open(fileName.c_str());
 
 	if (file.is_open())
@@ -230,24 +229,24 @@ void response::handlePost ( t_location *loc )
 	return;
 }
 
+bool response::methodIsImplemented(void)
+{
+	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
+		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
+		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+		return (false);
+	return (true);
+}
+
 void response::parse ( void )
 {
-	// ! add error pages
-	// ! except limit
-	// ! return
 	std::vector<t_location>::iterator	loc_it;
 
 	t_location 							tmp;
 
-	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
-	{
-		ret += CODE_400;
-		ret += "\r\n\r\n";
-		ret += "Method not handled my man !";
-		return ;
-	}
+	if (methodIsImplemented() == 0)
+		return (setCode(CODE_501, NOT_IMPLEMENTED));
+
 	// req->printRequest();
 	// if all the server requests are redirected
 	if (isRedirected(conf.return_dir) == 1)
@@ -282,7 +281,7 @@ void	answer_client(int client_sock, std::string answer)
 
 	// if (VERBOSE)
 	// 	std::cout << GREEN"Closing connection with client\n"RESET;
-	// close(client_sock);
+	close(client_sock);
 }
 
 // TODO créer parsing complet et remplissage dynamique de la réponse à donner

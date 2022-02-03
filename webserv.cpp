@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/01 17:29:59 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/03 16:02:35 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -661,59 +661,59 @@ void webserv::listenCheck ( void )
 // check if error_page codes are known error codes and if a token begin with /, we check if it's the last : syntax = code ... code /URI;
 void webserv::errorReturnCheck ( void )
 {
-	std::vector<t_server> 				srv = _config.server;
+	// std::vector<t_server> 				srv = _config.server;
 
-	std::vector<t_server>::iterator 	srv_it;
-	std::vector<t_location>::iterator 	loc_it;
+	// std::vector<t_server>::iterator 	srv_it;
+	// std::vector<t_location>::iterator 	loc_it;
 
-	std::vector<std::string>::iterator	it;
-	std::vector<std::string>::iterator	it2;
+	// std::vector<std::string>::iterator	it;
+	// std::vector<std::string>::iterator	it2;
 
-	int 	code = -1;
-	// ! check server return directive
-	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
-	{
-		for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
-		{
-			if (VERBOSE)
-				std::cout << *it << "\n";
-			if (it[0][0] != '/')
-			{
-				code = atoi(it->c_str());
-				if (is_error_code(code) == false)
-					throw std::invalid_argument(ERR_WRONG_ERR_CODE);
-			}
-			else
-			{
-				if (it != (srv_it->return_dir.end() - 1))
-					throw std::invalid_argument(ERR_WRONG_ERR_URI);
-			}
-		}
-		// ! check location return directive
-		for (loc_it = srv_it->location.begin();
-			 loc_it != srv_it->location.end();
-			 loc_it++)
-		{
-			for (it2 = loc_it->return_dir.begin();
-				 it2 != loc_it->return_dir.end();
-				 it2++)
-			{
-				if (VERBOSE)
-					std::cout << *it2 << "\n";
-				if (it2[0][0] != '/')
-				{
-					code = atoi(it2->c_str());
-					if (is_error_code(code) == false)
-						throw std::invalid_argument(ERR_WRONG_ERR_CODE);
-				}
-				else
-				{
-					if (it2 != (loc_it->return_dir.end() - 1))
-						throw std::invalid_argument(ERR_WRONG_ERR_URI);
-				}
-			}
-		}
-	}
+	// int 	code = -1;
+	// // ! check server return directive
+	// for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	// {
+	// 	for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
+	// 	{
+	// 		if (VERBOSE)
+	// 			std::cout << *it << "\n";
+	// 		if (it[0][0] != '/')
+	// 		{
+	// 			code = atoi(it->c_str());
+	// 			if (is_error_code(code) == false)
+	// 				throw std::invalid_argument(ERR_WRONG_ERR_CODE);
+	// 		}
+	// 		else
+	// 		{
+	// 			if (it != (srv_it->return_dir.end() - 1))
+	// 				throw std::invalid_argument(ERR_WRONG_ERR_URI);
+	// 		}
+	// 	}
+	// 	// ! check location return directive
+	// 	for (loc_it = srv_it->location.begin();
+	// 		 loc_it != srv_it->location.end();
+	// 		 loc_it++)
+	// 	{
+	// 		for (it2 = loc_it->return_dir.begin();
+	// 			 it2 != loc_it->return_dir.end();
+	// 			 it2++)
+	// 		{
+	// 			if (VERBOSE)
+	// 				std::cout << *it2 << "\n";
+	// 			if (it2[0][0] != '/')
+	// 			{
+	// 				code = atoi(it2->c_str());
+	// 				if (is_error_code(code) == false)
+	// 					throw std::invalid_argument(ERR_WRONG_ERR_CODE);
+	// 			}
+	// 			else
+	// 			{
+	// 				if (it2 != (loc_it->return_dir.end() - 1))
+	// 					throw std::invalid_argument(ERR_WRONG_ERR_URI);
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 
