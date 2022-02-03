@@ -117,15 +117,11 @@ bool response::methodIsAllowed (t_location *loc, std::string method)
 {
 	std::vector<std::string>::iterator it;
 
-	// printLocation(loc);
 	if (loc->limit_except.size() == 0)
 		return (1);
-		// std::cout << "size 0\n";
 	for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
 	{
-		// std::cout << "limit : " << *it << '\n';
 		if ((*it).compare(method) == 0)
-			// std::cout << "hihi\n";
 			return (1);
 	}
 	return (0);
@@ -333,10 +329,6 @@ void	manage_request(int client_sock, request *request, t_server config)
 	answer_client(client_sock, answer);
 }
 
-				// if (	it->compare("GET") != 0 &&
-				// 		it->compare("POST") != 0 && 
-				// 		it->compare("DELETE") != 0 )
-				// 	throw std::invalid_argument(ERR_WRONG_METHOD);
 
 // TODO 1. Check si Bad Request = check method, puis store path et check protocol
 // TODO 2. Check header validity et update cgi env
