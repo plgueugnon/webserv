@@ -214,7 +214,13 @@ void response::handlePost ( t_location *loc )
 	cgi.env[cgi::SERVER_NAME] += conf.server_name;
 	cgi.env[cgi::SERVER_PORT] += conf.listen;
 	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
-	cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
+	// cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
+	cgi.env[cgi::CONTENT_TYPE] += " text/plain";
+	// ! cgi.env[cgi::SCRIPT_NAME] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_script.php";
+	// ! cgi.env[cgi::SCRIPT_FILENAME] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_script.php";
+	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_script.php";
+	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/mini_client/requests/GET_min_base_loremipsum_request";
+	// ! cgi.env[cgi::CONTENT_TYPE] += "text/html";
 	cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
 	cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
 	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
@@ -222,7 +228,7 @@ void response::handlePost ( t_location *loc )
 	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
 	cgi.env[cgi::REDIRECT_STATUS] += "200";
 
-	// vec_enum(cgi.env);
+	vec_enum(cgi.env);
 	cgi.convertToC();
 	print_env_c(cgi.c_env);
 	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
@@ -258,7 +264,7 @@ void response::handlePost ( t_location *loc )
 			std::cerr << RED"error : execve failure\n"RESET;
 			close(fd[0]);
 			close(fd[1]);
-			// kill(pid, SIGTERM);
+			kill(pid, SIGTERM);
 		}
 	}
 	else
@@ -272,7 +278,7 @@ void response::handlePost ( t_location *loc )
 			if (r == -1)
 				std::cerr << RED"error : read failure\n"RESET;
 			buffer[r] = 0;
-			std::cout << buffer << std::endl;
+			std::cout << CYAN << buffer << RESET << std::endl;
 			output += buffer;
 			bzero(buffer, sizeof(buffer));
 		}
@@ -337,6 +343,9 @@ void	answer_client(int client_sock, std::string answer)
 	// ! Par défaut pas de connection keep-alive
 	// ? A implementer ?
 
+	std::cout << "*********************************************************************\n";
+	std::cout << "ANSWER SENT = " << answer << std::endl;
+	std::cout << "*********************************************************************\n";
 	// if (VERBOSE)
 	// 	std::cout << GREEN"Closing connection with client\n"RESET;
 	close(client_sock);

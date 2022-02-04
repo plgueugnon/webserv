@@ -191,7 +191,7 @@ void	Server::clear_late_clients( void )
 					std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << " on port " << clients[i].port << " with fd #" << clients[i].fd << " timeout\n"RESET;
 				// send(clients[i].fd, late, strlen(late), 0); // ! A modifier pour faire une reponse 408 timeout au client
 				update_events(clients[i].fd, EVFILT_WRITE); // TODO modif pour passer en write client avec un signal 408
-				// del_client_socket(clients[i].fd); // TODO suppr ici pour fermer requete après envoi reponse seulement
+				del_client_socket(clients[i].fd); // TODO suppr ici pour fermer requete après envoi reponse seulement
 			}
 		}
 	}

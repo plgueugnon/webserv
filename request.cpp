@@ -108,6 +108,7 @@ void request::parseHeader(void)
 		body = buf.substr(pos + 2, buf.size());
 		buf.erase(pos - 1);
 	}
+	else
 		body = buf.substr(pos , buf.size());
 		// buf.erase(pos - 1);
 
@@ -154,6 +155,9 @@ void request::fillRequestLine(void)
 		std::cerr << "Wrong arg nb in request line\n";
 	requestLine[METHOD] = vec[0];
 	requestLine[HTTP_VERSION] = vec[2];
+	requestLine[CONTENT_LENGTH] = vec[16];
+	requestLine[CONTENT_TYPE] = vec[15];
+	// requestLine[] = vec[8];
 	// extracting query
 	// v1
 	vec = split(vec[1], '?');
