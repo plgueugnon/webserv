@@ -16,10 +16,6 @@ body("")
 int	receive_request(int client_sock, t_http config)
 {
 	ssize_t n = 0;
-	// std::vector<char> buf(4096);
-	// t_request	request;
-	// int	c = 0;
-	// std::string 	buffer = "";
 	char buffer[BUFFER_SIZE];
 	request 		request;
 
@@ -62,85 +58,6 @@ int	receive_request(int client_sock, t_http config)
 	manage_request(client_sock, &request, config.server[0]);
 	return 1;
 }
-// ! @Yann -> ma merde a cleanup ensuite si plus de besoin pour toi
-// #define MAX_MSG_SIZE 256
-
-// int	receive_request(int client_sock)
-// {
-// 	char	tab[MAX_MSG_SIZE];
-// 	ssize_t n = recv(client_sock, tab, MAX_MSG_SIZE - 1, 0);
-// 	if (n < 0)
-// 	{
-// 		std::cerr << YELLOW"error: failure to receive request\n"RESET;
-// 		return 0;
-// 	}
-// 	tab[n] = 0;
-// 	std::cout << tab;
-// 	return 1;
-// }
-
-// void	receive_request_select(int client_sock)
-// {
-// 	ssize_t n = 0;
-// 	std::vector<char> buf(4096);
-// 	char	tab[80];
-// 	t_request	request;
-// 	// int	c = 0;
-
-// 	// ! Keep-alive request pas traité par défaut
-// 	// ? A implémenter ?
-// 	// TODO ajouter détection CRLF pour trouver le body
-// // ! NB If a request contains a message-body and a Content-Length is not given, the server SHOULD respond with 400 (bad request) if it cannot determine the length of the message, or with 411 (length required)
-
-// 	// ! PAS VALIDE .data = c++11
-// 	// if ( (n = recv(client_sock, buf.data(), 4096 - 1, 0)) > 0)
-// 	while ( (n = recv(client_sock, tab, 80 - 1, 0)) > 0)
-// 	{
-// 		// ! Rajouter le cas des chunk request
-// 		// * https://fr.wikipedia.org/wiki/Chunked_transfer_encoding
-// 		// if (!c)
-// 		// 	// request.method.assign(buf.data());
-// 		// 	request.method.append(tab);
-// 		// else
-// 		// {
-// 		// 	request.headers.append(tab);
-// 		// // ! Pas necessaire si on utilise find pour trouver directement les valeurs voulues
-// 		// 	request.headers.append("\n");
-// 		// }
-// 		// c++;
-// 		if (VERBOSE)
-// 			std::cout << tab << std::endl;
-// 		// buf.clear();
-// 		// if (n == 0 || n == EAGAIN)
-// 		// if ( n == EAGAIN )
-// 		// 	return ;
-// 		if ( n == 0 )
-// 		{
-// 			// close(client_sock);
-// 			break ;
-// 		}
-// 		if (n < 0)
-// 		{
-// 			std::cerr << YELLOW"error: failure to receive request\n"RESET;
-// 			close(client_sock);
-// 			return ;
-// 		}
-// 	}
-// 	if (VERBOSE)
-// 		std::cout << "PUTE" << tab << std::endl;
-
-// 	if (VERBOSE)
-// 	{
-// 		std::cout << YELLOW"Checking struct content : "RESET << request.method.c_str() << "\n";
-// 		std::cout << YELLOW"Checking struct headers : "RESET << request.headers.c_str() << "\n";
-// 	}
-// 	// request.printRequest();
-// 	// std::cout << request.buf << std::endl;
-// 	// close(client_sock);
-// 	// std::cout << "close socket" << std::endl;
-// 	manage_request(client_sock, &request, config.server[0]);
-// }
-// ! @Yann -> fin de mon bazar
 
 // return -1 if str doesn't contain \r\n
 // return the pos of the \r
@@ -172,15 +89,7 @@ void request::parseHeader(void)
 	isBody = true;
 	// save the beginning of the body, saved in the buffer
 	// + 2 to skip \r\n
-	if (VERBOSE)
-	{
-		std::cout << "pos :" << pos << "\n";
-		std::cout << "bufsize :" << buf.size() << "\n";
-		std::cout << "buf :" << buf << "\n";
-	}
 
-	if (VERBOSE)
-		std::cout << RED"BUG :\n"RESET;
 	// ! problem ici a regarder plus tard pour std out of range
 	if (buf.size() - pos - 2 > 0)
 	{
@@ -242,16 +151,6 @@ void request::fillRequestLine(void)
 	if (vec.size() > 2)
 	// ! mettre exception a terme
 		std::cerr << RED"multiple ? in query \n"RESET;
-	// v2
-	// pos = vec[1].find('?');
-	// if (pos != std::string::npos)
-	// {
-	// 	requestLine[PATH] = vec[1].substr(0, pos);
-	// 	requestLine[QUERY] = vec[1].substr(pos + 1, vec[1].length());
-	// }
-	// else
-	// 	requestLine[PATH] = vec[1];
-	// vec_enum(vec);
 	return ;
 }
 

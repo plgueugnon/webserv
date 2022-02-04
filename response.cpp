@@ -49,20 +49,18 @@ std::string response::autoIndex(t_location *loc)
 
 	fileName += root;
 	fileName += req->requestLine[request::PATH];
-	// std::cout << RED"autoindex index : " << fileName << "\n"RESET;
 	if (loc->autoindex.size() == 0)
 	{
 		if (loc->autoindex.compare("on") != 0 &&
 			conf.autoindex.compare("on") != 0)
 			return output;
 	}
-	// std::cout << RED"autoindex index : " << fileName << "\n"RESET;
 	if ((dir = opendir(fileName.c_str())) != NULL)
 	{
-		/* print all the files and directories within directory */
 		while ((ent = readdir(dir)) != NULL)
 		{
 			tmp = ent->d_name;
+			// add / if it's a directory
 			if (ent->d_type == DT_DIR)
 				tmp += "/";
 			folder.push_back(tmp);
@@ -72,7 +70,6 @@ std::string response::autoIndex(t_location *loc)
 	}
 	else
 	{
-		/* could not open directory */
 		std::cerr << RED"can't open directory\n"RESET;
 		return output;
 	}
@@ -161,13 +158,6 @@ void response::handleDelete ( t_location *loc )
 		fileName += loc->root;
 
 	fileName += req->requestLine[request::PATH];
-	// if (req->requestLine[request::PATH].back() == '/')
-	// {
-	// 	if (loc->index.size() == 0)
-	// 		fileName += conf.index;
-	// 	else
-	// 		fileName += loc->index;
-	// }
 	if (remove(fileName.c_str()) != 0)
 	{
 		perror("Error deleting file");
@@ -178,7 +168,6 @@ void response::handleDelete ( t_location *loc )
 		setCode(CODE_200, output);
 		puts("File successfully deleted");
 	}
-
 	return;
 }
 
@@ -326,10 +315,6 @@ void	manage_request(int client_sock, request *request, t_server config)
 	std::string	answer = "";
 	(void)config;
 	response.parse();
-	// if (request->requestLine[request::METHOD].compare(0, 3, "GET") != 0)
-	// 	answer.assign("HTTP/1.1 400 Bad Request\r\n\r\n");
-	// else
-	// 	answer.assign("HTTP/1.1 200 OK\r\n\r\n Wesh ma gueule, bien ou bien !?");
 	answer += response.ret;
 	answer_client(client_sock, answer);
 }
