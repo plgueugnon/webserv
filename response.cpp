@@ -205,26 +205,29 @@ void response::handleDelete ( t_location *loc )
 
 void response::handlePost ( t_location *loc )
 {
+	std::string	output = "";
 	if (methodIsAllowed(loc, "POST") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
-	// cgi.env[cgi::SERVER_NAME] += conf.server_name;
-	// cgi.env[cgi::SERVER_PORT] += conf.listen;
-	// cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
-	// cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
-	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
-	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
-	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
-	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
-	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+	cgi.env[cgi::SERVER_NAME] += conf.server_name;
+	cgi.env[cgi::SERVER_PORT] += conf.listen;
+	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
+	cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
+	cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
+	cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
+	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
+	cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
+	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+	cgi.env[cgi::REDIRECT_STATUS] += "200";
 
 	// vec_enum(cgi.env);
 	cgi.convertToC();
-	// print_env_c(cgi.c_env);
+	print_env_c(cgi.c_env);
 	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
-	char path[] = "./cgi/php-cgi_vMojave";
+	// char path[] = "./cgi/php-cgi_vMojave";
+	char path[] = "./cgi/php-cgi";
 	int		fd[2];
 	pid_t	pid;
 	// int cfd = 0;
@@ -270,11 +273,17 @@ void response::handlePost ( t_location *loc )
 				std::cerr << RED"error : read failure\n"RESET;
 			buffer[r] = 0;
 			std::cout << buffer << std::endl;
+			output += buffer;
 			bzero(buffer, sizeof(buffer));
 		}
 		close(fd[0]);
 	}
+	if (output.size() == 0)
+		setCode(CODE_404, output);
+	else 
+		setCode(CODE_200, output);
 
+	free(str[0]);
 	return;
 }
 

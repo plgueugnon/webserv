@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/03 14:43:44 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/04 12:18:18 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ int main (int ac, char **av, char **env)
 	}
 	catch (std::exception& e)
 	{
+		std::cerr << RED"ERROR CAUGHT: ";
 		std::cerr << RED << e.what() << RESET << std::endl;
 		return -1;
 	}
