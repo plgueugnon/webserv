@@ -111,6 +111,8 @@ void response::handleGet(t_location *loc)
 	std::string line = "";
 	std::string output = "";
 
+	if (isRedirected(&loc->return_dir) == true)
+		return(redirectRequest(&loc->return_dir));
 	if (isMethodAllowed(loc, "GET") == 0)
 		return setCode(CODE_405, NOT_ALLOWED);
 	if (loc->root.size() == 0)
@@ -201,24 +203,24 @@ void response::handlePost ( t_location *loc )
 	// {
 	// 	if (dup2(fd[1], STDOUT) < 0)
 	// 	{
-	// 		std::cerr << RED"error : dup2 failure\n"RESET;
-	// 		return ;
-	// 	}
-		
-	// }
+// 		std::cerr << RED"error : dup2 failure\n"RESET;
+// 		return ;
+// 	}
+	
+// }
 
 
-	// vec_enum(cgi.env);
-	// cgi.convertToC();
-	// print_env_c(cgi.c_env);
-	return;
+// vec_enum(cgi.env);
+// cgi.convertToC();
+// print_env_c(cgi.c_env);
+return;
 }
 
-bool response::isRedirected (std::vector<std::string> vec)
+bool response::isRedirected (std::vector<std::string> *vec)
 {
-	std::vector<std::string>::iterator it;
+std::vector<std::string>::iterator it;
 
-	if (vec.size() == 0)
+	if (vec->size() == 0)
 		return (false);
 	return (true);
 }
@@ -247,13 +249,37 @@ bool response::isMethodImplemented(void)
 	return (true);
 }
 
-void response::redirectRequest (std::vector<std::string> vec)
+// ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
+void response::redirectRequest (std::vector<std::string> *vec)
 {
 	(void)vec;
-	// std::vector<std::string>::iterator it = vec.begin();
+	std::vector<std::string>::iterator it = vec->begin();
 
-	// int redirectCode = atoi(*it++);
-	// std::string  redirectUrl = *it;
+	int redirectCode = atoi(it->c_str());
+	it++;
+	std::string  redirectUrl = *it;
+	if (redirectCode == 300)
+		ret += CODE_300;
+	else if (redirectCode == 301)
+		ret += CODE_301;
+	else if (redirectCode == 302)
+		ret += CODE_302;
+	else if (redirectCode == 303)
+		ret += CODE_303;
+	else if (redirectCode == 304)
+		ret += CODE_304;
+	else if (redirectCode == 305)
+		ret += CODE_305;
+	else if (redirectCode == 306)
+		ret += CODE_306;
+	else if (redirectCode == 307)
+		ret += CODE_307;
+	else if (redirectCode == 308)
+		ret += CODE_308;
+	ret += "\nLocation: ";
+	ret += redirectUrl;
+	ret += "\r\n\r\n";
+	return ;
 
 }
 
@@ -263,13 +289,9 @@ void response::parse ( void )
 
 	t_location 							tmp;
 
-	ret += CODE_301;
-	ret += "\nLocation: http://localhost:8080/pikachu/";
-	// ret += "\r\n\r\n";
-	return ;
 	// if all the server requests are redirected
-	// if (isRedirected(conf.return_dir) == 1)
-	// 	return(redirectRequest(&conf.return_dir));
+	if (isRedirected(&conf.return_dir) == true)
+		return(redirectRequest(&conf.return_dir));
 	if (isMethodImplemented() == 0)
 		return (setCode(CODE_501, NOT_IMPLEMENTED));
 
