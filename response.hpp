@@ -8,6 +8,7 @@ class response
 	// conf
 	request 		*req;
 	t_server 		conf;
+	t_location 		*loc;
 
 	// response
 	int				code;
@@ -18,25 +19,26 @@ class response
 	std::string 	ret;
 
 	// iterator
-	std::vector<std::string>::iterator it;
+	std::vector<std::string>::iterator 	it;
+	std::vector<t_location>::iterator	loc_it;
 	// std::vector<std::string>::iterator end;
 
 	// constructors
 	response (void);
 	response (request *request, t_server config);
 
-	void setRoot ( t_location *loc);
-	void setIndex ( t_location *loc);
-	void setFile ( t_location *loc);
+	void setRoot ( void );
+	void setIndex ( void );
+	void setFile ( void );
 	void setCode ( int code, std::string codeMessage, std::string output );
 
 	void parse ( void );
-	void handleGet ( t_location *loc );
-	void handleDelete ( t_location *loc );
-	void handlePost (  t_location *loc );
+	void handleGet ( void );
+	void handleDelete ( void );
+	void handlePost (  void );
 
-	std::string getAutoIndex ( t_location *loc );
-	std::string getErrorPage ( std::vector<std::string> *vec);
+	std::string getAutoIndex ( void );
+	std::string getErrorPage (std::vector<std::string> *vec );
 	std::string getDataFromFile(std::string fileName);
 
 	void redirectRequest (std::vector<std::string> *vec);

@@ -25,6 +25,7 @@ response::response (request *request, t_server config)
 {
 	req = request;
 	conf = config;
+	loc = 0;
 	code = 0;
 	// file = {0};
 	fileName = "";
@@ -45,7 +46,7 @@ response::response (request *request, t_server config)
  // //if not, not found
  check if there is error_pages for this location
  */
-std::string response::getAutoIndex(t_location *loc)
+std::string response::getAutoIndex( void )
 {
 	std::vector<std::string> folder;
 
@@ -105,19 +106,27 @@ std::string response::getAutoIndex(t_location *loc)
 	 return output;
 }
 
-std::string response::getErrorPage ( std::vector<std::string> *vec)
+std::string response::getErrorPage ( std::vector<std::string> *vec )
 {
-	buffer = "";
+	fileName = "";
+	std::string data = "";
 	int errorCode;
-	for (it = vec->begin(); it != vec->end(); it++)
+
+	if (loc->root.size() == 0)
+		fileName += conf.root;
+	else 
+		fileName += loc->root;
+
+	for (it = vec->begin(); it != vec->end() - 1; it++)
 	{
 		errorCode = atoi(it->c_str());
 		if (code == errorCode)
-			std::cout << "error code\n";
-
+			fileName += *(vec->end() - 1);
+			// std::cout << "error code\n";
 	}
-
-	return (buffer);
+	std::cout << "file name :" << fileName<< '\n';
+	data = getDataFromFile(fileName);
+	return (data);
 }
 
 void response::setCode(int code, std::string codeMessage, std::string output)
@@ -146,7 +155,7 @@ std::string response::getDataFromFile(std::string fileName)
 }
 
 // filename = root + request path + index
-void response::handleGet(t_location *loc)
+void response::handleGet( void )
 {
 
 	if (isRedirected(&loc->return_dir) == true)
@@ -156,33 +165,28 @@ void response::handleGet(t_location *loc)
 	fileName += req->requestLine[request::PATH];
 	// if the last character is a /, it's a folder, so add index.
 	if (req->requestLine[request::PATH].back() == '/')
-		setIndex(loc);
-	std::cout << "output : \n" << output << "\n";
+		setIndex();
+	// if fileName can't be open, return empty string -> size 0 = no index.
 	output = getDataFromFile(fileName);
-	std::cout << "output : \n" << output << "\n";
-	// file.open(fileName.c_str());
-
-	// if (file.is_open())
-	// {
-	// 	while (getline(file, buffer))
-	// 			output += buffer;
-	// 	file.close();
-	// }
+	// size = 0 means that autoindex couln't be generated
+	// it means that the request is trying to get a regular file(not a folder)
 	if (output.size() == 0)
-		output = getAutoIndex(loc);
-	std::cout << "output : \n" << output << "\n";
-	// std::cout << output << std::endl;
+		output = getAutoIndex();
 	if (output.size() == 0)
+		// couln't find file nor autoindex -> error 404
 		setCode(404, CODE_404, output);
 	else 
+		// regular file successfuly open -> code 200
 		setCode(200, CODE_200, output);
-	if (code > 399 && code < 511)
-		output = getErrorPage(&loc->error_page);
+	// if (code > 399 && code < 511)
+	// 	output = getErrorPage(&loc->error_page);
+	// if (code == 404)
+	// 	setCode(404, CODE_404, output);
 	return;
 }
 
 // https://www.cplusplus.com/reference/cstdio/remove/
-void response::handleDelete ( t_location *loc )
+void response::handleDelete ( void )
 {
 	if (isMethodAllowed(loc, "DELETE") == 0)
 		return setCode(405, CODE_405, NOT_ALLOWED);
@@ -195,7 +199,7 @@ void response::handleDelete ( t_location *loc )
 	return;
 }
 
-void response::handlePost ( t_location *loc )
+void response::handlePost ( void )
 {
 	if (isMethodAllowed(loc, "POST") == 0)
 		return setCode(405, CODE_405, NOT_ALLOWED);
@@ -298,7 +302,7 @@ void response::redirectRequest (std::vector<std::string> *vec)
 
 }
 
-void response::setIndex ( t_location *loc)
+void response::setIndex ( void )
 {
 	if (loc->index.size() == 0)
 		fileName += conf.index;
@@ -307,7 +311,7 @@ void response::setIndex ( t_location *loc)
 	return ;
 }
 
-void response::setRoot ( t_location *loc)
+void response::setRoot ( void )
 {
 	if (loc->root.size() == 0)
 		fileName += conf.root;
@@ -318,10 +322,6 @@ void response::setRoot ( t_location *loc)
 
 void response::parse ( void )
 {
-	std::vector<t_location>::iterator	loc_it;
-
-	t_location 							tmp;
-
 	// if all the server requests are redirected
 	if (isRedirected(&conf.return_dir) == true)
 		return(redirectRequest(&conf.return_dir));
@@ -332,22 +332,22 @@ void response::parse ( void )
 	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
 	{
 		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
-			tmp = *loc_it;
+			loc = &*loc_it;
 	}
 	// printLocationConfig
 	// printLocation(&tmp);
-	setRoot(&tmp);
+	setRoot();
 	// set filename
 
 
 	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
-		handleGet(&tmp);
+		handleGet();
 	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
-		handleDelete(&tmp);
+		handleDelete();
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
-		handlePost(&tmp);
-	if (output.size() == 0)
-		output = getErrorPage(&conf.error_page);
+		handlePost();
+	// if (output.size() == 0)
+	// 	output = getErrorPage(&conf.error_page);
 	// return response;
 }
 
