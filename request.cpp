@@ -96,6 +96,7 @@ void request::parseHeader(void)
 		body = buf.substr(pos + 2, buf.size());
 		buf.erase(pos - 1);
 	}
+	else
 		body = buf.substr(pos , buf.size());
 		// buf.erase(pos - 1);
 
