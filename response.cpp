@@ -6,6 +6,16 @@
 #define NOT_IMPLEMENTED " <!DOCTYPE html> <html> <body><h1> \
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
+				
+#define CRLF "\r\n\r\n"
+
+// TODO add file deleted message with Code 200 et 204
+// <html>
+//   <body>
+//     <h1>File deleted.</h1>
+//   </body>
+// </html>
+
 
 response::response ( void ) 
 {
@@ -15,8 +25,12 @@ response::response (request *request, t_server config)
 {
 	req = request;
 	conf = config;
-	ret = "";
 	code = 0;
+	// file = {0};
+	fileName = "";
+	buffer = "";
+	output = "";
+	ret = "";
 	// req->printRequest();
 }
 /*
@@ -31,23 +45,19 @@ response::response (request *request, t_server config)
  // //if not, not found
  check if there is error_pages for this location
  */
-std::string response::autoIndex(t_location *loc)
+std::string response::getAutoIndex(t_location *loc)
 {
 	std::vector<std::string> folder;
-	std::vector<std::string>::iterator it;
-	std::string 	output = "";
-	std::string 	fileName = "";
-	std::string 	root = "";
-	std::string 	tmp = "";
+
 	DIR 			*dir;
 	struct dirent 	*ent;
 
+	fileName = "";
 	if (loc->root.size() == 0)
-		root += conf.root;
+		fileName += conf.root;
 	else
-		root += loc->root;
+		fileName += loc->root;
 
-	fileName += root;
 	fileName += req->requestLine[request::PATH];
 	if (loc->autoindex.size() == 0)
 	{
@@ -59,11 +69,11 @@ std::string response::autoIndex(t_location *loc)
 	{
 		while ((ent = readdir(dir)) != NULL)
 		{
-			tmp = ent->d_name;
+			buffer = ent->d_name;
 			// add / if it's a directory
 			if (ent->d_type == DT_DIR)
-				tmp += "/";
-			folder.push_back(tmp);
+				buffer += "/";
+			folder.push_back(buffer);
 			// printf("%s\n", ent->d_name);
 		}
 		closedir(dir);
@@ -95,88 +105,100 @@ std::string response::autoIndex(t_location *loc)
 	 return output;
 }
 
-void response::setCode(std::string code, std::string output)
+std::string response::getErrorPage ( std::vector<std::string> *vec)
 {
-	ret += code;
-	ret += "\r\n\r\n";
+	buffer = "";
+	int errorCode;
+	for (it = vec->begin(); it != vec->end(); it++)
+	{
+		errorCode = atoi(it->c_str());
+		if (code == errorCode)
+			std::cout << "error code\n";
+
+	}
+
+	return (buffer);
+}
+
+void response::setCode(int code, std::string codeMessage, std::string output)
+{
+	this->code = code;
+	ret += codeMessage;
+	ret += CRLF;
 	ret += output;
 	return ;
+}
+
+std::string response::getDataFromFile(std::string fileName)
+{
+	buffer = "";
+	std::string data = "";
+
+	file.open(fileName.c_str());
+
+	if (file.is_open())
+	{
+		while (getline(file, buffer))
+				data += buffer;
+		file.close();
+	}
+	return data;
 }
 
 // filename = root + request path + index
 void response::handleGet(t_location *loc)
 {
-	std::fstream file;
-	std::string fileName = "";
-	std::string line = "";
-	std::string output = "";
 
 	if (isRedirected(&loc->return_dir) == true)
 		return(redirectRequest(&loc->return_dir));
 	if (isMethodAllowed(loc, "GET") == 0)
-		return setCode(CODE_405, NOT_ALLOWED);
-	if (loc->root.size() == 0)
-		fileName += conf.root;
-	else 
-		fileName += loc->root;
+		return setCode(405, CODE_405, NOT_ALLOWED);
 	fileName += req->requestLine[request::PATH];
+	// if the last character is a /, it's a folder, so add index.
 	if (req->requestLine[request::PATH].back() == '/')
-	{
-		if (loc->index.size() == 0)
-			fileName += conf.index;
-		else
-			fileName += loc->index;
-	}
-	file.open(fileName.c_str());
+		setIndex(loc);
+	std::cout << "output : \n" << output << "\n";
+	output = getDataFromFile(fileName);
+	std::cout << "output : \n" << output << "\n";
+	// file.open(fileName.c_str());
 
-	if (file.is_open())
-	{
-		while (getline(file, line))
-				output += line;
-		file.close();
-	}
-	else
-		output += autoIndex(loc);
+	// if (file.is_open())
+	// {
+	// 	while (getline(file, buffer))
+	// 			output += buffer;
+	// 	file.close();
+	// }
+	if (output.size() == 0)
+		output = getAutoIndex(loc);
+	std::cout << "output : \n" << output << "\n";
 	// std::cout << output << std::endl;
 	if (output.size() == 0)
-		setCode(CODE_404, output);
+		setCode(404, CODE_404, output);
 	else 
-		setCode(CODE_200, output);
+		setCode(200, CODE_200, output);
+	if (code > 399 && code < 511)
+		output = getErrorPage(&loc->error_page);
 	return;
 }
 
 // https://www.cplusplus.com/reference/cstdio/remove/
 void response::handleDelete ( t_location *loc )
 {
-	std::fstream file;
-	std::string fileName = "";
-	std::string output = "";
-
 	if (isMethodAllowed(loc, "DELETE") == 0)
-		return setCode(CODE_405, NOT_ALLOWED);
-	if (loc->root.size() == 0)
-		fileName += conf.root;
-	else 
-		fileName += loc->root;
-
+		return setCode(405, CODE_405, NOT_ALLOWED);
 	fileName += req->requestLine[request::PATH];
+
 	if (remove(fileName.c_str()) != 0)
-	{
-		perror("Error deleting file");
-		setCode(CODE_404, output);
-	}
+		setCode(204, CODE_204, output);
 	else
-	{
-		setCode(CODE_200, output);
-		puts("File successfully deleted");
-	}
+		setCode(200, CODE_200, output);
 	return;
 }
 
 void response::handlePost ( t_location *loc )
 {
 	if (isMethodAllowed(loc, "POST") == 0)
-		return setCode(CODE_405, NOT_ALLOWED);
+		return setCode(405, CODE_405, NOT_ALLOWED);
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
@@ -218,8 +240,6 @@ return;
 
 bool response::isRedirected (std::vector<std::string> *vec)
 {
-std::vector<std::string>::iterator it;
-
 	if (vec->size() == 0)
 		return (false);
 	return (true);
@@ -227,15 +247,11 @@ std::vector<std::string>::iterator it;
 
 bool response::isMethodAllowed (t_location *loc, std::string method)
 {
-	std::vector<std::string>::iterator it;
-
 	if (loc->limit_except.size() == 0)
 		return (true);
 	for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
-	{
 		if ((*it).compare(method) == 0)
 			return (true);
-	}
 	return (false);
 }
 
@@ -252,35 +268,52 @@ bool response::isMethodImplemented(void)
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
 void response::redirectRequest (std::vector<std::string> *vec)
 {
-	(void)vec;
-	std::vector<std::string>::iterator it = vec->begin();
+	 it = vec->begin();
 
-	int redirectCode = atoi(it->c_str());
+	code = atoi(it->c_str());
 	it++;
 	std::string  redirectUrl = *it;
-	if (redirectCode == 300)
+	if (code == 300)
 		ret += CODE_300;
-	else if (redirectCode == 301)
+	else if (code == 301)
 		ret += CODE_301;
-	else if (redirectCode == 302)
+	else if (code == 302)
 		ret += CODE_302;
-	else if (redirectCode == 303)
+	else if (code == 303)
 		ret += CODE_303;
-	else if (redirectCode == 304)
+	else if (code == 304)
 		ret += CODE_304;
-	else if (redirectCode == 305)
+	else if (code == 305)
 		ret += CODE_305;
-	else if (redirectCode == 306)
+	else if (code == 306)
 		ret += CODE_306;
-	else if (redirectCode == 307)
+	else if (code == 307)
 		ret += CODE_307;
-	else if (redirectCode == 308)
+	else if (code == 308)
 		ret += CODE_308;
 	ret += "\nLocation: ";
 	ret += redirectUrl;
-	ret += "\r\n\r\n";
+	ret += CRLF;
 	return ;
 
+}
+
+void response::setIndex ( t_location *loc)
+{
+	if (loc->index.size() == 0)
+		fileName += conf.index;
+	else
+		fileName += loc->index;
+	return ;
+}
+
+void response::setRoot ( t_location *loc)
+{
+	if (loc->root.size() == 0)
+		fileName += conf.root;
+	else 
+		fileName += loc->root;
+	return ;
 }
 
 void response::parse ( void )
@@ -293,7 +326,7 @@ void response::parse ( void )
 	if (isRedirected(&conf.return_dir) == true)
 		return(redirectRequest(&conf.return_dir));
 	if (isMethodImplemented() == 0)
-		return (setCode(CODE_501, NOT_IMPLEMENTED));
+		return (setCode(501, CODE_501, NOT_IMPLEMENTED));
 
 	// find location path (from server config) that match request path
 	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
@@ -303,6 +336,9 @@ void response::parse ( void )
 	}
 	// printLocationConfig
 	// printLocation(&tmp);
+	setRoot(&tmp);
+	// set filename
+
 
 	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet(&tmp);
@@ -310,6 +346,9 @@ void response::parse ( void )
 		handleDelete(&tmp);
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost(&tmp);
+	if (output.size() == 0)
+		output = getErrorPage(&conf.error_page);
+	// return response;
 }
 
 
