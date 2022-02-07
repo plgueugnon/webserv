@@ -122,7 +122,7 @@ void response::setCode(int code)
 		output = getErrorPage(loc.error_page);
 	if (output.size() == 0)
 		output = getErrorPage(conf.error_page);
-	switch (this->code)
+	switch (code)
 	{
 		case 200 :
 		ret = CODE_200;
