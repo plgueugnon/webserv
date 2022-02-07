@@ -27,6 +27,7 @@ cgi::cgi (void)
 	env.push_back("HTTP_COOKIE=");
 	env.push_back("HTTP_REFERER=");
 	env.push_back("REDIRECT_STATUS=");
+	env.push_back("SCRIPT_FILENAME=");
 }
 
 void cgi::convertToC ( void )

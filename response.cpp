@@ -215,25 +215,39 @@ void response::handlePost ( t_location *loc )
 	cgi.env[cgi::SERVER_PORT] += conf.listen;
 	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
 	// cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
-	cgi.env[cgi::CONTENT_TYPE] += " text/plain";
-	// ! cgi.env[cgi::SCRIPT_NAME] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_script.php";
-	// ! cgi.env[cgi::SCRIPT_FILENAME] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_script.php";
-	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_script.php";
+	// !
+	// cgi.env[cgi::CONTENT_TYPE] += "text/html";
+	// cgi.env[cgi::SCRIPT_NAME] += "/printenv.php";
+	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/printenv.php";
+	// cgi.env[cgi::PATH_INFO] += "printenv.php";
+	// !
+	// cgi.env[cgi::CONTENT_TYPE] += "application/x-www-form-urlencoded";
+	// cgi.env[cgi::SCRIPT_NAME] += "/test_form.php";
+	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_form.php";
+	// cgi.env[cgi::PATH_INFO] += "test_form.php";
+	// !
+	// cgi.env[cgi::CONTENT_TYPE] += "text/plain";
+	// cgi.env[cgi::SCRIPT_NAME] += "/carapuce.txt";
+	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/www/pokemon/carapuce.txt";
+	// cgi.env[cgi::PATH_INFO] += "carapuce.txt";
 	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/mini_client/requests/GET_min_base_loremipsum_request";
 	// ! cgi.env[cgi::CONTENT_TYPE] += "text/html";
-	cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
+	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
 	cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
-	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
+	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
 	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
-	cgi.env[cgi::REDIRECT_STATUS] += "200";
+	// cgi.env[cgi::REDIRECT_STATUS] += "200";
+
+	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
+
 
 	vec_enum(cgi.env);
 	cgi.convertToC();
 	print_env_c(cgi.c_env);
 	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
-	// char path[] = "./cgi/php-cgi_vMojave";
-	char path[] = "./cgi/php-cgi";
+	char path[] = "./cgi/php-cgi_vMojave";
+	// char path[] = "./cgi/php-cgi";
 	int		fd[2];
 	pid_t	pid;
 	// int cfd = 0;
@@ -243,6 +257,7 @@ void response::handlePost ( t_location *loc )
 	char buffer[10000];
 
 	pipe(fd);
+	// fcntl(fd[0], F_SETFL, O_NONBLOCK);
 	pid = fork();
 	if (pid == -1)
 		std::cerr << RED"error : fork failure\n"RESET;
@@ -272,9 +287,16 @@ void response::handlePost ( t_location *loc )
 		std::cout << BOLDWHITE"check parent\n"RESET;
 		int r;
 		close(fd[1]);
-		waitpid(pid, NULL, -1);
-		while((r = read(fd[0], buffer, sizeof(buffer))) != 0)
+		std::cout << "wait ?\n";
+		waitpid(pid, NULL, WNOHANG);
+		std::cout << "wait !\n";
+		// r = read(fd[0], buffer, sizeof(buffer));
+		// // buffer[r] = 0;
+		// std::cout << CYAN << buffer << RESET << std::endl;
+		// output += buffer;
+		while((r = read(fd[0], buffer, sizeof(buffer))) > 0)
 		{
+			std::cout << "REEAAAAAAAAAAD\n";
 			if (r == -1)
 				std::cerr << RED"error : read failure\n"RESET;
 			buffer[r] = 0;
@@ -282,6 +304,7 @@ void response::handlePost ( t_location *loc )
 			output += buffer;
 			bzero(buffer, sizeof(buffer));
 		}
+		std::cout << "data received = " << r << "\n";
 		close(fd[0]);
 	}
 	if (output.size() == 0)
