@@ -9,13 +9,6 @@
 				
 #define CRLF "\r\n\r\n"
 
-// TODO add file deleted message with Code 200 et 204
-// <html>
-//   <body>
-//     <h1>File deleted.</h1>
-//   </body>
-// </html>
-
 
 response::response ( void ) 
 {
@@ -125,6 +118,10 @@ std::string response::getErrorPage ( std::vector<std::string> vec )
 void response::setCode(int code)
 {
 	this->code = code;
+	if (output.size() == 0)
+		output = getErrorPage(loc.error_page);
+	if (output.size() == 0)
+		output = getErrorPage(conf.error_page);
 	switch (this->code)
 	{
 		case 200 :
@@ -132,6 +129,8 @@ void response::setCode(int code)
 		break;
 		case 204 :
 		ret = CODE_204;
+		if (output.size() == 0)
+			output = "<html><body><h1>Couln't delete file.</h1></body></html>";
 		break;
 		case 400 : 
 		ret = CODE_400;
@@ -147,9 +146,13 @@ void response::setCode(int code)
 		break ;
 		case 404 : 
 		ret = CODE_404;
-		break ;
+		if (output.size() == 0)
+			output = "<html><body><h1>Not found.</h1></body></html>";
+		break;
 		case 405 :
 		ret = CODE_405;
+		if (output.size() == 0)
+			output = NOT_ALLOWED;
 		break ;
 		case 406 : 
 		ret = CODE_406;
@@ -225,6 +228,8 @@ void response::setCode(int code)
 		break ;
 		case 501 : 
 		ret = CODE_501;
+		if (output.size() == 0)
+			output = NOT_IMPLEMENTED;
 		break ;
 		case 502 : 
 		ret = CODE_502;
@@ -255,10 +260,6 @@ void response::setCode(int code)
 		break ;
 	}
 	ret += CRLF;
-	if (output.size() == 0)
-		output = getErrorPage(loc.error_page);
-	if (output.size() == 0)
-		output = getErrorPage(conf.error_page);
 	ret += output;
 	return ;
 }
@@ -304,7 +305,7 @@ void response::handleGet( void )
 	// it means that the request is trying to get a regular file(not a folder)
 	if (output.size() == 0)
 		// code = 404;
-		return setCode(404);
+		setCode(404);
 	else 
 		// code = 200;
 		setCode(200);
