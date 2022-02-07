@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/03 16:02:35 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/07 16:51:55 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@
 #define ERR_LOCATION_SLASH "location route must begin by '/'."
 #define ERR_ERROR_PAGE_ARG "error_page, Missing semicolomn ';'."
 #define ERR_LIMIT_EXCEPT_ARG "except_limit, Missing semicolomn ';'."
-#define ERR_RETURN_ARG "except_limit, Missing semicolomn ';'."
+#define ERR_RETURN_ARG "return arguments, code + URL."
+#define ERR_RETURN_CODE "return code invalid. 300 <= code <= 308 ."
 #define ERR_WRONG_DIRECTIVE "unknown directive or open brackets"
 #define ERR_WRONG_PORT_RANGE "wrong port range, min 0, max 65 535."
 #define ERR_WRONG_ERR_CODE "error_page code unknown."
@@ -661,61 +662,43 @@ void webserv::listenCheck ( void )
 // check if error_page codes are known error codes and if a token begin with /, we check if it's the last : syntax = code ... code /URI;
 void webserv::errorReturnCheck ( void )
 {
-	// std::vector<t_server> 				srv = _config.server;
+	std::vector<t_server> 				srv = _config.server;
 
-	// std::vector<t_server>::iterator 	srv_it;
-	// std::vector<t_location>::iterator 	loc_it;
+	std::vector<t_server>::iterator 	srv_it;
+	std::vector<t_location>::iterator 	loc_it;
 
-	// std::vector<std::string>::iterator	it;
-	// std::vector<std::string>::iterator	it2;
-
-	// int 	code = -1;
-	// // ! check server return directive
-	// for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
-	// {
-	// 	for (it = srv_it->return_dir.begin(); it != srv_it->return_dir.end(); it++)
-	// 	{
-	// 		if (VERBOSE)
-	// 			std::cout << *it << "\n";
-	// 		if (it[0][0] != '/')
-	// 		{
-	// 			code = atoi(it->c_str());
-	// 			if (is_error_code(code) == false)
-	// 				throw std::invalid_argument(ERR_WRONG_ERR_CODE);
-	// 		}
-	// 		else
-	// 		{
-	// 			if (it != (srv_it->return_dir.end() - 1))
-	// 				throw std::invalid_argument(ERR_WRONG_ERR_URI);
-	// 		}
-	// 	}
-	// 	// ! check location return directive
-	// 	for (loc_it = srv_it->location.begin();
-	// 		 loc_it != srv_it->location.end();
-	// 		 loc_it++)
-	// 	{
-	// 		for (it2 = loc_it->return_dir.begin();
-	// 			 it2 != loc_it->return_dir.end();
-	// 			 it2++)
-	// 		{
-	// 			if (VERBOSE)
-	// 				std::cout << *it2 << "\n";
-	// 			if (it2[0][0] != '/')
-	// 			{
-	// 				code = atoi(it2->c_str());
-	// 				if (is_error_code(code) == false)
-	// 					throw std::invalid_argument(ERR_WRONG_ERR_CODE);
-	// 			}
-	// 			else
-	// 			{
-	// 				if (it2 != (loc_it->return_dir.end() - 1))
-	// 					throw std::invalid_argument(ERR_WRONG_ERR_URI);
-	// 			}
-	// 		}
-	// 	}
-	// }
+	int 	code = -1;
+	// ! check server return directive
+	for (srv_it = srv.begin(); srv_it != srv.end(); srv_it++)
+	{
+		if (srv_it->return_dir.size() == 0)
+			;
+		else if (srv_it->return_dir.size() != 2)
+			throw std::invalid_argument(ERR_RETURN_ARG);
+		else
+		{
+			code = atoi(srv_it->return_dir.front().c_str());
+			if (isReturnCode(code) == false)
+				throw std::invalid_argument(ERR_RETURN_CODE);
+		}
+			// ! check location return directive
+			for (loc_it = srv_it->location.begin();
+				 loc_it != srv_it->location.end();
+				 loc_it++)
+			{
+				if (loc_it->return_dir.size() == 0)
+					;
+				else if (loc_it->return_dir.size() != 2)
+					throw std::invalid_argument(ERR_RETURN_ARG);
+				else
+				{
+					code = atoi(loc_it->return_dir.front().c_str());
+					if (isReturnCode(code) == false)
+						throw std::invalid_argument(ERR_RETURN_CODE);
+				}
+			}
+	}
 }
-
 
 // check if error_page codes are known error codes and if a token begin with /, we check if it's the last : syntax = code ... code /URI;
 void webserv::errorPageCheck ( void )
@@ -738,7 +721,7 @@ void webserv::errorPageCheck ( void )
 		if (it->compare("/") != 0)
 		{
 			code = atoi(it->c_str());
-			if (is_error_code(code) == false)
+			if (isErrorCode(code) == false)
 				throw std::invalid_argument(ERR_WRONG_ERR_CODE);
 		}
 		else 
@@ -759,7 +742,7 @@ void webserv::errorPageCheck ( void )
 			if (it[0][0] != '/')
 			{
 				code = atoi(it->c_str());
-				if (is_error_code(code) == false)
+				if (isErrorCode(code) == false)
 					throw std::invalid_argument(ERR_WRONG_ERR_CODE);
 			}
 			else
@@ -782,7 +765,7 @@ void webserv::errorPageCheck ( void )
 				if (it2[0][0] != '/')
 				{
 					code = atoi(it2->c_str());
-					if (is_error_code(code) == false)
+					if (isErrorCode(code) == false)
 						throw std::invalid_argument(ERR_WRONG_ERR_CODE);
 				}
 				else

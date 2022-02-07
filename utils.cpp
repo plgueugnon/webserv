@@ -68,7 +68,15 @@ void    print_env_c(char ** env)
     return ;
 }
 
-bool     is_error_code ( int  code)
+bool     isReturnCode ( int  code)
+{
+    if (code >= 300 && code <= 308)
+        return (true);
+    else
+        return (false);
+}
+
+bool     isErrorCode ( int  code)
 {
     if (code >= 400 && code <= 418)
         return (true);

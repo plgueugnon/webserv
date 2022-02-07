@@ -16,10 +16,6 @@ body("")
 int	receive_request(int client_sock, t_http config)
 {
 	ssize_t n = 0;
-	// std::vector<char> buf(4096);
-	// t_request	request;
-	// int	c = 0;
-	// std::string 	buffer = "";
 	char buffer[BUFFER_SIZE];
 	request 		request;
 
@@ -93,15 +89,7 @@ void request::parseHeader(void)
 	isBody = true;
 	// save the beginning of the body, saved in the buffer
 	// + 2 to skip \r\n
-	if (VERBOSE)
-	{
-		std::cout << "pos :" << pos << "\n";
-		std::cout << "bufsize :" << buf.size() << "\n";
-		std::cout << "buf :" << buf << "\n";
-	}
 
-	// if (VERBOSE)
-	// 	std::cout << RED"BUG :\n"RESET;
 	// ! problem ici a regarder plus tard pour std out of range
 	if (buf.size() - pos - 2 > 0)
 	{
@@ -167,16 +155,6 @@ void request::fillRequestLine(void)
 	if (vec.size() > 2)
 	// ! mettre exception a terme
 		std::cerr << RED"multiple ? in query \n"RESET;
-	// v2
-	// pos = vec[1].find('?');
-	// if (pos != std::string::npos)
-	// {
-	// 	requestLine[PATH] = vec[1].substr(0, pos);
-	// 	requestLine[QUERY] = vec[1].substr(pos + 1, vec[1].length());
-	// }
-	// else
-	// 	requestLine[PATH] = vec[1];
-	// vec_enum(vec);
 	return ;
 }
 
