@@ -7,7 +7,7 @@
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
 				
-// #define CRLF "\r\n\r\n"
+#define CRLF "\r\n\r\n"
 
 // TODO add file deleted message with Code 200 et 204
 // <html>
@@ -52,12 +52,13 @@ std::string response::getAutoIndex( std::string fileName )
 
 	DIR 			*dir;
 	struct dirent 	*ent;
+	std::string data = "";
 
 	if (loc.autoindex.size() == 0)
 	{
 		if (loc.autoindex.compare("on") != 0 &&
 			conf.autoindex.compare("on") != 0)
-			return output;
+			return "";
 	}
 	if ((dir = opendir(fileName.c_str())) != NULL)
 	{
@@ -75,62 +76,189 @@ std::string response::getAutoIndex( std::string fileName )
 	else
 	{
 		std::cerr << RED"can't open directory\n"RESET;
-		return output;
+		return "";
 	}
-	output += "<html>\n <head><title>Index of ";
-	output += req->requestLine[request::PATH];
-	output += " folder.\n\n";
-	output += " </title></head>\n <body>\n";
-	output += "<h1>Index of ";
-	output += req->requestLine[request::PATH];
-	output += " folder.\n\n</h1><hr><pre>";
+	data += "<html>\n <head><title>Index of ";
+	data += path;
+	data += " folder.\n\n";
+	data += " </title></head>\n <body>\n";
+	data += "<h1>Index of ";
+	data += path;
+	data += " folder.\n\n</h1><hr><pre>";
 
 
 	for (it = folder.begin(); it != folder.end(); it++)
 	{
-		output += "<a href=\"";
-		output += *it;
-		output += "\">";
-		output += *it;
-		output += "\n";
+		data += "<a href=\"";
+		data += *it;
+		data += "\">";
+		data += *it;
+		data += "\n";
 	}
-	output += "</pre><hr></body>";
-	output += "</ html>";
-	 return output;
+	data += "</pre><hr></body>";
+	data += "</ html>";
+	 return data;
 }
 
-std::string response::getErrorPage ( std::vector<std::string> *vec )
+std::string response::getErrorPage ( std::vector<std::string> vec )
 {
 	// fileName = "";
 	std::string data = "";
 	std::string fileName = root;
 	int errorCode;
 
-	// if (loc.root.size() == 0)
-	// 	fileName += conf.root;
-	// else 
-	// 	fileName += loc.root;
-
-	for (it = vec->begin(); it != vec->end() - 1; it++)
+	if (vec.size() == 0)
+		return data;
+	for (it = vec.begin(); it != vec.end() - 1; it++)
 	{
 		errorCode = atoi(it->c_str());
 		if (code == errorCode)
 		{
-			fileName += *(vec->end() - 1);
+			fileName += *(vec.end() - 1);
 			break;
 		}
-			// std::cout << "error code\n";
 	}
 	data = getDataFromFile(fileName);
 	return (data);
 }
 
-void response::setCode(int code, std::string codeMessage, std::string output)
+void response::setCode(int code)
 {
 	this->code = code;
-	ret += codeMessage;
-	// ret += CRLF;
-	ret += "\r\n\r\n";
+	switch (this->code)
+	{
+		case 200 :
+		ret = CODE_200;
+		break;
+		case 204 :
+		ret = CODE_204;
+		break;
+		case 400 : 
+		ret = CODE_400;
+		break ;
+		case 401 : 
+		ret = CODE_401;
+		break ;
+		case 402 : 
+		ret = CODE_402;
+		break ;
+		case 403 : 
+		ret = CODE_403;
+		break ;
+		case 404 : 
+		ret = CODE_404;
+		break ;
+		case 405 :
+		ret = CODE_405;
+		break ;
+		case 406 : 
+		ret = CODE_406;
+		break ;
+		case 407 : 
+		ret = CODE_407;
+		break ;
+		case 408 : 
+		ret = CODE_408;
+		break ;
+		case 409 : 
+		ret = CODE_409;
+		break ;
+		case 410 : 
+		ret = CODE_410;
+		break ;
+		case 411 : 
+		ret = CODE_411;
+		break ;
+		case 412 : 
+		ret = CODE_412;
+		break ;
+		case 413 : 
+		ret = CODE_413;
+		break ;
+		case 414 : 
+		ret = CODE_414;
+		break ;
+		case 415 : 
+		ret = CODE_415;
+		break ;
+		case 416 : 
+		ret = CODE_416;
+		break ;
+		case 417 : 
+		ret = CODE_417;
+		break ;
+		case 418 : 
+		ret = CODE_418;
+		break ;
+		case 421 : 
+		ret = CODE_421;
+		break ;
+		case 422 : 
+		ret = CODE_422;
+		break ;
+		case 423 : 
+		ret = CODE_423;
+		break ;
+		case 424 : 
+		ret = CODE_424;
+		break ;
+		case 425 : 
+		ret = CODE_425;
+		break ;
+		case 426 : 
+		ret = CODE_426;
+		break ;
+		case 428 : 
+		ret = CODE_428;
+		break ;
+		case 429 : 
+		ret = CODE_429;
+		break ;
+		case 431 : 
+		ret = CODE_431;
+		break ;
+		case 451 : 
+		ret = CODE_451;
+		break ;
+		case 500 : 
+		ret = CODE_500;
+		break ;
+		case 501 : 
+		ret = CODE_501;
+		break ;
+		case 502 : 
+		ret = CODE_502;
+		break ;
+		case 503 : 
+		ret = CODE_503;
+		break ;
+		case 504 : 
+		ret = CODE_504;
+		break ;
+		case 505 : 
+		ret = CODE_505;
+		break ;
+		case 506 : 
+		ret = CODE_506;
+		break ;
+		case 507 : 
+		ret = CODE_507;
+		break ;
+		case 508 : 
+		ret = CODE_508;
+		break ;
+		case 510 : 
+		ret = CODE_510;
+		break ;
+		case 511 : 
+		ret = CODE_511;
+		break ;
+	}
+	ret += CRLF;
+	if (output.size() == 0)
+		output = getErrorPage(loc.error_page);
+	if (output.size() == 0)
+		output = getErrorPage(conf.error_page);
 	ret += output;
 	return ;
 }
@@ -151,6 +279,11 @@ std::string response::getDataFromFile(std::string fileName)
 	return data;
 }
 
+// void response::buildResponse( int code )
+// {
+
+// }
+
 // filename = root + request path + index
 void response::handleGet( void )
 {
@@ -158,8 +291,7 @@ void response::handleGet( void )
 	if (isRedirected(&loc.return_dir) == true)
 		return(redirectRequest(&loc.return_dir));
 	if (isMethodAllowed("GET") == 0)
-		return setCode(405, CODE_405, NOT_ALLOWED);
-	// fileName += req->requestLine[request::PATH];
+		return setCode(405);
 	// if the last character is a /, it's a folder, so add index.
 	if (req->requestLine[request::PATH].back() == '/')
 		output = getDataFromFile(root + path + index);
@@ -167,19 +299,15 @@ void response::handleGet( void )
 		output = getDataFromFile(root + path);
 	if (output.size() == 0)
 		output = getAutoIndex(root + path);
-		// setIndex();
 	// if fileName can't be open, return empty string -> size 0 = no index.
-	// output = getDataFromFile(fileName);
 	// size = 0 means that autoindex couln't be generated
 	// it means that the request is trying to get a regular file(not a folder)
-	// if (output.size() == 0)
-	// 	output = getAutoIndex();
 	if (output.size() == 0)
-		// couln't find file nor autoindex -> error 404
-		setCode(404, CODE_404, output);
+		// code = 404;
+		return setCode(404);
 	else 
-		// regular file successfuly open -> code 200
-		setCode(200, CODE_200, output);
+		// code = 200;
+		setCode(200);
 	// if (code > 399 && code < 511)
 	// 	output = getErrorPage(&loc.error_page);
 	// if (code == 404)
@@ -191,20 +319,21 @@ void response::handleGet( void )
 void response::handleDelete ( void )
 {
 	if (isMethodAllowed("DELETE") == 0)
-		return setCode(405, CODE_405, NOT_ALLOWED);
-	// fileName += req->requestLine[request::PATH];
+		return setCode(405);
 
+	// if the file doesn't exist or can't be removed code 204
 	if (remove((root + path).c_str()) != 0)
-		setCode(204, CODE_204, output);
+		setCode(204);
+	// if file successfully deleted code 200
 	else
-		setCode(200, CODE_200, output);
+		setCode(200);
 	return;
 }
 
 void response::handlePost ( void )
 {
 	if (isMethodAllowed("POST") == 0)
-		return setCode(405, CODE_405, NOT_ALLOWED);
+		return setCode(405);
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
@@ -300,15 +429,18 @@ void response::redirectRequest (std::vector<std::string> *vec)
 	ret += "\nLocation: ";
 	ret += redirectUrl;
 	ret += "\r\n\r\n";
+	// ret += CRLF;
 	return ;
 
 }
 
+// extract request path
 void response::setPath ( void )
 {
 	path = req->requestLine[request::PATH];
 }
 
+// set the index file according to the request path
 void response::setIndex ( void )
 {
 	if (loc.index.size() == 0)
@@ -318,6 +450,7 @@ void response::setIndex ( void )
 	return ;
 }
 
+// set the root directory according to the request path root
 void response::setRoot ( void )
 {
 	if (loc.root.size() == 0)
@@ -327,33 +460,29 @@ void response::setRoot ( void )
 	return ;
 }
 
+// find location path (from server config) that match request path
 void response::setLocation ( void )
 {
-	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
-	{
+	for (	loc_it = conf.location.begin(); 
+			loc_it != conf.location.end();
+			loc_it++)
 		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
 			loc = *loc_it;
-	}
 }
 
 void response::parse ( void )
 {
-	setLocation();
 
 	// if all the server requests are redirected
 	if (isRedirected(&conf.return_dir) == true)
 		return(redirectRequest(&conf.return_dir));
 	if (isMethodImplemented() == 0)
-		return (setCode(501, CODE_501, NOT_IMPLEMENTED));
+		return (setCode(501));
 
-	// find location path (from server config) that match request path
-	// printLocationConfig
-	// printLocation(&tmp);
+	setLocation();
 	setRoot();
 	setPath();
 	setIndex();
-	// set filename
-
 
 	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();

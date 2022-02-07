@@ -35,7 +35,7 @@ class response
 	void setIndex ( void );
 	void setFile ( void );
 	void setLocation ( void );
-	void setCode ( int code, std::string codeMessage, std::string output );
+	void setCode ( int code);
 
 	void parse ( void );
 	void handleGet ( void );
@@ -43,7 +43,7 @@ class response
 	void handlePost (  void );
 
 	std::string getAutoIndex ( std::string fileName );
-	std::string getErrorPage (std::vector<std::string> *vec );
+	std::string getErrorPage (std::vector<std::string> vec );
 	std::string getDataFromFile(std::string fileName);
 
 	void redirectRequest (std::vector<std::string> *vec);
