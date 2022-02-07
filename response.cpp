@@ -560,8 +560,7 @@ void response::parse ( void )
 		handleGet();
 	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
 		handleDelete();
-	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
-		handlePost();
+	
 	// if (output.size() == 0)
 	// 	output = getErrorPage(&conf.error_page);
 	// return response;
