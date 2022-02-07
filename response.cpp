@@ -481,6 +481,8 @@ void response::parse ( void )
 		return (setCode(501));
 
 	setLocation();
+	if (isRedirected(&loc.return_dir) == true)
+		return(redirectRequest(&loc.return_dir));
 	setRoot();
 	setPath();
 	setIndex();
