@@ -53,14 +53,6 @@ std::string response::getAutoIndex( std::string fileName )
 	DIR 			*dir;
 	struct dirent 	*ent;
 
-	// fileName = "";
-	// if (loc.root.size() == 0)
-	// 	fileName += conf.root;
-	// else
-	// 	fileName += loc.root;
-	std::cout << "data filename: " << fileName << "\n";
-
-	// fileName += req->requestLine[request::PATH];
 	if (loc.autoindex.size() == 0)
 	{
 		if (loc.autoindex.compare("on") != 0 &&
@@ -129,8 +121,6 @@ std::string response::getErrorPage ( std::vector<std::string> *vec )
 		}
 			// std::cout << "error code\n";
 	}
-	std::cout << "data filename" << fileName << "\n";
-	std::cout << "file name :" << fileName<< '\n';
 	data = getDataFromFile(fileName);
 	return (data);
 }
@@ -151,7 +141,6 @@ std::string response::getDataFromFile(std::string fileName)
 	std::string data = "";
 
 	file.open(fileName.c_str());
-	std::cout << "data filename: " << fileName << "\n";
 
 	if (file.is_open())
 	{
@@ -168,7 +157,7 @@ void response::handleGet( void )
 
 	if (isRedirected(&loc.return_dir) == true)
 		return(redirectRequest(&loc.return_dir));
-	if (isMethodAllowed(loc, "GET") == 0)
+	if (isMethodAllowed("GET") == 0)
 		return setCode(405, CODE_405, NOT_ALLOWED);
 	// fileName += req->requestLine[request::PATH];
 	// if the last character is a /, it's a folder, so add index.
@@ -201,7 +190,7 @@ void response::handleGet( void )
 // https://www.cplusplus.com/reference/cstdio/remove/
 void response::handleDelete ( void )
 {
-	if (isMethodAllowed(loc, "DELETE") == 0)
+	if (isMethodAllowed("DELETE") == 0)
 		return setCode(405, CODE_405, NOT_ALLOWED);
 	// fileName += req->requestLine[request::PATH];
 
@@ -214,7 +203,7 @@ void response::handleDelete ( void )
 
 void response::handlePost ( void )
 {
-	if (isMethodAllowed(loc, "POST") == 0)
+	if (isMethodAllowed("POST") == 0)
 		return setCode(405, CODE_405, NOT_ALLOWED);
 	(void) loc;
 	// ! CGI env
@@ -262,7 +251,7 @@ bool response::isRedirected (std::vector<std::string> *vec)
 	return (true);
 }
 
-bool response::isMethodAllowed (t_location loc, std::string method)
+bool response::isMethodAllowed ( std::string method)
 {
 	if (loc.limit_except.size() == 0)
 		return (true);
@@ -331,7 +320,6 @@ void response::setIndex ( void )
 
 void response::setRoot ( void )
 {
-	std::cout << "root :" << loc.root.size() << "\n";
 	if (loc.root.size() == 0)
 		root = conf.root;
 	else
@@ -339,8 +327,19 @@ void response::setRoot ( void )
 	return ;
 }
 
+void response::setLocation ( void )
+{
+	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
+	{
+		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+			loc = *loc_it;
+	}
+}
+
 void response::parse ( void )
 {
+	setLocation();
+
 	// if all the server requests are redirected
 	if (isRedirected(&conf.return_dir) == true)
 		return(redirectRequest(&conf.return_dir));
@@ -348,11 +347,6 @@ void response::parse ( void )
 		return (setCode(501, CODE_501, NOT_IMPLEMENTED));
 
 	// find location path (from server config) that match request path
-	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
-	{
-		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
-			loc = *loc_it;
-	}
 	// printLocationConfig
 	// printLocation(&tmp);
 	setRoot();
@@ -398,7 +392,6 @@ void	manage_request(int client_sock, request *request, t_server config)
 	(void)config;
 	response.parse();
 	answer += response.ret;
-	std::cout << "mdr\n";
 	answer_client(client_sock, answer);
 }
 

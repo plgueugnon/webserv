@@ -34,6 +34,7 @@ class response
 	void setPath ( void );
 	void setIndex ( void );
 	void setFile ( void );
+	void setLocation ( void );
 	void setCode ( int code, std::string codeMessage, std::string output );
 
 	void parse ( void );
@@ -47,7 +48,7 @@ class response
 
 	void redirectRequest (std::vector<std::string> *vec);
 
-	bool isMethodAllowed (t_location loc, std::string method);
+	bool isMethodAllowed (std::string method);
 	bool isMethodImplemented ( void );
 	bool isRedirected (std::vector<std::string> *vec);
 };
