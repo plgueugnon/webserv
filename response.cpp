@@ -7,7 +7,7 @@
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
 				
-#define CRLF "\r\n\r\n"
+// #define CRLF "\r\n\r\n"
 
 // TODO add file deleted message with Code 200 et 204
 // <html>
@@ -25,10 +25,10 @@ response::response (request *request, t_server config)
 {
 	req = request;
 	conf = config;
-	loc = 0;
+	// loc = 0;
 	code = 0;
 	// file = {0};
-	fileName = "";
+	// fileName = "";
 	buffer = "";
 	output = "";
 	ret = "";
@@ -46,23 +46,24 @@ response::response (request *request, t_server config)
  // //if not, not found
  check if there is error_pages for this location
  */
-std::string response::getAutoIndex( void )
+std::string response::getAutoIndex( std::string fileName )
 {
 	std::vector<std::string> folder;
 
 	DIR 			*dir;
 	struct dirent 	*ent;
 
-	fileName = "";
-	if (loc->root.size() == 0)
-		fileName += conf.root;
-	else
-		fileName += loc->root;
+	// fileName = "";
+	// if (loc.root.size() == 0)
+	// 	fileName += conf.root;
+	// else
+	// 	fileName += loc.root;
+	std::cout << "data filename: " << fileName << "\n";
 
-	fileName += req->requestLine[request::PATH];
-	if (loc->autoindex.size() == 0)
+	// fileName += req->requestLine[request::PATH];
+	if (loc.autoindex.size() == 0)
 	{
-		if (loc->autoindex.compare("on") != 0 &&
+		if (loc.autoindex.compare("on") != 0 &&
 			conf.autoindex.compare("on") != 0)
 			return output;
 	}
@@ -108,22 +109,27 @@ std::string response::getAutoIndex( void )
 
 std::string response::getErrorPage ( std::vector<std::string> *vec )
 {
-	fileName = "";
+	// fileName = "";
 	std::string data = "";
+	std::string fileName = root;
 	int errorCode;
 
-	if (loc->root.size() == 0)
-		fileName += conf.root;
-	else 
-		fileName += loc->root;
+	// if (loc.root.size() == 0)
+	// 	fileName += conf.root;
+	// else 
+	// 	fileName += loc.root;
 
 	for (it = vec->begin(); it != vec->end() - 1; it++)
 	{
 		errorCode = atoi(it->c_str());
 		if (code == errorCode)
+		{
 			fileName += *(vec->end() - 1);
+			break;
+		}
 			// std::cout << "error code\n";
 	}
+	std::cout << "data filename" << fileName << "\n";
 	std::cout << "file name :" << fileName<< '\n';
 	data = getDataFromFile(fileName);
 	return (data);
@@ -133,7 +139,8 @@ void response::setCode(int code, std::string codeMessage, std::string output)
 {
 	this->code = code;
 	ret += codeMessage;
-	ret += CRLF;
+	// ret += CRLF;
+	ret += "\r\n\r\n";
 	ret += output;
 	return ;
 }
@@ -144,6 +151,7 @@ std::string response::getDataFromFile(std::string fileName)
 	std::string data = "";
 
 	file.open(fileName.c_str());
+	std::cout << "data filename: " << fileName << "\n";
 
 	if (file.is_open())
 	{
@@ -158,20 +166,25 @@ std::string response::getDataFromFile(std::string fileName)
 void response::handleGet( void )
 {
 
-	if (isRedirected(&loc->return_dir) == true)
-		return(redirectRequest(&loc->return_dir));
+	if (isRedirected(&loc.return_dir) == true)
+		return(redirectRequest(&loc.return_dir));
 	if (isMethodAllowed(loc, "GET") == 0)
 		return setCode(405, CODE_405, NOT_ALLOWED);
-	fileName += req->requestLine[request::PATH];
+	// fileName += req->requestLine[request::PATH];
 	// if the last character is a /, it's a folder, so add index.
 	if (req->requestLine[request::PATH].back() == '/')
-		setIndex();
+		output = getDataFromFile(root + path + index);
+	else
+		output = getDataFromFile(root + path);
+	if (output.size() == 0)
+		output = getAutoIndex(root + path);
+		// setIndex();
 	// if fileName can't be open, return empty string -> size 0 = no index.
-	output = getDataFromFile(fileName);
+	// output = getDataFromFile(fileName);
 	// size = 0 means that autoindex couln't be generated
 	// it means that the request is trying to get a regular file(not a folder)
-	if (output.size() == 0)
-		output = getAutoIndex();
+	// if (output.size() == 0)
+	// 	output = getAutoIndex();
 	if (output.size() == 0)
 		// couln't find file nor autoindex -> error 404
 		setCode(404, CODE_404, output);
@@ -179,7 +192,7 @@ void response::handleGet( void )
 		// regular file successfuly open -> code 200
 		setCode(200, CODE_200, output);
 	// if (code > 399 && code < 511)
-	// 	output = getErrorPage(&loc->error_page);
+	// 	output = getErrorPage(&loc.error_page);
 	// if (code == 404)
 	// 	setCode(404, CODE_404, output);
 	return;
@@ -190,9 +203,9 @@ void response::handleDelete ( void )
 {
 	if (isMethodAllowed(loc, "DELETE") == 0)
 		return setCode(405, CODE_405, NOT_ALLOWED);
-	fileName += req->requestLine[request::PATH];
+	// fileName += req->requestLine[request::PATH];
 
-	if (remove(fileName.c_str()) != 0)
+	if (remove((root + path).c_str()) != 0)
 		setCode(204, CODE_204, output);
 	else
 		setCode(200, CODE_200, output);
@@ -249,11 +262,11 @@ bool response::isRedirected (std::vector<std::string> *vec)
 	return (true);
 }
 
-bool response::isMethodAllowed (t_location *loc, std::string method)
+bool response::isMethodAllowed (t_location loc, std::string method)
 {
-	if (loc->limit_except.size() == 0)
+	if (loc.limit_except.size() == 0)
 		return (true);
-	for (it = loc->limit_except.begin(); it != loc->limit_except.end(); it++)
+	for (it = loc.limit_except.begin(); it != loc.limit_except.end(); it++)
 		if ((*it).compare(method) == 0)
 			return (true);
 	return (false);
@@ -297,26 +310,32 @@ void response::redirectRequest (std::vector<std::string> *vec)
 		ret += CODE_308;
 	ret += "\nLocation: ";
 	ret += redirectUrl;
-	ret += CRLF;
+	ret += "\r\n\r\n";
 	return ;
 
 }
 
+void response::setPath ( void )
+{
+	path = req->requestLine[request::PATH];
+}
+
 void response::setIndex ( void )
 {
-	if (loc->index.size() == 0)
-		fileName += conf.index;
+	if (loc.index.size() == 0)
+		index = conf.index;
 	else
-		fileName += loc->index;
+		index = loc.index;
 	return ;
 }
 
 void response::setRoot ( void )
 {
-	if (loc->root.size() == 0)
-		fileName += conf.root;
-	else 
-		fileName += loc->root;
+	std::cout << "root :" << loc.root.size() << "\n";
+	if (loc.root.size() == 0)
+		root = conf.root;
+	else
+		root = loc.root;
 	return ;
 }
 
@@ -332,11 +351,13 @@ void response::parse ( void )
 	for (loc_it = conf.location.begin(); loc_it != conf.location.end(); loc_it++)
 	{
 		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
-			loc = &*loc_it;
+			loc = *loc_it;
 	}
 	// printLocationConfig
 	// printLocation(&tmp);
 	setRoot();
+	setPath();
+	setIndex();
 	// set filename
 
 
@@ -377,6 +398,7 @@ void	manage_request(int client_sock, request *request, t_server config)
 	(void)config;
 	response.parse();
 	answer += response.ret;
+	std::cout << "mdr\n";
 	answer_client(client_sock, answer);
 }
 

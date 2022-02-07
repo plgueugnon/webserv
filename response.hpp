@@ -8,12 +8,15 @@ class response
 	// conf
 	request 		*req;
 	t_server 		conf;
-	t_location 		*loc;
+	t_location 		loc;
 
 	// response
 	int				code;
 	std::fstream	file;
-	std::string 	fileName;
+	// std::string 	fileName;
+	std::string 	root;
+	std::string 	path;
+	std::string 	index;
 	std::string 	buffer;
 	std::string 	output;
 	std::string 	ret;
@@ -28,6 +31,7 @@ class response
 	response (request *request, t_server config);
 
 	void setRoot ( void );
+	void setPath ( void );
 	void setIndex ( void );
 	void setFile ( void );
 	void setCode ( int code, std::string codeMessage, std::string output );
@@ -37,13 +41,13 @@ class response
 	void handleDelete ( void );
 	void handlePost (  void );
 
-	std::string getAutoIndex ( void );
+	std::string getAutoIndex ( std::string fileName );
 	std::string getErrorPage (std::vector<std::string> *vec );
 	std::string getDataFromFile(std::string fileName);
 
 	void redirectRequest (std::vector<std::string> *vec);
 
-	bool isMethodAllowed (t_location *loc, std::string method);
+	bool isMethodAllowed (t_location loc, std::string method);
 	bool isMethodImplemented ( void );
 	bool isRedirected (std::vector<std::string> *vec);
 };
