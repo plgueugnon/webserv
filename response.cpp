@@ -333,14 +333,8 @@ void response::handleDelete ( void )
 
 void response::handlePost ( void )
 {
-<<<<<<< HEAD
-	std::string	output = "";
-	if (methodIsAllowed(loc, "POST") == 0)
-		return setCode(CODE_405, NOT_ALLOWED);
-=======
 	if (isMethodAllowed("POST") == 0)
 		return setCode(405);
->>>>>>> response
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
@@ -372,7 +366,6 @@ void response::handlePost ( void )
 	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
 	// cgi.env[cgi::REDIRECT_STATUS] += "200";
 
-<<<<<<< HEAD
 	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
 
 
@@ -442,66 +435,14 @@ void response::handlePost ( void )
 		close(fd[0]);
 	}
 	if (output.size() == 0)
-		setCode(CODE_404, output);
+		setCode(404);
 	else 
-		setCode(CODE_200, output);
+		setCode(200);
 
 	free(str[0]);
 	return;
-=======
-	// char path[] = "./cgi/php-cgi_vMojave";
-	// int		fd[2];
-	// pid_t	pid;
-	// int cfd = 0;
-
-	// pipe(fd);
-	// pid = fork();
-	// if (pid == -1)
-	// 	std::cerr << RED"error : fork failure\n"RESET;
-	// else if (pid == 0)
-	// {
-	// 	if (dup2(fd[1], STDOUT) < 0)
-	// 	{
-// 		std::cerr << RED"error : dup2 failure\n"RESET;
-// 		return ;
-// 	}
-	
-// }
-
-
-// vec_enum(cgi.env);
-// cgi.convertToC();
-// print_env_c(cgi.c_env);
-return;
 }
 
-bool response::isRedirected (std::vector<std::string> *vec)
-{
-	if (vec->size() == 0)
-		return (false);
-	return (true);
-}
-
-bool response::isMethodAllowed ( std::string method)
-{
-	if (loc.limit_except.size() == 0)
-		return (true);
-	for (it = loc.limit_except.begin(); it != loc.limit_except.end(); it++)
-		if ((*it).compare(method) == 0)
-			return (true);
-	return (false);
->>>>>>> response
-}
-
-
-bool response::isMethodImplemented(void)
-{
-	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
-		return (false);
-	return (true);
-}
 
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
 void response::redirectRequest (std::vector<std::string> *vec)
@@ -531,10 +472,19 @@ void response::redirectRequest (std::vector<std::string> *vec)
 		ret += CODE_308;
 	ret += "\nLocation: ";
 	ret += redirectUrl;
-	ret += "\r\n\r\n";
-	// ret += CRLF;
+	ret += CRLF;
 	return ;
 
+}
+
+// find location path (from server config) that match request path
+void response::setLocation ( void )
+{
+	for (	loc_it = conf.location.begin(); 
+			loc_it != conf.location.end();
+			loc_it++)
+		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+			loc = *loc_it;
 }
 
 // extract request path
@@ -563,14 +513,31 @@ void response::setRoot ( void )
 	return ;
 }
 
-// find location path (from server config) that match request path
-void response::setLocation ( void )
+// ! BOOL
+bool response::isMethodAllowed ( std::string method)
 {
-	for (	loc_it = conf.location.begin(); 
-			loc_it != conf.location.end();
-			loc_it++)
-		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
-			loc = *loc_it;
+	if (loc.limit_except.size() == 0)
+		return (true);
+	for (it = loc.limit_except.begin(); it != loc.limit_except.end(); it++)
+		if ((*it).compare(method) == 0)
+			return (true);
+	return (false);
+}
+
+bool response::isRedirected (std::vector<std::string> *vec)
+{
+	if (vec->size() == 0)
+		return (false);
+	return (true);
+}
+
+bool response::isMethodImplemented(void)
+{
+	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
+		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
+		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+		return (false);
+	return (true);
 }
 
 void response::parse ( void )
