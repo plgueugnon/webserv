@@ -304,15 +304,9 @@ void response::handleGet( void )
 	// size = 0 means that autoindex couln't be generated
 	// it means that the request is trying to get a regular file(not a folder)
 	if (output.size() == 0)
-		// code = 404;
 		setCode(404);
 	else 
-		// code = 200;
 		setCode(200);
-	// if (code > 399 && code < 511)
-	// 	output = getErrorPage(&loc.error_page);
-	// if (code == 404)
-	// 	setCode(404, CODE_404, output);
 	return;
 }
 
@@ -338,6 +332,7 @@ void response::handlePost ( void )
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
+<<<<<<< HEAD
 	// cgi.env[cgi::SERVER_NAME] += conf.server_name;
 	// cgi.env[cgi::SERVER_PORT] += conf.listen;
 	// cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
@@ -347,6 +342,35 @@ void response::handlePost ( void )
 	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
 	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
 	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+=======
+	cgi.env[cgi::SERVER_NAME] += conf.server_name;
+	cgi.env[cgi::SERVER_PORT] += conf.listen;
+	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
+	cgi.env[cgi::CONTENT_TYPE] += req->header[request::CONTENT_TYPE];
+	// !
+	// cgi.env[cgi::CONTENT_TYPE] += "text/html";
+	// cgi.env[cgi::SCRIPT_NAME] += "/printenv.php";
+	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/printenv.php";
+	// cgi.env[cgi::PATH_INFO] += "printenv.php";
+	// !
+	// cgi.env[cgi::CONTENT_TYPE] += "application/x-www-form-urlencoded";
+	cgi.env[cgi::SCRIPT_NAME] += "/test_form.php";
+	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_form.php";
+	// cgi.env[cgi::PATH_INFO] += "test_form.php";
+	// !
+	// cgi.env[cgi::CONTENT_TYPE] += "text/plain";
+	// cgi.env[cgi::SCRIPT_NAME] += "/carapuce.txt";
+	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/www/pokemon/carapuce.txt";
+	// cgi.env[cgi::PATH_INFO] += "carapuce.txt";
+	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/mini_client/requests/GET_min_base_loremipsum_request";
+	// ! cgi.env[cgi::CONTENT_TYPE] += "text/html";
+	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
+	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
+	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
+	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
+	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+	cgi.env[cgi::REDIRECT_STATUS] += "200";
+>>>>>>> 5e2e8d2... fix some stuff in cgi and del useless comments
 
 	// char path[] = "./cgi/php-cgi_vMojave";
 	// int		fd[2];
@@ -493,6 +517,10 @@ void response::parse ( void )
 		handleDelete();
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
+<<<<<<< HEAD
+=======
+	
+>>>>>>> 5e2e8d2... fix some stuff in cgi and del useless comments
 	// if (output.size() == 0)
 	// 	output = getErrorPage(&conf.error_page);
 	// return response;
