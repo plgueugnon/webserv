@@ -367,25 +367,33 @@ void response::handlePost ( void )
 	cgi.convertToC();
 	print_env_c(cgi.c_env);
 	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
-	char path[] = "./cgi/php-cgi_vMojave";
+	// char path[] = "./cgi/php";
 	// char path[] = "./cgi/php-cgi";
 	int		fd[2];
+	int		fd2[2];
 	pid_t	pid;
 	// int cfd = 0;
-	char *str[2];
-	str[0] = strdup(req->body.c_str());
-	str[1] = NULL;
+	// char *str[2];
+	// str[0] = strdup(req->body.c_str());
+	// str[1] = NULL;
+	char	*argv[3];
+	argv[0] = strdup("./cgi/php");
+	argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
+	argv[2] = NULL;
 	char buffer[10000];
 
 	pipe(fd);
+	pipe(fd2);
 	// fcntl(fd[0], F_SETFL, O_NONBLOCK);
 	pid = fork();
 	if (pid == -1)
 		std::cerr << RED"error : fork failure\n"RESET;
 	else if (pid == 0)
 	{
+		close(fd[1]);
+		close(fd2[0]);
 		std::cout << BOLDWHITE"check child\n"RESET;
-		if (dup2(fd[1], STDOUT_FILENO) < 0)
+		if (dup2(fd2[1], STDOUT_FILENO) < 0)
 		{
 			std::cerr << RED"error : dup2 failure\n"RESET;
 			return ;
@@ -395,11 +403,11 @@ void response::handlePost ( void )
 			std::cerr << RED"error : dup2 failure\n"RESET;
 			return ;
 		}
-		if (execve(path, str, cgi.c_env) < 0)
+		if (execve(argv[0], argv, cgi.c_env) < 0)
 		{
 			std::cerr << RED"error : execve failure\n"RESET;
 			close(fd[0]);
-			close(fd[1]);
+			close(fd2[1]);
 			kill(pid, SIGTERM);
 		}
 	}
@@ -407,7 +415,9 @@ void response::handlePost ( void )
 	{
 		std::cout << BOLDWHITE"check parent\n"RESET;
 		int r;
-		close(fd[1]);
+		close(fd[0]);
+		close(fd2[1]);
+		write(fd[1], req->body.c_str(), req->body.size());
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
@@ -415,17 +425,18 @@ void response::handlePost ( void )
 		// // buffer[r] = 0;
 		// std::cout << CYAN << buffer << RESET << std::endl;
 		// output += buffer;
-		while((r = read(fd[0], buffer, sizeof(buffer))) > 0)
+		while((r = read(fd2[0], buffer, sizeof(buffer))) > 0)
 		{
 			std::cout << "REEAAAAAAAAAAD\n";
-			if (r == -1)
-				std::cerr << RED"error : read failure\n"RESET;
+
 			buffer[r] = 0;
 			std::cout << CYAN << buffer << RESET << std::endl;
 			output += buffer;
 			bzero(buffer, sizeof(buffer));
 		}
-		std::cout << "data received = " << r << "\n";
+		// std::cout << "data received = " << r << "\n";
+		if (r == -1)
+			std::cerr << RED"error : read failure\n"RESET;
 		close(fd[0]);
 	}
 	if (output.size() == 0)
@@ -433,7 +444,8 @@ void response::handlePost ( void )
 	else 
 		setCode(200);
 
-	free(str[0]);
+	free(argv[0]);
+	free(argv[1]);
 	return;
 }
 
