@@ -332,17 +332,6 @@ void response::handlePost ( void )
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
-<<<<<<< HEAD
-	// cgi.env[cgi::SERVER_NAME] += conf.server_name;
-	// cgi.env[cgi::SERVER_PORT] += conf.listen;
-	// cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
-	// cgi.env[cgi::CONTENT_TYPE] += req->requestLine[request::CONTENT_TYPE];
-	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
-	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
-	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
-	// cgi.env[cgi::HTTP_ACCEPT] += req->requestLine[request::ACCEPT];
-	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
-=======
 	cgi.env[cgi::SERVER_NAME] += conf.server_name;
 	cgi.env[cgi::SERVER_PORT] += conf.listen;
 	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
@@ -369,8 +358,7 @@ void response::handlePost ( void )
 	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
 	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
-	cgi.env[cgi::REDIRECT_STATUS] += "200";
->>>>>>> 5e2e8d2... fix some stuff in cgi and del useless comments
+	// cgi.env[cgi::REDIRECT_STATUS] += "200";
 
 	// char path[] = "./cgi/php-cgi_vMojave";
 	// int		fd[2];
@@ -517,10 +505,7 @@ void response::parse ( void )
 		handleDelete();
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
-<<<<<<< HEAD
-=======
 	
->>>>>>> 5e2e8d2... fix some stuff in cgi and del useless comments
 	// if (output.size() == 0)
 	// 	output = getErrorPage(&conf.error_page);
 	// return response;
