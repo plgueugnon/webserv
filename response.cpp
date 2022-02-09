@@ -9,6 +9,8 @@
 				
 #define CRLF "\r\n\r\n"
 
+#define CGI_BIN "./cgi/darwin_phpcgi"
+
 
 response::response ( void ) 
 {
@@ -332,33 +334,34 @@ void response::handlePost ( void )
 	(void) loc;
 	// ! CGI env
 	cgi cgi;
+	// config
 	cgi.env[cgi::SERVER_NAME] += conf.server_name;
 	cgi.env[cgi::SERVER_PORT] += conf.listen;
+	//request Line
 	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
+	// cgi.env[cgi::REQUEST_METHOD] += "GET";
+	cgi.env[cgi::QUERY_STRING] += req->requestLine[request::QUERY];
+	cgi.env[cgi::QUERY_STRING] += req->body;
+	// headers
+	cgi.env[cgi::CONTENT_LENGTH] += req->header[request::CONTENT_LENGTH];
 	cgi.env[cgi::CONTENT_TYPE] += req->header[request::CONTENT_TYPE];
-	// !
-	// cgi.env[cgi::CONTENT_TYPE] += "text/html";
-	// cgi.env[cgi::SCRIPT_NAME] += "/printenv.php";
-	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/printenv.php";
-	// cgi.env[cgi::PATH_INFO] += "printenv.php";
-	// !
-	// cgi.env[cgi::CONTENT_TYPE] += "application/x-www-form-urlencoded";
-	cgi.env[cgi::SCRIPT_NAME] += "/test_form.php";
-	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_form.php";
-	// cgi.env[cgi::PATH_INFO] += "test_form.php";
-	// !
-	// cgi.env[cgi::CONTENT_TYPE] += "text/plain";
-	// cgi.env[cgi::SCRIPT_NAME] += "/carapuce.txt";
-	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/www/pokemon/carapuce.txt";
-	// cgi.env[cgi::PATH_INFO] += "carapuce.txt";
-	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/mini_client/requests/GET_min_base_loremipsum_request";
-	// ! cgi.env[cgi::CONTENT_TYPE] += "text/html";
-	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
 	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
-	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
-	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
+	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->header[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
-	cgi.env[cgi::REDIRECT_STATUS] += "200";
+	cgi.env[cgi::REDIRECT_STATUS] += "100";
+
+	// cgi.env[cgi::PATH_INFO] += root + path;
+	// cgi.env[cgi::SCRIPT_NAME] += root + path;
+	// cgi.env[cgi::PATH_INFO] += root + path;
+	// cgi.env[cgi::SCRIPT_NAME] += root + path;
+	// cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
+	// cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
+
+	// Bin
+	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD");
+	cgi.env[cgi::SCRIPT_FILENAME] += "/";
+	cgi.env[cgi::SCRIPT_FILENAME] += root;
+	cgi.env[cgi::SCRIPT_FILENAME] += "/upload_script.php";
 
 	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
 
@@ -377,8 +380,9 @@ void response::handlePost ( void )
 	// str[0] = strdup(req->body.c_str());
 	// str[1] = NULL;
 	char	*argv[3];
-	argv[0] = strdup("./cgi/php");
+	argv[0] = strdup(CGI_BIN);
 	argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
+	// argv[1] = cgi.c_env;
 	argv[2] = NULL;
 	char buffer[10000];
 
@@ -417,8 +421,13 @@ void response::handlePost ( void )
 		int r;
 		close(fd[0]);
 		close(fd2[1]);
-		write(fd[1], req->body.c_str(), req->body.size());
+		std::string out = CODE_100;
+		out += CRLF;
+		out += req->body;
+		std::cout << "body: " << req->body << "\n";
+		write(fd[1], out.c_str(), out.size());
 		std::cout << "wait ?\n";
+		setCode(100);
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
 		// r = read(fd[0], buffer, sizeof(buffer));
@@ -439,13 +448,14 @@ void response::handlePost ( void )
 			std::cerr << RED"error : read failure\n"RESET;
 		close(fd[0]);
 	}
+	setCode(100);
 	if (output.size() == 0)
 		setCode(404);
 	else 
 		setCode(200);
 
 	free(argv[0]);
-	free(argv[1]);
+	// free(argv[1]);
 	return;
 }
 

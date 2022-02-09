@@ -171,7 +171,7 @@ std::vector<std::string> headerKeysToSearch ( void )
 	vec.push_back("Accept-Encoding: ");
 	vec.push_back("Accept-Language: ");
 	vec.push_back("Content-Type: ");
-	vec.push_back("Content-Lenght: ");
+	vec.push_back("Content-Length: ");
 	vec.push_back("Date: ");
 	vec.push_back("Referer: ");
 	vec.push_back("Transfer-Encoding: ");

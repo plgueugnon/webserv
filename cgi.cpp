@@ -11,7 +11,7 @@ cgi::cgi (void)
 	env.push_back("SERVER_PORT=");
 	env.push_back("REQUEST_METHOD=");
 	env.push_back("PATH_INFO=");
-	env.push_back("PATH_TRANSLATE=");
+	env.push_back("PATH_TRANSLATED=");
 	env.push_back("SCRIPT_NAME=");
 	env.push_back("QUERY_STRING=");
 	env.push_back("REMOTE_HOST=");
