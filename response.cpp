@@ -6,11 +6,11 @@
 #define NOT_IMPLEMENTED " <!DOCTYPE html> <html> <body><h1> \
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
-				
+
 #define CRLF "\r\n\r\n"
 
 
-response::response ( void ) 
+response::response ( void )
 {
 }
 
@@ -29,7 +29,7 @@ response::response (request *request, t_server config)
 }
 /*
  check if the request path match a location block
-// // if the request path match a location block, 
+// // if the request path match a location block,
  check if there is a return directive
 	return the code
  // // check if the method is allowed in this location block
@@ -132,19 +132,19 @@ void response::setCode(int code)
 		if (output.size() == 0)
 			output = "<html><body><h1>Couln't delete file.</h1></body></html>";
 		break;
-		case 400 : 
+		case 400 :
 		ret = CODE_400;
 		break ;
-		case 401 : 
+		case 401 :
 		ret = CODE_401;
 		break ;
-		case 402 : 
+		case 402 :
 		ret = CODE_402;
 		break ;
-		case 403 : 
+		case 403 :
 		ret = CODE_403;
 		break ;
-		case 404 : 
+		case 404 :
 		ret = CODE_404;
 		if (output.size() == 0)
 			output = "<html><body><h1>Not found.</h1></body></html>";
@@ -154,108 +154,108 @@ void response::setCode(int code)
 		if (output.size() == 0)
 			output = NOT_ALLOWED;
 		break ;
-		case 406 : 
+		case 406 :
 		ret = CODE_406;
 		break ;
-		case 407 : 
+		case 407 :
 		ret = CODE_407;
 		break ;
-		case 408 : 
+		case 408 :
 		ret = CODE_408;
 		break ;
-		case 409 : 
+		case 409 :
 		ret = CODE_409;
 		break ;
-		case 410 : 
+		case 410 :
 		ret = CODE_410;
 		break ;
-		case 411 : 
+		case 411 :
 		ret = CODE_411;
 		break ;
-		case 412 : 
+		case 412 :
 		ret = CODE_412;
 		break ;
-		case 413 : 
+		case 413 :
 		ret = CODE_413;
 		break ;
-		case 414 : 
+		case 414 :
 		ret = CODE_414;
 		break ;
-		case 415 : 
+		case 415 :
 		ret = CODE_415;
 		break ;
-		case 416 : 
+		case 416 :
 		ret = CODE_416;
 		break ;
-		case 417 : 
+		case 417 :
 		ret = CODE_417;
 		break ;
-		case 418 : 
+		case 418 :
 		ret = CODE_418;
 		break ;
-		case 421 : 
+		case 421 :
 		ret = CODE_421;
 		break ;
-		case 422 : 
+		case 422 :
 		ret = CODE_422;
 		break ;
-		case 423 : 
+		case 423 :
 		ret = CODE_423;
 		break ;
-		case 424 : 
+		case 424 :
 		ret = CODE_424;
 		break ;
-		case 425 : 
+		case 425 :
 		ret = CODE_425;
 		break ;
-		case 426 : 
+		case 426 :
 		ret = CODE_426;
 		break ;
-		case 428 : 
+		case 428 :
 		ret = CODE_428;
 		break ;
-		case 429 : 
+		case 429 :
 		ret = CODE_429;
 		break ;
-		case 431 : 
+		case 431 :
 		ret = CODE_431;
 		break ;
-		case 451 : 
+		case 451 :
 		ret = CODE_451;
 		break ;
-		case 500 : 
+		case 500 :
 		ret = CODE_500;
 		break ;
-		case 501 : 
+		case 501 :
 		ret = CODE_501;
 		if (output.size() == 0)
 			output = NOT_IMPLEMENTED;
 		break ;
-		case 502 : 
+		case 502 :
 		ret = CODE_502;
 		break ;
-		case 503 : 
+		case 503 :
 		ret = CODE_503;
 		break ;
-		case 504 : 
+		case 504 :
 		ret = CODE_504;
 		break ;
-		case 505 : 
+		case 505 :
 		ret = CODE_505;
 		break ;
-		case 506 : 
+		case 506 :
 		ret = CODE_506;
 		break ;
-		case 507 : 
+		case 507 :
 		ret = CODE_507;
 		break ;
-		case 508 : 
+		case 508 :
 		ret = CODE_508;
 		break ;
-		case 510 : 
+		case 510 :
 		ret = CODE_510;
 		break ;
-		case 511 : 
+		case 511 :
 		ret = CODE_511;
 		break ;
 	}
@@ -305,7 +305,7 @@ void response::handleGet( void )
 	// it means that the request is trying to get a regular file(not a folder)
 	if (output.size() == 0)
 		setCode(404);
-	else 
+	else
 		setCode(200);
 	return;
 }
@@ -335,17 +335,19 @@ void response::handlePost ( void )
 	cgi.env[cgi::SERVER_NAME] += conf.server_name;
 	cgi.env[cgi::SERVER_PORT] += conf.listen;
 	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
-	cgi.env[cgi::CONTENT_TYPE] += req->header[request::CONTENT_TYPE];
+	// cgi.env[cgi::CONTENT_TYPE] += req->header[request::CONTENT_TYPE];
 	// !
 	// cgi.env[cgi::CONTENT_TYPE] += "text/html";
 	// cgi.env[cgi::SCRIPT_NAME] += "/printenv.php";
 	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/printenv.php";
 	// cgi.env[cgi::PATH_INFO] += "printenv.php";
 	// !
-	// cgi.env[cgi::CONTENT_TYPE] += "application/x-www-form-urlencoded";
-	cgi.env[cgi::SCRIPT_NAME] += "/test_form.php";
-	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/test_form.php";
-	// cgi.env[cgi::PATH_INFO] += "test_form.php";
+	cgi.env[cgi::CONTENT_TYPE] += "application/x-www-form-urlencoded";
+	// cgi.env[cgi::SCRIPT_NAME] += "test_echo_form.php";
+	cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pgueugno/Documents/webserv/www/test_echo_form.php";
+	cgi.env[cgi::CONTENT_LENGTH] += "12";
+	// cgi.env[cgi::QUERY_STRING] += "last_name=YO";
+	// cgi.env[cgi::PATH_INFO] += "/Users/pgueugno/Documents/webserv/www/test_echo_form.php";
 	// !
 	// cgi.env[cgi::CONTENT_TYPE] += "text/plain";
 	// cgi.env[cgi::SCRIPT_NAME] += "/carapuce.txt";
@@ -354,10 +356,10 @@ void response::handlePost ( void )
 	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/mini_client/requests/GET_min_base_loremipsum_request";
 	// ! cgi.env[cgi::CONTENT_TYPE] += "text/html";
 	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
-	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
+	// cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
 	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
-	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
-	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+	// cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
+	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
 	cgi.env[cgi::REDIRECT_STATUS] += "200";
 
 	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
@@ -376,15 +378,18 @@ void response::handlePost ( void )
 	// char *str[2];
 	// str[0] = strdup(req->body.c_str());
 	// str[1] = NULL;
-	char	*argv[3];
-	argv[0] = strdup("./cgi/php");
+	char	*argv[4];
+	argv[0] = strdup("./cgi/darwin_phpcgi");
 	argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
+	// argv[2] = strdup(req->body.c_str());
 	argv[2] = NULL;
+	// argv[3] = NULL;
 	char buffer[10000];
 
-	pipe(fd);
-	pipe(fd2);
+	pipe(fd); // ! ecriture
+	pipe(fd2);// ! lecture
 	// fcntl(fd[0], F_SETFL, O_NONBLOCK);
+	// ? https://www.unix.com/programming/58138-c-how-use-pipe-fork-stdin-stdout-another-program.html
 	pid = fork();
 	if (pid == -1)
 		std::cerr << RED"error : fork failure\n"RESET;
@@ -417,18 +422,18 @@ void response::handlePost ( void )
 		int r;
 		close(fd[0]);
 		close(fd2[1]);
-		write(fd[1], req->body.c_str(), req->body.size());
+		// std::cout << "check body " << req->body.c_str() << std::endl;
+		// char s[] = "'last_name=YO'";
+		// write(fd[1], s, strlen(s));
+		// waitpid(pid, NULL, -1);
+		if (write(fd[1], req->body.c_str(), req->body.size()) < 0)
+			std::cout << RED"error: write failure\n";
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
-		// r = read(fd[0], buffer, sizeof(buffer));
-		// // buffer[r] = 0;
-		// std::cout << CYAN << buffer << RESET << std::endl;
-		// output += buffer;
 		while((r = read(fd2[0], buffer, sizeof(buffer))) > 0)
 		{
 			std::cout << "REEAAAAAAAAAAD\n";
-
 			buffer[r] = 0;
 			std::cout << CYAN << buffer << RESET << std::endl;
 			output += buffer;
@@ -437,11 +442,11 @@ void response::handlePost ( void )
 		// std::cout << "data received = " << r << "\n";
 		if (r == -1)
 			std::cerr << RED"error : read failure\n"RESET;
-		close(fd[0]);
+		// close(fd[0]);
 	}
 	if (output.size() == 0)
 		setCode(404);
-	else 
+	else
 		setCode(200);
 
 	free(argv[0]);
@@ -486,7 +491,7 @@ void response::redirectRequest (std::vector<std::string> *vec)
 // find location path (from server config) that match request path
 void response::setLocation ( void )
 {
-	for (	loc_it = conf.location.begin(); 
+	for (	loc_it = conf.location.begin();
 			loc_it != conf.location.end();
 			loc_it++)
 		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
@@ -568,7 +573,7 @@ void response::parse ( void )
 		handleDelete();
 	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
-	
+
 	// if (output.size() == 0)
 	// 	output = getErrorPage(&conf.error_page);
 	// return response;
