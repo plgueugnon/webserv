@@ -358,60 +358,97 @@ void response::handlePost ( void )
 	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
 	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
-	// cgi.env[cgi::REDIRECT_STATUS] += "200";
+	cgi.env[cgi::REDIRECT_STATUS] += "200";
 
-	// char path[] = "./cgi/php-cgi_vMojave";
-	// int		fd[2];
-	// pid_t	pid;
+	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
+
+
+	vec_enum(cgi.env);
+	cgi.convertToC();
+	print_env_c(cgi.c_env);
+	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
+	// char path[] = "./cgi/php";
+	// char path[] = "./cgi/php-cgi";
+	int		fd[2];
+	int		fd2[2];
+	pid_t	pid;
 	// int cfd = 0;
+	// char *str[2];
+	// str[0] = strdup(req->body.c_str());
+	// str[1] = NULL;
+	char	*argv[3];
+	argv[0] = strdup("./cgi/php");
+	argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
+	argv[2] = NULL;
+	char buffer[10000];
 
-	// pipe(fd);
-	// pid = fork();
-	// if (pid == -1)
-	// 	std::cerr << RED"error : fork failure\n"RESET;
-	// else if (pid == 0)
-	// {
-	// 	if (dup2(fd[1], STDOUT) < 0)
-	// 	{
-// 		std::cerr << RED"error : dup2 failure\n"RESET;
-// 		return ;
-// 	}
-	
-// }
+	pipe(fd);
+	pipe(fd2);
+	// fcntl(fd[0], F_SETFL, O_NONBLOCK);
+	pid = fork();
+	if (pid == -1)
+		std::cerr << RED"error : fork failure\n"RESET;
+	else if (pid == 0)
+	{
+		close(fd[1]);
+		close(fd2[0]);
+		std::cout << BOLDWHITE"check child\n"RESET;
+		if (dup2(fd2[1], STDOUT_FILENO) < 0)
+		{
+			std::cerr << RED"error : dup2 failure\n"RESET;
+			return ;
+		}
+		if (dup2(fd[0], STDIN_FILENO) < 0)
+		{
+			std::cerr << RED"error : dup2 failure\n"RESET;
+			return ;
+		}
+		if (execve(argv[0], argv, cgi.c_env) < 0)
+		{
+			std::cerr << RED"error : execve failure\n"RESET;
+			close(fd[0]);
+			close(fd2[1]);
+			kill(pid, SIGTERM);
+		}
+	}
+	else
+	{
+		std::cout << BOLDWHITE"check parent\n"RESET;
+		int r;
+		close(fd[0]);
+		close(fd2[1]);
+		write(fd[1], req->body.c_str(), req->body.size());
+		std::cout << "wait ?\n";
+		waitpid(pid, NULL, WNOHANG);
+		std::cout << "wait !\n";
+		// r = read(fd[0], buffer, sizeof(buffer));
+		// // buffer[r] = 0;
+		// std::cout << CYAN << buffer << RESET << std::endl;
+		// output += buffer;
+		while((r = read(fd2[0], buffer, sizeof(buffer))) > 0)
+		{
+			std::cout << "REEAAAAAAAAAAD\n";
 
+			buffer[r] = 0;
+			std::cout << CYAN << buffer << RESET << std::endl;
+			output += buffer;
+			bzero(buffer, sizeof(buffer));
+		}
+		// std::cout << "data received = " << r << "\n";
+		if (r == -1)
+			std::cerr << RED"error : read failure\n"RESET;
+		close(fd[0]);
+	}
+	if (output.size() == 0)
+		setCode(404);
+	else 
+		setCode(200);
 
-// vec_enum(cgi.env);
-// cgi.convertToC();
-// print_env_c(cgi.c_env);
-return;
+	free(argv[0]);
+	free(argv[1]);
+	return;
 }
 
-bool response::isRedirected (std::vector<std::string> *vec)
-{
-	if (vec->size() == 0)
-		return (false);
-	return (true);
-}
-
-bool response::isMethodAllowed ( std::string method)
-{
-	if (loc.limit_except.size() == 0)
-		return (true);
-	for (it = loc.limit_except.begin(); it != loc.limit_except.end(); it++)
-		if ((*it).compare(method) == 0)
-			return (true);
-	return (false);
-}
-
-
-bool response::isMethodImplemented(void)
-{
-	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
-		return (false);
-	return (true);
-}
 
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
 void response::redirectRequest (std::vector<std::string> *vec)
@@ -441,10 +478,19 @@ void response::redirectRequest (std::vector<std::string> *vec)
 		ret += CODE_308;
 	ret += "\nLocation: ";
 	ret += redirectUrl;
-	ret += "\r\n\r\n";
-	// ret += CRLF;
+	ret += CRLF;
 	return ;
 
+}
+
+// find location path (from server config) that match request path
+void response::setLocation ( void )
+{
+	for (	loc_it = conf.location.begin(); 
+			loc_it != conf.location.end();
+			loc_it++)
+		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+			loc = *loc_it;
 }
 
 // extract request path
@@ -473,14 +519,31 @@ void response::setRoot ( void )
 	return ;
 }
 
-// find location path (from server config) that match request path
-void response::setLocation ( void )
+// ! BOOL
+bool response::isMethodAllowed ( std::string method)
 {
-	for (	loc_it = conf.location.begin(); 
-			loc_it != conf.location.end();
-			loc_it++)
-		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
-			loc = *loc_it;
+	if (loc.limit_except.size() == 0)
+		return (true);
+	for (it = loc.limit_except.begin(); it != loc.limit_except.end(); it++)
+		if ((*it).compare(method) == 0)
+			return (true);
+	return (false);
+}
+
+bool response::isRedirected (std::vector<std::string> *vec)
+{
+	if (vec->size() == 0)
+		return (false);
+	return (true);
+}
+
+bool response::isMethodImplemented(void)
+{
+	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
+		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
+		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+		return (false);
+	return (true);
 }
 
 void response::parse ( void )
@@ -523,6 +586,9 @@ void	answer_client(int client_sock, std::string answer)
 	// ! Par défaut pas de connection keep-alive
 	// ? A implementer ?
 
+	std::cout << "*********************************************************************\n";
+	std::cout << "ANSWER SENT = " << answer << std::endl;
+	std::cout << "*********************************************************************\n";
 	// if (VERBOSE)
 	// 	std::cout << GREEN"Closing connection with client\n"RESET;
 	close(client_sock);

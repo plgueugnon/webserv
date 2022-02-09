@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/02/02 14:45:32 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/02/07 14:25:45 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -73,12 +73,16 @@ ${NAME}:		$(OBJECTS)
 
 debug:	CXXFLAGS += $(DEBUG_LEAK)
 debug:	all
+rd:		fclean
+rd:		debug
 
 thread:	CXXFLAGS += $(DEBUG_THREAD)
 thread:	all
 
 verbose:	CXXFLAGS += -D DEBUG
 verbose:	all
+rv:			fclean
+rv:			verbose
 
 #________________________________Cleaning rules________________________________#
 

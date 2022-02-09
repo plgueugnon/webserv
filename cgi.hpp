@@ -28,6 +28,8 @@ class cgi
 		HTTP_USER_AGENT,
 		HTTP_COOKIE,
 		HTTP_REFERER,
+		REDIRECT_STATUS,
+		SCRIPT_FILENAME,
 		NB_CGI_VAR,
 	};
 	
@@ -69,7 +71,8 @@ Voici quelques exemples de variables possibles :
  @param HTTP_USER_AGENT 		: Le navigateur utilisé par le client.
  @param HTTP_COOKIE 			: Les éventuels cookies. Une liste de paires clef=valeur contenant les cookies positionnés par le site, séparés par des points-virgules.
  @param HTTP_REFERER 			: Une adresse absolue ou partielle de la page web à partir de laquelle la requête vers la page courante a été émise.
-
+ // * explication de la variable REDIRECT_STATUS : https://stackoverflow.com/questions/24378472/what-is-php-serverredirect-status/31870773
+ @param REDIRECT_STATUS			: Permet au cgi php d'accepter les requêtes qui lui sont directement adressées
  */
 
 // http://www.cgi101.com/book/ch3/env.cgi?test1
