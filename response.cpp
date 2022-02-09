@@ -341,14 +341,14 @@ void response::handlePost ( void )
 	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
 	// cgi.env[cgi::REQUEST_METHOD] += "GET";
 	cgi.env[cgi::QUERY_STRING] += req->requestLine[request::QUERY];
-	cgi.env[cgi::QUERY_STRING] += req->body;
+	// cgi.env[cgi::QUERY_STRING] += req->body;
 	// headers
 	cgi.env[cgi::CONTENT_LENGTH] += req->header[request::CONTENT_LENGTH];
 	cgi.env[cgi::CONTENT_TYPE] += req->header[request::CONTENT_TYPE];
 	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
 	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->header[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
-	cgi.env[cgi::REDIRECT_STATUS] += "100";
+	cgi.env[cgi::REDIRECT_STATUS] += "200";
 
 	// cgi.env[cgi::PATH_INFO] += root + path;
 	// cgi.env[cgi::SCRIPT_NAME] += root + path;

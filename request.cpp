@@ -69,8 +69,9 @@ int 	containsCrlf(std::string str)
 
 	for (; it != end; it++)
 	{
-		if (str.size() > 1)
+		if (str.size() > 2)
 			if (*it == '\r' && *(it - 1) == '\n')
+			//  && *(it - 2) == '\n' && *(it - 3) == '\r')
 				return (i);
 		i++;
 	}
@@ -150,8 +151,9 @@ void request::fillRequestLine(void)
 	// v1
 	vec = split(vec[1], '?');
 	requestLine[PATH] = vec[0];
-	if (vec.size() == 2)
+	if (vec.size() == 2 && vec[1][0] != '\n')
 		requestLine[QUERY] = vec[1];
+	// std::cout << RED"query:" << vec[1] << "|"RESET ;
 	if (vec.size() > 2)
 	// ! mettre exception a terme
 		std::cerr << RED"multiple ? in query \n"RESET;
