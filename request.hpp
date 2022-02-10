@@ -50,6 +50,7 @@ class request
 	void redirectBody ( void );
 	void fillRequestLine ( void );
 	void fillHeaders ( void );
+	void eraseEndChar ( void );
 	void printRequest ( void );
 }; // request class
 #endif /* REQUEST_HPP */

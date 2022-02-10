@@ -108,6 +108,7 @@ void request::parseHeader(void)
 	buf.clear();
 	fillRequestLine();
 	fillHeaders();
+	eraseEndChar();
 	// ! faire check erreur si version http differente de 1.1
 	// ! faire check erreur si headers trop longs
 
@@ -216,6 +217,17 @@ void request::fillHeaders(void)
 	}
 	headerbuf.clear();
 	return ;
+}
+
+void request::eraseEndChar(void)
+{
+	std::vector<std::string>::iterator it = header.begin();
+
+	for (; it != header.end(); it++)
+	{
+		if (it->back() == '\r')
+			it->erase(it->end() - 1);
+	}
 }
 
 void request::redirectBody(void)

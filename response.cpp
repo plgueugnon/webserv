@@ -361,7 +361,8 @@ void response::handlePost ( void )
 	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD");
 	cgi.env[cgi::SCRIPT_FILENAME] += "/";
 	cgi.env[cgi::SCRIPT_FILENAME] += root;
-	cgi.env[cgi::SCRIPT_FILENAME] += "/upload_script.php";
+	cgi.env[cgi::SCRIPT_FILENAME] += path;
+	std::cout << RED"filename: " <<  cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
 	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
 
@@ -381,7 +382,7 @@ void response::handlePost ( void )
 	// str[1] = NULL;
 	char	*argv[3];
 	argv[0] = strdup(CGI_BIN);
-	argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
+	// argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
 	// argv[1] = cgi.c_env;
 	argv[2] = NULL;
 	char buffer[10000];
@@ -421,13 +422,13 @@ void response::handlePost ( void )
 		int r;
 		close(fd[0]);
 		close(fd2[1]);
-		std::string out = CODE_100;
-		out += CRLF;
+		std::string out = "";
+		// out += CRLF;
 		out += req->body;
 		std::cout << "body: " << req->body << "\n";
 		write(fd[1], out.c_str(), out.size());
 		std::cout << "wait ?\n";
-		setCode(100);
+		// setCode(100);
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
 		// r = read(fd[0], buffer, sizeof(buffer));
@@ -448,7 +449,6 @@ void response::handlePost ( void )
 			std::cerr << RED"error : read failure\n"RESET;
 		close(fd[0]);
 	}
-	setCode(100);
 	if (output.size() == 0)
 		setCode(404);
 	else 
