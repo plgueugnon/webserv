@@ -148,9 +148,8 @@ void request::fillRequestLine(void)
 
 // std::cout << RED"pos :" << pos << "\n"RESET;
 	// erase first line of the buffer (request line)
-	headerbuf.erase(0, pos + 1);
+	headerbuf.erase(0, pos);
 	std::vector<std::string> vec = split(str, ' ');
-	std::cout << vec.size() << '\n';
 	if (vec.size() != 3)
 	// ! mettre exception a terme
 		std::cerr << "Wrong arg nb in request line\n";

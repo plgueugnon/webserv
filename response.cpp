@@ -601,9 +601,9 @@ void	answer_client(int client_sock, std::string answer)
 	// ! Par défaut pas de connection keep-alive
 	// ? A implementer ?
 
-	std::cout << "*********************************************************************\n";
-	std::cout << "ANSWER SENT = " << answer << std::endl;
-	std::cout << "*********************************************************************\n";
+	// std::cout << "*********************************************************************\n";
+	// std::cout << "ANSWER SENT = " << answer << std::endl;
+	// std::cout << "*********************************************************************\n";
 	// if (VERBOSE)
 	// 	std::cout << GREEN"Closing connection with client\n"RESET;
 	close(client_sock);
