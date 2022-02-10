@@ -1,3 +1,6 @@
+#ifndef __REQUEST_H__
+#define __REQUEST_H__
+
 #include "Aincludes.hpp"
 
 request::request ( void ) :
@@ -9,54 +12,6 @@ headerbuf(""),
 body("")
 {
 	return ;
-}
-
-#define BUFFER_SIZE 4096
-
-int	receive_request(int client_sock, t_server config)
-{
-	ssize_t n = 0;
-	char buffer[BUFFER_SIZE];
-	request 		request;
-
-	// ! Keep-alive request pas traité par défaut
-	// ? A implémenter ?
-	// // TODO ajouter détection CRLF pour trouver le body
-	while ( (n = recv(client_sock, &buffer, BUFFER_SIZE - 1, 0)) > 0)
-	{
-		buffer[n] = '\0';
-		if (request.isBody == false)
-		{
-			request.buf += buffer;
-			request.parseHeader();
-		}
-		else
-		{
-			request.buf = buffer;
-			request.redirectBody();
-		}
-
-
-		
-		// ! Rajouter le cas des chunk request
-		// if (!c)
-		// 	request.method.assign(buf.data());
-		// else
-		// {
-		// 	request.headers.assign(buf.data());
-		// 	// ! Pas necessaire si on utilise find pour trouver directement les valeurs voulues
-		// 	request.headers.append("\n");
-		// }
-		// c++;
-		// if (VERBOSE)
-		// 	std::cout << buf.data() << std::endl;
-		if (n == 0 || n == EAGAIN )
-			return 0;
-		if (n < BUFFER_SIZE - 1)
-			break;
-	}
-	manage_request(client_sock, &request, config);
-	return 1;
 }
 
 // return -1 if str doesn't contain \r\n
@@ -241,3 +196,4 @@ void request::printRequest(void)
 	std::cout << "http version :" << requestLine[HTTP_VERSION] << std::endl;
 	return ;
 }
+#endif // __REQUEST_H__

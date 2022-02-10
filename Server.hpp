@@ -30,6 +30,7 @@ typedef struct	s_set
 	struct kevent	rset;
 	int				port;
 	int				server;
+	bool			timeout;
 }				t_set;
 
 class Server
@@ -58,6 +59,11 @@ class Server
 		void	clear_late_clients(void);
 		int	cycle_fd(std::vector<t_set> evSet, int fd);
 		void	run(void);
+
+		// * client I/O
+		void	answer_client(int client_sock, std::string answer);
+		void	manage_request(t_client_data *client, request *request, t_server config);
+		int	receive_request(t_client_data *client, t_server config);
 
 		// * attributes
 	private:

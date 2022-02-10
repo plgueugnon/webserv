@@ -7,8 +7,6 @@
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
 
-#define CRLF "\r\n\r\n"
-
 
 response::response ( void )
 {
@@ -578,47 +576,3 @@ void response::parse ( void )
 	// 	output = getErrorPage(&conf.error_page);
 	// return response;
 }
-
-
-void	answer_client(int client_sock, std::string answer)
-{
-	if (send(client_sock, answer.c_str(), answer.size(), 0) == -1)
-	{
-		std::cerr << YELLOW"error: failure to send answer\n"RESET;
-		close(client_sock);
-		return ;
-	}
-	// ! Par défaut pas de connection keep-alive
-	// ? A implementer ?
-
-	std::cout << "*********************************************************************\n";
-	std::cout << "ANSWER SENT = " << answer << std::endl;
-	std::cout << "*********************************************************************\n";
-	// if (VERBOSE)
-	// 	std::cout << GREEN"Closing connection with client\n"RESET;
-	close(client_sock);
-}
-
-// TODO créer parsing complet et remplissage dynamique de la réponse à donner
-// ? Problème si le statut disponible en écriture du client pas vérifié ?
-void	manage_request(int client_sock, request *request, t_server config)
-{
-	response 	response(request, config);
-	std::string	answer = "";
-	(void)config;
-	response.parse();
-	answer += response.ret;
-	answer_client(client_sock, answer);
-}
-
-
-// TODO 1. Check si Bad Request = check method, puis store path et check protocol
-// TODO 2. Check header validity et update cgi env
-// TODO 2bis pasrse n store request uri
-// TODO 3ter si POST method -> check transfer method (MIME or HTML form)
-// TODO 3. go to response
-
-// ! Response
-// TODO 1. check selon method -> GET -> file/path exist ? -> DELETE = idem ? et POST -> A voir
-// TODO 2. Check si appel cgi et storage contenu renvoyé
-// TODO 3. Assemblage reponse (entete + body) et send

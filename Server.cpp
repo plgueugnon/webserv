@@ -87,10 +87,74 @@ void	Server::setup_config( void )
 		clients[i].port = 0;
 		clients[i].time = 0;
 		clients[i].server = 0;
+		clients[i].timeout = false;
 	}
 }
 
 // *____________________________SERVER_LOOP_________________________________*
+
+void	Server::answer_client(int client_sock, std::string answer)
+{
+	if (send(client_sock, answer.c_str(), answer.size(), 0) == -1)
+	{
+		std::cerr << YELLOW"error: failure to send answer\n"RESET;
+		close(client_sock);
+		return ;
+	}
+	// ! Par défaut pas de connection keep-alive
+	// ? A implementer ?
+
+	std::cout << "*********************************************************************\n";
+	std::cout << "ANSWER SENT = " << answer << std::endl;
+	std::cout << "*********************************************************************\n";
+	// if (VERBOSE)
+	// 	std::cout << GREEN"Closing connection with client\n"RESET;
+	// close(client_sock);
+}
+
+void	Server::manage_request(t_client_data *client, request *request, t_server config)
+{
+	response 	response(request, config);
+	// std::string	answer = "";
+	// (void)config;
+	response.parse();
+	// answer += response.ret;
+	client->answer = response.ret;
+}
+
+#define BUFFER_SIZE 4096
+
+int	Server::receive_request(t_client_data *client, t_server config)
+{
+	ssize_t n = 0;
+	char buffer[BUFFER_SIZE];
+	request 		request;
+
+	// ! Keep-alive request pas traité par défaut
+	// ? A implémenter ?
+	while ( (n = recv(client->fd, &buffer, BUFFER_SIZE - 1, 0)) > 0)
+	{
+		buffer[n] = '\0';
+		if (request.isBody == false)
+		{
+			request.buf += buffer;
+			request.parseHeader();
+		}
+		else
+		{
+			request.buf = buffer;
+			request.redirectBody();
+		}
+
+		if (n == 0 || n == EAGAIN )
+			return 0;
+		if (n < BUFFER_SIZE - 1)
+			break;
+	}
+	manage_request(client, &request, config);
+	return 1;
+}
+
 
 unsigned int	Server::gettime(void)
 {
@@ -123,7 +187,9 @@ int	Server::add_client_socket(int fd, int socket_port, int server)
 	clients[i].time = gettime() + (REQUEST_TIMEOUT * 1000); // ! chaque requete commence avec 30 sec (nginx = 60)
 	clients[i].port = socket_port;
 	clients[i].server = server;
-	std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << "with fd #" << clients[i].fd << " and port " << socket_port << "\n"RESET;
+	clients[i].timeout = false;
+	if (VERBOSE)
+		std::cout << GREEN"client # " << get_client_socket(clients[i].fd) << "with fd #" << clients[i].fd << " and port " << socket_port << "\n"RESET;
 	return 0;
 }
 
@@ -149,6 +215,7 @@ int	Server::del_client_socket(int fd)
 	clients[i].time = 0;
 	clients[i].port = 0;
 	clients[i].server = 0;
+	clients[i].timeout = false;
 	if (VERBOSE)
 		std::cout << GREEN"Closing connection with client #" << i << "\n"RESET;
 	return (close(fd));
@@ -195,10 +262,11 @@ void	Server::clear_late_clients( void )
 			if (clients[i].time - now <= 0)
 			{
 				if (VERBOSE)
-					std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << " on port " << clients[i].port << " with fd #" << clients[i].fd << " timeout\n"RESET;
+					std::cout << GREEN"client # " << get_client_socket(clients[i].fd) << " on port " << clients[i].port << " with fd # " << clients[i].fd << " timeout\n"RESET;
 				// send(clients[i].fd, late, strlen(late), 0); // ! A modifier pour faire une reponse 408 timeout au client
 				update_events(clients[i].fd, EVFILT_WRITE); // TODO modif pour passer en write client avec un signal 408
-				del_client_socket(clients[i].fd); // TODO suppr ici pour fermer requete après envoi reponse seulement
+				clients[i].timeout = true;
+				// del_client_socket(clients[i].fd); // TODO suppr ici pour fermer requete après envoi reponse seulement
 			}
 		}
 	}
@@ -265,18 +333,26 @@ void	Server::run( void )
 			else if (_evList[i].filter == EVFILT_READ)
 			{
 				int r = get_client_socket(_evList[i].ident);
-				if (!receive_request(clients[r].fd, server_config->server[clients[r].server]))
+				if (!receive_request(&clients[r], server_config->server[clients[r].server]))
 				{
 					del_client_socket(_evList[i].ident);
 				}
 				else
-					del_client_socket(_evList[i].ident); // TODO a faire uniquement après send
+					update_events(clients[r].fd, EVFILT_WRITE); 
+					// del_client_socket(_evList[i].ident); // TODO a faire uniquement après send
 					// update_client_time(_evList[i].ident);
 			}
 			else if (_evList[i].filter == EVFILT_WRITE)
 			{
-				char	late[] = "connection timeout !\n";
-				send(clients[i].fd, late, strlen(late), 0);
+				int r = get_client_socket(_evList[i].ident);
+				if (clients[r].timeout)
+				{
+					clients[r].answer = CODE_408;
+					clients[r].answer += CRLF;
+				}
+				answer_client(clients[r].fd, clients[r].answer);
+				// char	late[] = "connection timeout !\n";
+				// send(clients[i].fd, late, strlen(late), 0);
 				del_client_socket(_evList[i].ident);
 			}
 		}
