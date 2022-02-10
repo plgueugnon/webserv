@@ -6,7 +6,7 @@ class response
 	public :
 
 	// conf
-	request 		*req;
+	request 		req;
 	t_server 		conf;
 	t_location 		loc;
 
@@ -28,7 +28,7 @@ class response
 
 	// constructors
 	response (void);
-	response (request *request, t_server config);
+	response (request request, t_server config);
 
 	void setRoot ( void );
 	void setPath ( void );

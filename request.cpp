@@ -3,11 +3,18 @@
 request::request ( void ) :
 isBody(false),
 buf(""), 
-requestLine((REQUEST_LINE_ARGS)),
-header((HEADER_ARGS)),
+// requestLine((1)),
+// header((1)),
 headerbuf(""),
 body("")
 {
+	std::vector<std::string> vec(4);
+	vec.resize(4);
+	requestLine = vec;
+	std::vector<std::string> vec2(16);
+	vec2.resize(14);
+	header = vec2;
+
 	return ;
 }
 
@@ -63,18 +70,21 @@ int	receive_request(int client_sock, t_http config)
 // return the pos of the \r
 int 	containsCrlf(std::string str)
 {
-	std::string::iterator 	it = str.begin();
-	std::string::iterator 	end = str.end();
-	int 					i = 0;
+	int pos = str.find("\r\n\r\n");
+	if (pos > 0)
+		return pos;
+	// std::string::iterator 	it = str.begin();
+	// std::string::iterator 	end = str.end();
+	// int 					i = 0;
 
-	for (; it != end; it++)
-	{
-		if (str.size() > 2)
-			if (*it == '\r' && *(it - 1) == '\n')
-			//  && *(it - 2) == '\n' && *(it - 3) == '\r')
-				return (i);
-		i++;
-	}
+	// for (; it != end; it++)
+	// {
+	// 	if (str.size() > 2)
+	// 		if (*it == '\r' && *(it - 1) == '\n')
+	// 		//  && *(it - 2) == '\n' && *(it - 3) == '\r')
+	// 			return (i);
+	// 	i++;
+	// }
 	return (-1);
 }
 
@@ -94,7 +104,7 @@ void request::parseHeader(void)
 	// ! problem ici a regarder plus tard pour std out of range
 	if (buf.size() - pos - 2 > 0)
 	{
-		body = buf.substr(pos + 2, buf.size());
+		body = buf.substr(pos + 4, buf.size());
 		buf.erase(pos - 1);
 	}
 	else
@@ -140,6 +150,7 @@ void request::fillRequestLine(void)
 	// erase first line of the buffer (request line)
 	headerbuf.erase(0, pos + 1);
 	std::vector<std::string> vec = split(str, ' ');
+	std::cout << vec.size() << '\n';
 	if (vec.size() != 3)
 	// ! mettre exception a terme
 		std::cerr << "Wrong arg nb in request line\n";
@@ -233,10 +244,10 @@ void request::eraseEndChar(void)
 		if (it->back() == '\r')
 			it->erase(it->end() - 1);
 	}
-	int pos = body.find('\r');
-	body.erase(pos);
-	if (body.back() == '\n')
-		body.erase(body.end() - 1);
+	// int pos = body.find('\r');
+	// body.erase(pos);
+	// if (body.back() == '\n')
+	// 	body.erase(body.end() - 1);
 }
 
 void request::redirectBody(void)

@@ -16,7 +16,7 @@ response::response ( void )
 {
 }
 
-response::response (request *request, t_server config)
+response::response (request request, t_server config)
 {
 	req = request;
 	conf = config;
@@ -27,7 +27,7 @@ response::response (request *request, t_server config)
 	buffer = "";
 	output = "";
 	ret = "";
-	// req->printRequest();
+	// req.printRequest();
 }
 /*
  check if the request path match a location block
@@ -296,7 +296,7 @@ void response::handleGet( void )
 	if (isMethodAllowed("GET") == 0)
 		return setCode(405);
 	// if the last character is a /, it's a folder, so add index.
-	if (req->requestLine[request::PATH].back() == '/')
+	if (req.requestLine[request::PATH].back() == '/')
 		output = getDataFromFile(root + path + index);
 	else
 		output = getDataFromFile(root + path);
@@ -338,23 +338,23 @@ void response::handlePost ( void )
 	cgi.env[cgi::SERVER_NAME] += conf.server_name;
 	cgi.env[cgi::SERVER_PORT] += conf.listen;
 	//request Line
-	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
+	cgi.env[cgi::REQUEST_METHOD] += req.requestLine[request::METHOD];
 	// cgi.env[cgi::REQUEST_METHOD] += "GET";
-	cgi.env[cgi::QUERY_STRING] += req->requestLine[request::QUERY];
-	// cgi.env[cgi::QUERY_STRING] += req->body;
+	cgi.env[cgi::QUERY_STRING] += req.requestLine[request::QUERY];
+	// cgi.env[cgi::QUERY_STRING] += req.body;
 	// headers
-	cgi.env[cgi::CONTENT_LENGTH] += req->header[request::CONTENT_LENGTH];
-	cgi.env[cgi::CONTENT_TYPE] += req->header[request::CONTENT_TYPE];
-	cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
-	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->header[request::ACCEPT_LANGUAGE];
-	cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
+	cgi.env[cgi::CONTENT_LENGTH] += req.header[request::CONTENT_LENGTH];
+	cgi.env[cgi::CONTENT_TYPE] += req.header[request::CONTENT_TYPE];
+	cgi.env[cgi::HTTP_ACCEPT] += req.header[request::ACCEPT];
+	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req.header[request::ACCEPT_LANGUAGE];
+	cgi.env[cgi::HTTP_USER_AGENT] += req.header[request::USER_AGENT];
 	cgi.env[cgi::REDIRECT_STATUS] += "200";
 
 	// cgi.env[cgi::PATH_INFO] += root + path;
 	// cgi.env[cgi::SCRIPT_NAME] += root + path;
-	// cgi.env[cgi::PATH_INFO] += root + path;
-	// cgi.env[cgi::SCRIPT_NAME] += root + path;
-	// cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
+	cgi.env[cgi::PATH_INFO] += root + path;
+	cgi.env[cgi::SCRIPT_NAME] += root + path;
+	cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
 	// cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
 
 	// Bin
@@ -378,12 +378,13 @@ void response::handlePost ( void )
 	pid_t	pid;
 	// int cfd = 0;
 	// char *str[2];
-	// str[0] = strdup(req->body.c_str());
+	// str[0] = strdup(req.body.c_str());
 	// str[1] = NULL;
 	char	*argv[3];
 	argv[0] = strdup(CGI_BIN);
-	// argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
+	argv[1] = strdup(req.header[cgi::SCRIPT_FILENAME].c_str());
 	// argv[1] = cgi.c_env;
+	// argv[1] = NULL;
 	argv[2] = NULL;
 	char buffer[10000];
 
@@ -423,13 +424,13 @@ void response::handlePost ( void )
 		close(fd[0]);
 		close(fd2[1]);
 		// std::string out = "";
-		// output += req->body;
-		// setCode(200);
+		output += req.body;
+		setCode(200);
 		// out += CRLF;
-		// out += req->body;
+		// out += req.body;
 		
-		std::cout << "body: " << req->body << "\n";
-		write(fd[1], output.c_str(), output.size());
+		// std::cout << "body: " << req.body << "\n";
+		write(fd[1], ret.c_str(), ret.size());
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
@@ -451,13 +452,13 @@ void response::handlePost ( void )
 			std::cerr << RED"error : read failure\n"RESET;
 		close(fd[0]);
 	}
-	setCode(200);
-	if (output.size() == 0)
-		setCode(404);
-	else 
-		setCode(200);
+	// setCode(200);
+	// if (output.size() == 0)
+	// 	setCode(404);
+	// else 
+	// 	setCode(200);
 
-	free(argv[0]);
+	// free(argv[0]);
 	// free(argv[1]);
 	return;
 }
@@ -502,14 +503,14 @@ void response::setLocation ( void )
 	for (	loc_it = conf.location.begin(); 
 			loc_it != conf.location.end();
 			loc_it++)
-		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+		if ( req.requestLine[request::PATH].compare(loc_it->path) == 0 )
 			loc = *loc_it;
 }
 
 // extract request path
 void response::setPath ( void )
 {
-	path = req->requestLine[request::PATH];
+	path = req.requestLine[request::PATH];
 }
 
 // set the index file according to the request path
@@ -552,16 +553,16 @@ bool response::isRedirected (std::vector<std::string> *vec)
 
 bool response::isMethodImplemented(void)
 {
-	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+	if ((req.requestLine[request::METHOD]).compare("GET") != 0 &&
+		(req.requestLine[request::METHOD]).compare("POST") != 0 &&
+		(req.requestLine[request::METHOD]).compare("DELETE") != 0)
 		return (false);
 	return (true);
 }
 
 void response::parse ( void )
 {
-	req->printRequest();
+	req.printRequest();
 
 	// if all the server requests are redirected
 	if (isRedirected(&conf.return_dir) == true)
@@ -576,11 +577,11 @@ void response::parse ( void )
 	setPath();
 	setIndex();
 
-	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
+	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();
-	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
+	else if ( (req.requestLine[request::METHOD]).compare("DELETE") == 0 )
 		handleDelete();
-	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
+	else if ( (req.requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
 	
 	// if (output.size() == 0)
@@ -612,7 +613,7 @@ void	answer_client(int client_sock, std::string answer)
 // ? Problème si le statut disponible en écriture du client pas vérifié ?
 void	manage_request(int client_sock, request *request, t_server config)
 {
-	response 	response(request, config);
+	response 	response(*request, config);
 	std::string	answer = "";
 	(void)config;
 	response.parse();
