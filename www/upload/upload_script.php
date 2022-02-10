@@ -27,9 +27,9 @@ echo "salut";
 // }
 
 // Script Alienard
+// print_r(pathinfo("/Users/ygeslin/webserv/upload.txt"));
 echo "IN UPLOAD SCRIPT\n";
 var_dump($_FILES);
-print_r(pathinfo("/Users/ygeslin/webserv/upload.txt"));
 // Sauvegarde de tous les fichiers passés en input
 foreach ($_FILES as $file) {
     $uploadfile = "tmp" . "/" . basename($file['name']);
