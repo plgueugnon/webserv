@@ -337,11 +337,12 @@ void response::handlePost ( void )
 	// config
 	cgi.env[cgi::SERVER_NAME] += conf.server_name;
 	cgi.env[cgi::SERVER_PORT] += conf.listen;
+
 	//request Line
 	cgi.env[cgi::REQUEST_METHOD] += req.requestLine[request::METHOD];
 	// cgi.env[cgi::REQUEST_METHOD] += "GET";
 	cgi.env[cgi::QUERY_STRING] += req.requestLine[request::QUERY];
-	// cgi.env[cgi::QUERY_STRING] += req.body;
+
 	// headers
 	cgi.env[cgi::CONTENT_LENGTH] += req.header[request::CONTENT_LENGTH];
 	cgi.env[cgi::CONTENT_TYPE] += req.header[request::CONTENT_TYPE];
@@ -349,12 +350,14 @@ void response::handlePost ( void )
 	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req.header[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_USER_AGENT] += req.header[request::USER_AGENT];
 	cgi.env[cgi::REDIRECT_STATUS] += "200";
+	// cgi.env[cgi::REMOTE_ADDR] += "127.0.0.1";
+	// cgi.env[cgi::REMOTE_HOST] += "localhost";
+	// cgi.env[cgi::REMOTE_USER] += "user";
+	// cgi.env[cgi::REMOTE_IDENT] += "ident";
 
 	// cgi.env[cgi::PATH_INFO] += root + path;
-	// cgi.env[cgi::SCRIPT_NAME] += root + path;
-	cgi.env[cgi::PATH_INFO] += root + path;
-	cgi.env[cgi::SCRIPT_NAME] += root + path;
-	cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
+	cgi.env[cgi::SCRIPT_NAME] += path;
+	// cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
 	// cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
 
 	// Bin
@@ -369,7 +372,7 @@ void response::handlePost ( void )
 
 	// vec_enum(cgi.env);
 	cgi.convertToC();
-	// print_env_c(cgi.c_env);
+	print_env_c(cgi.c_env);
 
 	int		fd[2];
 	int		fd2[2];
@@ -417,10 +420,10 @@ void response::handlePost ( void )
 		int r;
 		close(fd[0]);
 		close(fd2[1]);
-		output += req.body;
+		// output += req.body;
 		
-		// std::cout << "body: " << req.body << "\n";
-		write(fd[1], output.c_str(), output.size());
+		std::cout << "body: " << req.body << "\n";
+		write(fd[1], req.body.c_str(), req.body.size());
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
@@ -430,7 +433,7 @@ void response::handlePost ( void )
 		// output += buffer;
 		while((r = read(fd2[0], buffer, sizeof(buffer))) > 0)
 		{
-			std::cout << "REEAAAAAAAAAAD\n";
+			// std::cout << "REEAAAAAAAAAAD\n";
 
 			buffer[r] = 0;
 			std::cout << CYAN << buffer << RESET << std::endl;
@@ -442,7 +445,7 @@ void response::handlePost ( void )
 			std::cerr << RED"error : read failure\n"RESET;
 		close(fd[0]);
 	}
-	// setCode(200);
+	setCode(200);
 	// if (output.size() == 0)
 	// 	setCode(404);
 	// else 
@@ -552,8 +555,6 @@ bool response::isMethodImplemented(void)
 
 void response::parse ( void )
 {
-	req.printRequest();
-
 	// if all the server requests are redirected
 	if (isRedirected(&conf.return_dir) == true)
 		return(redirectRequest(&conf.return_dir));
