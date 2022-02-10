@@ -6,7 +6,7 @@ bool	stop = false;
 
 // * constructor
 Server::Server( void ) { throw VoidConfig(); }
-Server::Server( webserv *config ) : server_config(config)
+Server::Server( t_http *config ) : server_config(config)
 {
 	if ( !server_config )
 		throw VoidConfig();
@@ -59,11 +59,15 @@ int		Server::generate_listen_socket(int port)
 
 void	Server::setup_config( void )
 {
-	evSet.resize(server_config->listenPorts.size());
+	evSet.resize(server_config->server.size());
 	for (size_t i = 0; i < evSet.size(); i++)
 	{
-		evSet[i].server_socket = generate_listen_socket(server_config->listenPorts[i]);
-		evSet[i].port = server_config->listenPorts[i];
+		int p = atoi(server_config->server[i].listen.c_str());
+		// ! evSet[i].server_socket = generate_listen_socket(server_config->listenPorts[i]);
+		evSet[i].server_socket = generate_listen_socket(p);
+		evSet[i].port = p;
+		evSet[i].server = i;
+		// ! evSet[i].port = server_config->listenPorts[i];
 		if (VERBOSE)
 			std::cout << GREEN"Port: " << evSet[i].port << " succesfully set\n"RESET;
 	}
@@ -82,6 +86,7 @@ void	Server::setup_config( void )
 		clients[i].fd = 0;
 		clients[i].port = 0;
 		clients[i].time = 0;
+		clients[i].server = 0;
 	}
 }
 
@@ -107,7 +112,7 @@ int	Server::get_client_socket(int fd)
 	return -1;
 }
 
-int	Server::add_client_socket(int fd, int socket_port)
+int	Server::add_client_socket(int fd, int socket_port, int server)
 {
 	int i;
 	if ( fd < 1)
@@ -117,6 +122,7 @@ int	Server::add_client_socket(int fd, int socket_port)
 	clients[i].fd = fd;
 	clients[i].time = gettime() + (REQUEST_TIMEOUT * 1000); // ! chaque requete commence avec 30 sec (nginx = 60)
 	clients[i].port = socket_port;
+	clients[i].server = server;
 	std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << "with fd #" << clients[i].fd << " and port " << socket_port << "\n"RESET;
 	return 0;
 }
@@ -142,6 +148,7 @@ int	Server::del_client_socket(int fd)
 	clients[i].fd = 0;
 	clients[i].time = 0;
 	clients[i].port = 0;
+	clients[i].server = 0;
 	if (VERBOSE)
 		std::cout << GREEN"Closing connection with client #" << i << "\n"RESET;
 	return (close(fd));
@@ -233,7 +240,7 @@ void	Server::run( void )
 			if ((n = cycle_fd(evSet, _evList[i].ident)) != -1)
 			{
 				client_sock = accept(_evList[i].ident, NULL, NULL);
-				if (add_client_socket(client_sock, evSet[n].port) == 0) // ! 1 event a la fois read or write // pas poss les 2 en meme temps
+				if (add_client_socket(client_sock, evSet[n].port, evSet[n].server) == 0) // ! 1 event a la fois read or write // pas poss les 2 en meme temps
 				{
 					update_events(client_sock, EVFILT_READ);
 				}
@@ -258,12 +265,13 @@ void	Server::run( void )
 			else if (_evList[i].filter == EVFILT_READ)
 			{
 				int r = get_client_socket(_evList[i].ident);
-				if (!receive_request(clients[r].fd, server_config->_config))
+				if (!receive_request(clients[r].fd, server_config->server[clients[r].server]))
 				{
 					del_client_socket(_evList[i].ident);
 				}
 				else
-					update_client_time(_evList[i].ident);
+					del_client_socket(_evList[i].ident); // TODO a faire uniquement après send
+					// update_client_time(_evList[i].ident);
 			}
 			else if (_evList[i].filter == EVFILT_WRITE)
 			{

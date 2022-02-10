@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/04 12:18:18 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/10 10:56:43 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ int main (int ac, char **av, char **env)
 	// listener(&server);
 	try
 	{
-		Server	listener(&server_config);
+		Server	listener(&server_config._config);
 		listener.setup_config();
 		listener.run();
 	}

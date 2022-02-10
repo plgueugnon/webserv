@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/02/07 14:25:45 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/02/10 11:42:50 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,9 +45,7 @@ SRCS			= 	main \
 					utils \
 					cgi \
 					webserv \
-					Server \
-					#listener
-					#server_socket_generator
+					Server
 
 #________________________________Building rules________________________________#
 

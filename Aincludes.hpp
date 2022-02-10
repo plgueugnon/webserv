@@ -16,6 +16,7 @@ typedef struct s_client_data
 	int		fd;
 	long	time;
 	int		port;
+	int		server;
 }	t_client_data;
 
 // * stream header
@@ -61,8 +62,8 @@ typedef struct s_client_data
 
 // * functions (temporaire jusqu'a creation de classe)
 
-void	listener(webserv *server);
-int		gen_listen_socket(int port);
+// void	listener(webserv *server);
+// int		gen_listen_socket(int port);
 
 // void	receive_request(int client_sock);
 // void	manage_request(int client_sock, request *request);

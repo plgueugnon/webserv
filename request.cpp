@@ -13,7 +13,7 @@ body("")
 
 #define BUFFER_SIZE 4096
 
-int	receive_request(int client_sock, t_http config)
+int	receive_request(int client_sock, t_server config)
 {
 	ssize_t n = 0;
 	char buffer[BUFFER_SIZE];
@@ -55,7 +55,7 @@ int	receive_request(int client_sock, t_http config)
 		if (n < BUFFER_SIZE - 1)
 			break;
 	}
-	manage_request(client_sock, &request, config.server[0]);
+	manage_request(client_sock, &request, config);
 	return 1;
 }
 

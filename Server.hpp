@@ -29,6 +29,7 @@ typedef struct	s_set
 	int				server_socket;
 	struct kevent	rset;
 	int				port;
+	int				server;
 }				t_set;
 
 class Server
@@ -38,7 +39,7 @@ class Server
 	public:
 
 		Server( void );
-		Server( webserv *server );
+		Server( t_http *server );
 		~Server();
 
 		// * server config
@@ -52,7 +53,7 @@ class Server
 		// * server loop
 		void	update_events(int fd, int update);
 		int	get_client_socket(int fd);
-		int	add_client_socket(int fd, int socket_port);
+		int	add_client_socket(int fd, int socket_port, int server);
 		int	del_client_socket(int fd);
 		void	clear_late_clients(void);
 		int	cycle_fd(std::vector<t_set> evSet, int fd);
@@ -68,7 +69,8 @@ class Server
 	public:
 		// std::vector<t_set>	evSet;
 		// t_client_data		clients[NUM_CLIENTS];
-		webserv				*server_config;
+		// webserv				*server_config;
+		t_http				*server_config;
 
 		// std::vector<int> ports;
 		//* local var

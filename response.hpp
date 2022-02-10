@@ -52,6 +52,6 @@ class response
 	bool isMethodImplemented ( void );
 	bool isRedirected (std::vector<std::string> *vec);
 };
-int	receive_request(int client_sock, t_http config);
+int	receive_request(int client_sock, t_server config);
 void	manage_request(int client_sock, request *request, t_server config);
 #endif /* RESPONSE_HPP */
