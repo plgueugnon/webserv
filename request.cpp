@@ -228,6 +228,15 @@ void request::eraseEndChar(void)
 		if (it->back() == '\r')
 			it->erase(it->end() - 1);
 	}
+	for (it = requestLine.begin(); it != requestLine.end(); it++)
+	{
+		if (it->back() == '\r')
+			it->erase(it->end() - 1);
+	}
+	int pos = body.find('\r');
+	body.erase(pos);
+	if (body.back() == '\n')
+		body.erase(body.end() - 1);
 }
 
 void request::redirectBody(void)

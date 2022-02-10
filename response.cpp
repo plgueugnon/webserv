@@ -367,9 +367,9 @@ void response::handlePost ( void )
 	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
 
 
-	vec_enum(cgi.env);
+	// vec_enum(cgi.env);
 	cgi.convertToC();
-	print_env_c(cgi.c_env);
+	// print_env_c(cgi.c_env);
 	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
 	// char path[] = "./cgi/php";
 	// char path[] = "./cgi/php-cgi";
@@ -422,13 +422,15 @@ void response::handlePost ( void )
 		int r;
 		close(fd[0]);
 		close(fd2[1]);
-		std::string out = "";
+		// std::string out = "";
+		// output += req->body;
+		// setCode(200);
 		// out += CRLF;
-		out += req->body;
+		// out += req->body;
+		
 		std::cout << "body: " << req->body << "\n";
-		write(fd[1], out.c_str(), out.size());
+		write(fd[1], output.c_str(), output.size());
 		std::cout << "wait ?\n";
-		// setCode(100);
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
 		// r = read(fd[0], buffer, sizeof(buffer));
@@ -449,6 +451,7 @@ void response::handlePost ( void )
 			std::cerr << RED"error : read failure\n"RESET;
 		close(fd[0]);
 	}
+	setCode(200);
 	if (output.size() == 0)
 		setCode(404);
 	else 
@@ -558,6 +561,7 @@ bool response::isMethodImplemented(void)
 
 void response::parse ( void )
 {
+	req->printRequest();
 
 	// if all the server requests are redirected
 	if (isRedirected(&conf.return_dir) == true)
