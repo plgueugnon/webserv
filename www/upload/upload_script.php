@@ -2,6 +2,7 @@
 // script melkior
 // $file_uploads = On;
 // $upload_tmp_dir = /Users/ygeslin/webserv/www/upload/;
+echo "salut";
 if(isset($_FILES['fichier'])){
    $errors= array();
    $file_name = $_FILES['fichier']['name'];

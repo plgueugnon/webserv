@@ -370,16 +370,11 @@ void response::handlePost ( void )
 	// vec_enum(cgi.env);
 	cgi.convertToC();
 	// print_env_c(cgi.c_env);
-	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
-	// char path[] = "./cgi/php";
-	// char path[] = "./cgi/php-cgi";
+
 	int		fd[2];
 	int		fd2[2];
 	pid_t	pid;
-	// int cfd = 0;
-	// char *str[2];
-	// str[0] = strdup(req.body.c_str());
-	// str[1] = NULL;
+
 	char	*argv[3];
 	argv[0] = strdup(CGI_BIN);
 	argv[1] = strdup(req.header[cgi::SCRIPT_FILENAME].c_str());
@@ -390,7 +385,6 @@ void response::handlePost ( void )
 
 	pipe(fd);
 	pipe(fd2);
-	// fcntl(fd[0], F_SETFL, O_NONBLOCK);
 	pid = fork();
 	if (pid == -1)
 		std::cerr << RED"error : fork failure\n"RESET;
@@ -423,14 +417,10 @@ void response::handlePost ( void )
 		int r;
 		close(fd[0]);
 		close(fd2[1]);
-		// std::string out = "";
 		output += req.body;
-		setCode(200);
-		// out += CRLF;
-		// out += req.body;
 		
 		// std::cout << "body: " << req.body << "\n";
-		write(fd[1], ret.c_str(), ret.size());
+		write(fd[1], output.c_str(), output.size());
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
