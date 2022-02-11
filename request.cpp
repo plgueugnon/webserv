@@ -102,13 +102,8 @@ void request::parseHeader(void)
 	// + 2 to skip \r\n
 
 	// ! problem ici a regarder plus tard pour std out of range
-	if (buf.size() - pos - 2 > 0)
-	{
-		body = buf.substr(pos + 4, buf.size());
-		buf.erase(pos - 1);
-	}
-	else
-		body = buf.substr(pos , buf.size());
+	body = buf.substr(pos + 4, buf.size());
+	buf.erase(pos);
 		// buf.erase(pos - 1);
 
 	// std::cout << RED"BUG :\n"RESET;
@@ -206,14 +201,14 @@ void request::fillHeaders(void)
 	// iterator on key headers strings to search
 	std::vector<std::string>::iterator headerToSearch;
 
-	std::vector<std::string>::iterator end 	= buf.end();
-	std::vector<std::string>::iterator end2 = toSearch.end();
+	// std::vector<std::string>::iterator end 	= buf.end();
+	// std::vector<std::string>::iterator end2 = toSearch.end();
 
 	int 	headerIndex = 0;
 
-	for (requestHeaders = buf.begin(); requestHeaders != end; requestHeaders++)
+	for (requestHeaders = buf.begin(); requestHeaders != buf.end(); requestHeaders++)
 	{
-		for (headerToSearch = toSearch.begin(); headerToSearch != end2; headerToSearch++)
+		for (headerToSearch = toSearch.begin(); headerToSearch != toSearch.end(); headerToSearch++)
 		{
 			if (requestHeaders->compare(0, headerToSearch->length(), *headerToSearch) == 0)
 			{

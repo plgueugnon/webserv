@@ -331,7 +331,9 @@ void response::handlePost ( void )
 {
 	if (isMethodAllowed("POST") == 0)
 		return setCode(405);
-	(void) loc;
+
+	std::string pathFile = "";
+	pathFile= getenv("PWD") + (std::string)"/" + root + "/upload/upload_script.php";
 	// ! CGI env
 	cgi cgi;
 	// config
@@ -350,29 +352,24 @@ void response::handlePost ( void )
 	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req.header[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_USER_AGENT] += req.header[request::USER_AGENT];
 	cgi.env[cgi::REDIRECT_STATUS] += "200";
-	cgi.env[cgi::REMOTE_ADDR] += "127.0.0.1";
-	cgi.env[cgi::REMOTE_HOST] = "DIR_PATH=";
-	cgi.env[cgi::REMOTE_HOST] += getenv("PWD");
-	cgi.env[cgi::REMOTE_HOST] += "/";
-	cgi.env[cgi::REMOTE_HOST] += root ;
-	cgi.env[cgi::REMOTE_HOST] += "/tmp" ;
+	cgi.env[cgi::REMOTE_ADDR] += "0.0.0.0";
 
-	cgi.env[cgi::REMOTE_USER] += "user";
-	cgi.env[cgi::REMOTE_IDENT] += "ident";
+	cgi.env[cgi::REMOTE_HOST] = "REQUEST_URI=";
+	cgi.env[cgi::REMOTE_HOST] += pathFile;
 
-	cgi.env[cgi::PATH_INFO] += getenv("PWD");
-	cgi.env[cgi::PATH_INFO] += "/";
-	cgi.env[cgi::PATH_INFO] += root;
+	// cgi.env[cgi::REMOTE_USER] += "user";
+	// cgi.env[cgi::REMOTE_IDENT] += "ident";
+
+	cgi.env[cgi::PATH_INFO] += pathFile;
+	// cgi.env[cgi::PATH_INFO] += getenv("PWD");
+	// cgi.env[cgi::PATH_INFO] += "/";
+	// cgi.env[cgi::PATH_INFO] += root;
 	cgi.env[cgi::SCRIPT_NAME] += path;
-	cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
-	cgi.env[cgi::PATH_TRANSLATED] += getenv("PWD") + (std::string)"/" + root + path;
+	cgi.env[cgi::PATH_TRANSLATED] += pathFile;
 
 	// Bin
-	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD") + (std::string)"/";
-	cgi.env[cgi::SCRIPT_FILENAME] += root;
-	cgi.env[cgi::SCRIPT_FILENAME] += "/";
-	cgi.env[cgi::SCRIPT_FILENAME] += "upload/upload_script.php";
-	std::cout << RED"filename: " <<  cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
+	cgi.env[cgi::SCRIPT_FILENAME] += pathFile;
+	std::cout << RED"pathFile: " <<  pathFile << "\n"RESET;
 
 	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <body>
 
@@ -9,9 +9,9 @@
 </form>
 
 </body>
-</html>
+</html> -->
 
-<!-- <html>
+<html>
    <body>
       
       <form action="/upload/upload_script.php" method="POST" enctype="multipart/form-data">
@@ -20,4 +20,4 @@
       </form>
       
    </body>
-</html> -->
+</html>
