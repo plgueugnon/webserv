@@ -29,10 +29,12 @@ echo "salut";
 // Script Alienard
 // print_r(pathinfo("/Users/ygeslin/webserv/upload.txt"));
 // echo "IN UPLOAD SCRIPT\n";
-var_dump($_FILES);
+// var_dump($_FILES);
+// var_dump($_SERVER);
+// var_dump($upload_tmp_dir);
 // // Sauvegarde de tous les fichiers passés en input
 foreach ($_FILES as $file) {
-    $uploadfile = "/Users/pgueugno/Documents/webserv/www/tmp" . "/" . basename($file['name']);
+    $uploadfile = "/Users/ygeslin/Documents/webserv/www/tmp" . "/" . basename($file['name']);
     echo "uploading => " . $file['name'] . "\n";
     if (move_uploaded_file($file['tmp_name'], $uploadfile)){
         echo "Le fichier " . $file['name'] . " a bien été envoyé\n";
