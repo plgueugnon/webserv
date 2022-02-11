@@ -354,8 +354,8 @@ void response::handlePost ( void )
 	cgi.env[cgi::REDIRECT_STATUS] += "200";
 	cgi.env[cgi::REMOTE_ADDR] += "0.0.0.0";
 
-	cgi.env[cgi::REMOTE_HOST] = "REQUEST_URI=";
-	cgi.env[cgi::REMOTE_HOST] += pathFile;
+	cgi.env[cgi::REMOTE_HOST] = "PWD=";
+	cgi.env[cgi::REMOTE_HOST] += getenv("PWD");
 
 	// cgi.env[cgi::REMOTE_USER] += "user";
 	// cgi.env[cgi::REMOTE_IDENT] += "ident";
