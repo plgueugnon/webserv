@@ -392,6 +392,8 @@ void response::handlePost ( void )
 
 	pipe(fd);
 	pipe(fd2);
+	// fcntl(fd2[0], F_SETFL, O_NONBLOCK);
+	// fcntl(fd[1], F_SETFL, O_NONBLOCK);
 	pid = fork();
 	if (pid == -1)
 		std::cerr << RED"error : fork failure\n"RESET;
@@ -425,12 +427,16 @@ void response::handlePost ( void )
 		close(fd[0]);
 		close(fd2[1]);
 		// output += req.body;
-		
-		std::cout << "body: " << req.body << "\n";
-		write(fd[1], req.body.c_str(), req.body.size());
+
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
+
+		std::cout << "body: " << req.body << "\n";
+		if (write(fd[1], req.body.c_str(), req.body.size()) < 0)
+			std::cerr << RED"error : write failure\n"RESET;
+
+		close(fd[1]);
 		// r = read(fd[0], buffer, sizeof(buffer));
 		// // buffer[r] = 0;
 		// std::cout << CYAN << buffer << RESET << std::endl;
@@ -447,8 +453,11 @@ void response::handlePost ( void )
 		// std::cout << "data received = " << r << "\n";
 		if (r == -1)
 			std::cerr << RED"error : read failure\n"RESET;
-		close(fd[0]);
 	}
+	// close(fd[0]);
+	// close(fd2[1]);
+	close(fd2[0]);
+	// close(fd[1]);
 	setCode(200);
 	// if (output.size() == 0)
 	// 	setCode(404);
