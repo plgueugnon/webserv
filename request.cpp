@@ -91,6 +91,7 @@ int 	containsCrlf(std::string str)
 void request::parseHeader(void)
 {
 	int 	pos = containsCrlf(buf);
+	//
 	// int 	size ;
 
 	// if pos < 0, the buffer doesn't contain \r\n
