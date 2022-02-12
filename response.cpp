@@ -20,14 +20,10 @@ response::response (request request, t_server config)
 {
 	req = request;
 	conf = config;
-	// loc = 0;
 	code = 0;
-	// file = {0};
-	// fileName = "";
 	buffer = "";
 	output = "";
 	ret = "";
-	// req.printRequest();
 }
 /*
  check if the request path match a location block
@@ -64,23 +60,16 @@ std::string response::getAutoIndex( std::string fileName )
 			if (ent->d_type == DT_DIR)
 				buffer += "/";
 			folder.push_back(buffer);
-			// printf("%s\n", ent->d_name);
 		}
 		closedir(dir);
 	}
 	else
-	{
-		std::cerr << RED"can't open directory\n"RESET;
 		return "";
-	}
 	data += "<html>\n <head><title>Index of ";
 	data += path;
-	data += " folder.\n\n";
-	data += " </title></head>\n <body>\n";
-	data += "<h1>Index of ";
+	data += " folder.\n\n </title></head>\n <body>\n<h1>Index of ";
 	data += path;
 	data += " folder.\n\n</h1><hr><pre>";
-
 
 	for (it = folder.begin(); it != folder.end(); it++)
 	{
@@ -92,15 +81,15 @@ std::string response::getAutoIndex( std::string fileName )
 	}
 	data += "</pre><hr></body>";
 	data += "</ html>";
-	 return data;
+	return data;
 }
 
 std::string response::getErrorPage ( std::vector<std::string> vec )
 {
-	// fileName = "";
-	std::string data = "";
-	std::string fileName = root;
-	int errorCode;
+	std::string data 		= "";
+	std::string fileName 	= root;
+
+	int 		errorCode;
 
 	if (vec.size() == 0)
 		return data;
@@ -156,75 +145,6 @@ void response::setCode(int code)
 		if (output.size() == 0)
 			output = NOT_ALLOWED;
 		break ;
-		case 406 : 
-		ret = CODE_406;
-		break ;
-		case 407 : 
-		ret = CODE_407;
-		break ;
-		case 408 : 
-		ret = CODE_408;
-		break ;
-		case 409 : 
-		ret = CODE_409;
-		break ;
-		case 410 : 
-		ret = CODE_410;
-		break ;
-		case 411 : 
-		ret = CODE_411;
-		break ;
-		case 412 : 
-		ret = CODE_412;
-		break ;
-		case 413 : 
-		ret = CODE_413;
-		break ;
-		case 414 : 
-		ret = CODE_414;
-		break ;
-		case 415 : 
-		ret = CODE_415;
-		break ;
-		case 416 : 
-		ret = CODE_416;
-		break ;
-		case 417 : 
-		ret = CODE_417;
-		break ;
-		case 418 : 
-		ret = CODE_418;
-		break ;
-		case 421 : 
-		ret = CODE_421;
-		break ;
-		case 422 : 
-		ret = CODE_422;
-		break ;
-		case 423 : 
-		ret = CODE_423;
-		break ;
-		case 424 : 
-		ret = CODE_424;
-		break ;
-		case 425 : 
-		ret = CODE_425;
-		break ;
-		case 426 : 
-		ret = CODE_426;
-		break ;
-		case 428 : 
-		ret = CODE_428;
-		break ;
-		case 429 : 
-		ret = CODE_429;
-		break ;
-		case 431 : 
-		ret = CODE_431;
-		break ;
-		case 451 : 
-		ret = CODE_451;
-		break ;
 		case 500 : 
 		ret = CODE_500;
 		break ;
@@ -232,33 +152,6 @@ void response::setCode(int code)
 		ret = CODE_501;
 		if (output.size() == 0)
 			output = NOT_IMPLEMENTED;
-		break ;
-		case 502 : 
-		ret = CODE_502;
-		break ;
-		case 503 : 
-		ret = CODE_503;
-		break ;
-		case 504 : 
-		ret = CODE_504;
-		break ;
-		case 505 : 
-		ret = CODE_505;
-		break ;
-		case 506 : 
-		ret = CODE_506;
-		break ;
-		case 507 : 
-		ret = CODE_507;
-		break ;
-		case 508 : 
-		ret = CODE_508;
-		break ;
-		case 510 : 
-		ret = CODE_510;
-		break ;
-		case 511 : 
-		ret = CODE_511;
 		break ;
 	}
 	ret += CRLF;
@@ -281,11 +174,6 @@ std::string response::getDataFromFile(std::string fileName)
 	}
 	return data;
 }
-
-// void response::buildResponse( int code )
-// {
-
-// }
 
 // filename = root + request path + index
 void response::handleGet( void )
@@ -313,15 +201,15 @@ void response::handleGet( void )
 }
 
 // https://www.cplusplus.com/reference/cstdio/remove/
+// if the file doesn't exist or can't be removed code 204
+// if file successfully deleted code 200
 void response::handleDelete ( void )
 {
 	if (isMethodAllowed("DELETE") == 0)
 		return setCode(405);
 
-	// if the file doesn't exist or can't be removed code 204
 	if (remove((root + path).c_str()) != 0)
 		setCode(204);
-	// if file successfully deleted code 200
 	else
 		setCode(200);
 	return;
@@ -385,8 +273,6 @@ void response::handlePost ( void )
 	char	*argv[3];
 	argv[0] = strdup(CGI_BIN);
 	argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
-	// argv[1] = cgi.c_env;
-	// argv[1] = NULL;
 	argv[2] = NULL;
 	char buffer[10000];
 
@@ -471,6 +357,7 @@ void response::handlePost ( void )
 
 
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
+// okay dans le parsing fichier de config normalement
 void response::redirectRequest (std::vector<std::string> *vec)
 {
 	 it = vec->begin();
@@ -587,10 +474,6 @@ void response::parse ( void )
 		handleDelete();
 	else if ( (req.requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
-	
-	// if (output.size() == 0)
-	// 	output = getErrorPage(&conf.error_page);
-	// return response;
 }
 
 

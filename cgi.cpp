@@ -2,7 +2,6 @@
 
 cgi::cgi (void)
 {
-	// bzero(&c_env, sizeof(env));
 	env.clear();
 	env.push_back("SERVER_SOFTWARE=nginx/1.21.5");
 	env.push_back("SERVER_NAME=");
