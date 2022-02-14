@@ -50,6 +50,7 @@ void request::parseHeader(void)
 	fillRequestLine();
 	fillHeaders();
 	// eraseEndChar();
+	// printRequest();
 	// ! faire check erreur si version http differente de 1.1
 	// ! faire check erreur si headers trop longs
 
@@ -79,11 +80,14 @@ void request::fillRequestLine(void)
 
 // std::cout << RED"pos :" << pos << "\n"RESET;
 	// erase first line of the buffer (request line)
-	headerbuf.erase(0, pos);
+	headerbuf.erase(0, pos + 1);
 	std::vector<std::string> vec = split(str, ' ');
 	if (vec.size() != 3)
-	// ! mettre exception a terme
+	{
 		std::cerr << "Wrong arg nb in request line\n";
+		return ;
+	}
+	// ! mettre exception a terme
 	requestLine[METHOD] = vec[0];
 	requestLine[HTTP_VERSION] = vec[2];
 	// extracting query
@@ -92,8 +96,11 @@ void request::fillRequestLine(void)
 	if (vec.size() == 2 && vec[1][0] != '\n')
 		requestLine[QUERY] = vec[1];
 	if (vec.size() > 2)
-	// ! mettre exception a terme
+	{
 		std::cerr << RED"multiple ? in query \n"RESET;
+		return ;
+	}
+	// ! mettre exception a terme
 	return ;
 }
 
@@ -124,7 +131,7 @@ void request::fillHeaders(void)
 	// vector with the key string to search in the headers
 	std::vector<std::string> toSearch 	= headerKeysToSearch(); 
 	// vector with one vector node for one request header line
-	std::vector<std::string> buf 		= split(headerbuf, '\n');
+	std::vector<std::string> buf 		= split(headerbuf, '\r');
 	// vec_enum(buf);
 	
 	// iterator on request headers lines
