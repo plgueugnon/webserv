@@ -243,6 +243,8 @@ void response::handleDelete ( void )
 	return;
 }
 
+
+// * https://www.unix.com/programming/58138-c-how-use-pipe-fork-stdin-stdout-another-program.html
 void response::handlePost ( void )
 {
 	if (isMethodAllowed("POST") == 0)
@@ -290,13 +292,8 @@ void response::handlePost ( void )
 	argv[0] = strdup(CGI_BIN);
 	argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
 	argv[2] = NULL;
-	// argv[3] = NULL;
 	char buffer[10000];
 
-	// pipe(fd); // ! ecriture
-	// pipe(fd2);// ! lecture
-	// fcntl(fd[0], F_SETFL, O_NONBLOCK);
-	// ? https://www.unix.com/programming/58138-c-how-use-pipe-fork-stdin-stdout-another-program.html
 	pid = fork();
 	if (pid == -1)
 		std::cerr << RED"error : fork failure\n"RESET;
@@ -331,20 +328,15 @@ void response::handlePost ( void )
 		close(read_fd[1]);
 		if (write(write_fd[1], req.body.c_str(), req.body.size()) < 0)
 			std::cout << RED"error: write failure\n";
-		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
-		std::cout << "wait !\n";
-
 		close(write_fd[1]);
 		while((r = read(read_fd[0], buffer, sizeof(buffer))) > 0)
 		{
-			std::cout << "REEAAAAAAAAAAD\n";
 			buffer[r] = 0;
-			std::cout << CYAN << buffer << RESET << std::endl;
+			// std::cout << CYAN << buffer << RESET << std::endl;
 			output += buffer;
 			bzero(buffer, sizeof(buffer));
 		}
-		// std::cout << "data received = " << r << "\n";
 		if (r == -1)
 			std::cerr << RED"error : read failure\n"RESET;
 		close(read_fd[0]);
@@ -485,8 +477,4 @@ void response::parse ( void )
 		handleDelete();
 	else if ( (req.requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
-
-	// if (output.size() == 0)
-	// 	output = getErrorPage(&conf.error_page);
-	// return response;
 }

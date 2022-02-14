@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 11:32:40 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/14 13:21:04 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,11 +75,9 @@ void	Server::setup_config( void )
 	for (size_t i = 0; i < evSet.size(); i++)
 	{
 		int p = atoi(server_config->server[i].listen.c_str());
-		// ! evSet[i].server_socket = generate_listen_socket(server_config->listenPorts[i]);
 		evSet[i].server_socket = generate_listen_socket(p);
 		evSet[i].port = p;
 		evSet[i].server = i;
-		// ! evSet[i].port = server_config->listenPorts[i];
 		if (VERBOSE)
 			std::cout << GREEN"Port: " << evSet[i].port << " succesfully set\n"RESET;
 	}
@@ -110,18 +108,10 @@ void	Server::answer_client(int client_sock, std::string answer)
 	if (send(client_sock, answer.c_str(), answer.size(), 0) == -1)
 	{
 		std::cerr << YELLOW"error: failure to send answer\n"RESET;
-		close(client_sock);
+		// close(client_sock);
+		del_client_socket(client_sock);
 		return ;
 	}
-	// ! Par défaut pas de connection keep-alive
-	// ? A implementer ?
-
-	std::cout << "*********************************************************************\n";
-	std::cout << "ANSWER SENT = " << answer << std::endl;
-	std::cout << "*********************************************************************\n";
-	// if (VERBOSE)
-	// 	std::cout << GREEN"Closing connection with client\n"RESET;
-	// close(client_sock);
 }
 
 void	Server::update_events(int fd, int update)
@@ -148,16 +138,14 @@ void	Server::update_events(int fd, int update)
 void	Server::manage_request(t_client_data *client, request *request, t_server config)
 {
 	response 	response(*request, config);
-	// std::string	answer = "";
-	// (void)config;
 	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 )
 	{
 		pipe(client->read_fd);
 		pipe(client->write_fd);
 		update_events(client->read_fd[0], EVFILT_READ);
-		update_events(client->read_fd[1], EVFILT_WRITE);
+		// update_events(client->read_fd[1], EVFILT_WRITE);
 		update_events(client->write_fd[0], EVFILT_READ);
-		update_events(client->write_fd[1], EVFILT_WRITE);
+		// update_events(client->write_fd[1], EVFILT_WRITE);
 		response.setCGIfd(client->read_fd, client->write_fd);
 	}
 	response.parse();
@@ -360,8 +348,6 @@ void	Server::run( void )
 				}
 				else
 					update_events(clients[r].fd, EVFILT_WRITE); 
-					// del_client_socket(_evList[i].ident); // TODO a faire uniquement après send
-					// update_client_time(_evList[i].ident);
 			}
 			else if (_evList[i].filter == EVFILT_WRITE)
 			{
@@ -372,14 +358,11 @@ void	Server::run( void )
 					clients[r].answer += CRLF;
 				}
 				answer_client(clients[r].fd, clients[r].answer);
-				// char	late[] = "connection timeout !\n";
-				// send(clients[i].fd, late, strlen(late), 0);
 				del_client_socket(_evList[i].ident);
 			}
 		}
 		if (stop)
 			break ;
 	}
-	// sleep(10);
 }
 
