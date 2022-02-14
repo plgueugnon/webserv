@@ -19,6 +19,7 @@ class request
 		PATH,
 		QUERY,
 		HTTP_VERSION,
+		NB_REQUEST_LINE_ARG,
 	}; // requestLineIndex
 
 	enum headerIndex
@@ -36,6 +37,7 @@ class request
 		REFERER,
 		TRANSFER_ENCODING,
 		USER_AGENT,
+		NB_HEADER_ARG,
 	}; // headerIndex
 
 	std::vector<std::string> 	requestLine;
@@ -50,6 +52,7 @@ class request
 	void redirectBody ( void );
 	void fillRequestLine ( void );
 	void fillHeaders ( void );
+	void eraseEndChar ( void );
 	void printRequest ( void );
 }; // request class
 #endif /* REQUEST_HPP */

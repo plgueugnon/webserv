@@ -6,11 +6,16 @@
 request::request ( void ) :
 isBody(false),
 buf(""), 
-requestLine((REQUEST_LINE_ARGS)),
-header((HEADER_ARGS)),
 headerbuf(""),
 body("")
 {
+	std::vector<std::string> vec(request::NB_REQUEST_LINE_ARG);
+	vec.resize(request::NB_REQUEST_LINE_ARG);
+	requestLine = vec;
+	std::vector<std::string> vec2(request::NB_HEADER_ARG);
+	vec2.resize(request::NB_HEADER_ARG);
+	header = vec2;
+
 	return ;
 }
 
@@ -18,24 +23,15 @@ body("")
 // return the pos of the \r
 int 	containsCrlf(std::string str)
 {
-	std::string::iterator 	it = str.begin();
-	std::string::iterator 	end = str.end();
-	int 					i = 0;
-
-	for (; it != end; it++)
-	{
-		if (str.size() > 1)
-			if (*it == '\r' && *(it - 1) == '\n')
-				return (i);
-		i++;
-	}
+	int pos = str.find("\r\n\r\n");
+	if (pos > 0)
+		return pos;
 	return (-1);
 }
 
 void request::parseHeader(void)
 {
 	int 	pos = containsCrlf(buf);
-	// int 	size ;
 
 	// if pos < 0, the buffer doesn't contain \r\n
 	// so return to recv to receive the end of the headers
@@ -43,25 +39,17 @@ void request::parseHeader(void)
 		return;
 	isBody = true;
 	// save the beginning of the body, saved in the buffer
-	// + 2 to skip \r\n
+	// + 4 to skip \r\n\r\n
+	body = buf.substr(pos + 4, buf.size());
+	buf.erase(pos);
 
-	// ! problem ici a regarder plus tard pour std out of range
-	if (buf.size() - pos - 2 > 0)
-	{
-		body = buf.substr(pos + 2, buf.size());
-		buf.erase(pos - 1);
-	}
-	else
-		body = buf.substr(pos , buf.size());
-		// buf.erase(pos - 1);
-
-	// std::cout << RED"BUG :\n"RESET;
 	// erase the end of the buffer to extract only headers
 	// save requestline and header in headerBuffer
 	headerbuf = buf;
 	buf.clear();
 	fillRequestLine();
 	fillHeaders();
+	// eraseEndChar();
 	// ! faire check erreur si version http differente de 1.1
 	// ! faire check erreur si headers trop longs
 
@@ -72,7 +60,7 @@ std::vector<std::string> split(std::string str, char delim)
 {
 	std::vector<std::string>	vec;
 	std::string 				token;
-	unsigned long pos;
+	unsigned long 				pos;
 	while ( (pos = str.find (delim)) != std::string::npos)
 	{  
 		vec.push_back(str.substr(0, pos)); 
@@ -91,21 +79,17 @@ void request::fillRequestLine(void)
 
 // std::cout << RED"pos :" << pos << "\n"RESET;
 	// erase first line of the buffer (request line)
-	headerbuf.erase(0, pos + 1);
+	headerbuf.erase(0, pos);
 	std::vector<std::string> vec = split(str, ' ');
 	if (vec.size() != 3)
 	// ! mettre exception a terme
 		std::cerr << "Wrong arg nb in request line\n";
 	requestLine[METHOD] = vec[0];
 	requestLine[HTTP_VERSION] = vec[2];
-	// requestLine[CONTENT_LENGTH] = vec[16];
-	// requestLine[CONTENT_TYPE] = vec[15];
-	// requestLine[] = vec[8];
 	// extracting query
-	// v1
 	vec = split(vec[1], '?');
 	requestLine[PATH] = vec[0];
-	if (vec.size() == 2)
+	if (vec.size() == 2 && vec[1][0] != '\n')
 		requestLine[QUERY] = vec[1];
 	if (vec.size() > 2)
 	// ! mettre exception a terme
@@ -148,20 +132,16 @@ void request::fillHeaders(void)
 	// iterator on key headers strings to search
 	std::vector<std::string>::iterator headerToSearch;
 
-	std::vector<std::string>::iterator end 	= buf.end();
-	std::vector<std::string>::iterator end2 = toSearch.end();
-
 	int 	headerIndex = 0;
 
-	for (requestHeaders = buf.begin(); requestHeaders != end; requestHeaders++)
+	for (requestHeaders = buf.begin(); requestHeaders != buf.end(); requestHeaders++)
 	{
-		for (headerToSearch = toSearch.begin(); headerToSearch != end2; headerToSearch++)
+		for (headerToSearch = toSearch.begin(); headerToSearch != toSearch.end(); headerToSearch++)
 		{
 			if (requestHeaders->compare(0, headerToSearch->length(), *headerToSearch) == 0)
 			{
 				requestHeaders->erase(0, headerToSearch->length());
 				header[headerIndex] = *requestHeaders;
-				// std::cout << *requestHeaders << '\n';
 			}
 			headerIndex++;
 		}
@@ -171,10 +151,25 @@ void request::fillHeaders(void)
 	return ;
 }
 
+void request::eraseEndChar(void)
+{
+	std::vector<std::string>::iterator it = header.begin();
+
+	for (; it != header.end(); it++)
+	{
+		if (it->back() == '\r')
+			it->erase(it->end() - 1);
+	}
+	for (it = requestLine.begin(); it != requestLine.end(); it++)
+	{
+		if (it->back() == '\r')
+			it->erase(it->end() - 1);
+	}
+}
+
 void request::redirectBody(void)
 {
 	body += buf;
-	// std::cout << "redirect body" << std::endl;
 	return ;
 }
 

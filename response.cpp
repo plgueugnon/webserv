@@ -7,23 +7,21 @@
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
 
+#define CGI_BIN "./cgi/darwin_phpcgi"
+
 
 response::response ( void )
 {
 }
 
-response::response (request *request, t_server config)
+response::response (request request, t_server config)
 {
 	req = request;
 	conf = config;
-	// loc = 0;
 	code = 0;
-	// file = {0};
-	// fileName = "";
 	buffer = "";
 	output = "";
 	ret = "";
-	// req->printRequest();
 }
 /*
  check if the request path match a location block
@@ -69,23 +67,16 @@ std::string response::getAutoIndex( std::string fileName )
 			if (ent->d_type == DT_DIR)
 				buffer += "/";
 			folder.push_back(buffer);
-			// printf("%s\n", ent->d_name);
 		}
 		closedir(dir);
 	}
 	else
-	{
-		std::cerr << RED"can't open directory\n"RESET;
 		return "";
-	}
 	data += "<html>\n <head><title>Index of ";
 	data += path;
-	data += " folder.\n\n";
-	data += " </title></head>\n <body>\n";
-	data += "<h1>Index of ";
+	data += " folder.\n\n </title></head>\n <body>\n<h1>Index of ";
 	data += path;
 	data += " folder.\n\n</h1><hr><pre>";
-
 
 	for (it = folder.begin(); it != folder.end(); it++)
 	{
@@ -97,15 +88,15 @@ std::string response::getAutoIndex( std::string fileName )
 	}
 	data += "</pre><hr></body>";
 	data += "</ html>";
-	 return data;
+	return data;
 }
 
 std::string response::getErrorPage ( std::vector<std::string> vec )
 {
-	// fileName = "";
-	std::string data = "";
-	std::string fileName = root;
-	int errorCode;
+	std::string data 		= "";
+	std::string fileName 	= root;
+
+	int 		errorCode;
 
 	if (vec.size() == 0)
 		return data;
@@ -134,6 +125,7 @@ void response::setCode(int code)
 		case 200 :
 		ret = CODE_200;
 		break;
+		// ! add 201 create when upload file
 		case 204 :
 		ret = CODE_204;
 		if (output.size() == 0)
@@ -161,109 +153,13 @@ void response::setCode(int code)
 		if (output.size() == 0)
 			output = NOT_ALLOWED;
 		break ;
-		case 406 :
-		ret = CODE_406;
-		break ;
-		case 407 :
-		ret = CODE_407;
-		break ;
-		case 408 :
-		ret = CODE_408;
-		break ;
-		case 409 :
-		ret = CODE_409;
-		break ;
-		case 410 :
-		ret = CODE_410;
-		break ;
-		case 411 :
-		ret = CODE_411;
-		break ;
-		case 412 :
-		ret = CODE_412;
-		break ;
-		case 413 :
-		ret = CODE_413;
-		break ;
-		case 414 :
-		ret = CODE_414;
-		break ;
-		case 415 :
-		ret = CODE_415;
-		break ;
-		case 416 :
-		ret = CODE_416;
-		break ;
-		case 417 :
-		ret = CODE_417;
-		break ;
-		case 418 :
-		ret = CODE_418;
-		break ;
-		case 421 :
-		ret = CODE_421;
-		break ;
-		case 422 :
-		ret = CODE_422;
-		break ;
-		case 423 :
-		ret = CODE_423;
-		break ;
-		case 424 :
-		ret = CODE_424;
-		break ;
-		case 425 :
-		ret = CODE_425;
-		break ;
-		case 426 :
-		ret = CODE_426;
-		break ;
-		case 428 :
-		ret = CODE_428;
-		break ;
-		case 429 :
-		ret = CODE_429;
-		break ;
-		case 431 :
-		ret = CODE_431;
-		break ;
-		case 451 :
-		ret = CODE_451;
-		break ;
-		case 500 :
+		case 500 : 
 		ret = CODE_500;
 		break ;
 		case 501 :
 		ret = CODE_501;
 		if (output.size() == 0)
 			output = NOT_IMPLEMENTED;
-		break ;
-		case 502 :
-		ret = CODE_502;
-		break ;
-		case 503 :
-		ret = CODE_503;
-		break ;
-		case 504 :
-		ret = CODE_504;
-		break ;
-		case 505 :
-		ret = CODE_505;
-		break ;
-		case 506 :
-		ret = CODE_506;
-		break ;
-		case 507 :
-		ret = CODE_507;
-		break ;
-		case 508 :
-		ret = CODE_508;
-		break ;
-		case 510 :
-		ret = CODE_510;
-		break ;
-		case 511 :
-		ret = CODE_511;
 		break ;
 	}
 	ret += CRLF;
@@ -287,11 +183,6 @@ std::string response::getDataFromFile(std::string fileName)
 	return data;
 }
 
-// void response::buildResponse( int code )
-// {
-
-// }
-
 // filename = root + request path + index
 void response::handleGet( void )
 {
@@ -301,7 +192,7 @@ void response::handleGet( void )
 	if (isMethodAllowed("GET") == 0)
 		return setCode(405);
 	// if the last character is a /, it's a folder, so add index.
-	if (req->requestLine[request::PATH].back() == '/')
+	if (req.requestLine[request::PATH].back() == '/')
 		output = getDataFromFile(root + path + index);
 	else
 		output = getDataFromFile(root + path);
@@ -318,15 +209,15 @@ void response::handleGet( void )
 }
 
 // https://www.cplusplus.com/reference/cstdio/remove/
+// if the file doesn't exist or can't be removed code 204
+// if file successfully deleted code 200
 void response::handleDelete ( void )
 {
 	if (isMethodAllowed("DELETE") == 0)
 		return setCode(405);
 
-	// if the file doesn't exist or can't be removed code 204
 	if (remove((root + path).c_str()) != 0)
 		setCode(204);
-	// if file successfully deleted code 200
 	else
 		setCode(200);
 	return;
@@ -336,59 +227,44 @@ void response::handlePost ( void )
 {
 	if (isMethodAllowed("POST") == 0)
 		return setCode(405);
-	(void) loc;
+
+	std::string pathFile = "";
 	// ! CGI env
 	cgi cgi;
-	cgi.env[cgi::SERVER_NAME] += conf.server_name;
-	cgi.env[cgi::SERVER_PORT] += conf.listen;
-	cgi.env[cgi::REQUEST_METHOD] += req->requestLine[request::METHOD];
-	// cgi.env[cgi::CONTENT_TYPE] += req->header[request::CONTENT_TYPE];
-	// !
-	// cgi.env[cgi::CONTENT_TYPE] += "text/html";
-	// cgi.env[cgi::SCRIPT_NAME] += "/printenv.php";
-	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/cgi/printenv.php";
-	// cgi.env[cgi::PATH_INFO] += "printenv.php";
-	// !
-	cgi.env[cgi::CONTENT_TYPE] += "application/x-www-form-urlencoded";
-	// cgi.env[cgi::SCRIPT_NAME] += "test_echo_form.php";
-	cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pgueugno/Documents/webserv/www/test_echo_form.php";
-	cgi.env[cgi::CONTENT_LENGTH] += "12";
-	// cgi.env[cgi::QUERY_STRING] += "last_name=YO";
-	// cgi.env[cgi::PATH_INFO] += "/Users/pgueugno/Documents/webserv/www/test_echo_form.php";
-	// !
-	// cgi.env[cgi::CONTENT_TYPE] += "text/plain";
-	// cgi.env[cgi::SCRIPT_NAME] += "/carapuce.txt";
-	// cgi.env[cgi::SCRIPT_FILENAME] += "/Users/pierre-louis/Documents/42/Formation 42/webserv/www/pokemon/carapuce.txt";
-	// cgi.env[cgi::PATH_INFO] += "carapuce.txt";
-	// ! cgi.env[cgi::PATH_INFO] += " /Users/pierre-louis/Documents/42/Formation 42/webserv/mini_client/requests/GET_min_base_loremipsum_request";
-	// ! cgi.env[cgi::CONTENT_TYPE] += "text/html";
-	// cgi.env[cgi::CONTENT_LENGTH] += req->requestLine[request::CONTENT_LENGTH];
-	// cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
-	// cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req->requestLine[request::ACCEPT_LANGUAGE];
-	// cgi.env[cgi::HTTP_ACCEPT] += req->header[request::ACCEPT];
-	// cgi.env[cgi::HTTP_USER_AGENT] += req->header[request::USER_AGENT];
-	cgi.env[cgi::REDIRECT_STATUS] += "200";
+	// config
+	cgi.env[cgi::SERVER_NAME] 			+= conf.server_name;
+	cgi.env[cgi::SERVER_PORT] 			+= conf.listen;
 
-	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
+	//request Line
+	cgi.env[cgi::REQUEST_METHOD] 		+= req.requestLine[request::METHOD];
+	cgi.env[cgi::QUERY_STRING] 			+= req.requestLine[request::QUERY];
+
+	// headers
+	cgi.env[cgi::CONTENT_LENGTH] 		+= req.header[request::CONTENT_LENGTH];
+	cgi.env[cgi::CONTENT_TYPE] 			+= req.header[request::CONTENT_TYPE];
+	cgi.env[cgi::HTTP_ACCEPT] 			+= req.header[request::ACCEPT];
+	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] 	+= req.header[request::ACCEPT_LANGUAGE];
+	cgi.env[cgi::HTTP_USER_AGENT] 		+= req.header[request::USER_AGENT];
+	
+	cgi.env[cgi::TMP_DIR] 				+= getenv("PWD") + (std::string)"/";
+	cgi.env[cgi::TMP_DIR] 				+= root + (std::string)"/tmp/";
 
 
-	vec_enum(cgi.env);
+	// script to be executed by CGI
+	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD") + (std::string)"/";
+	cgi.env[cgi::SCRIPT_FILENAME] += root + path;
+	if (req.requestLine[request::PATH].back() == '/')
+		cgi.env[cgi::SCRIPT_FILENAME] += index;
+	std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
+
 	cgi.convertToC();
 	print_env_c(cgi.c_env);
 	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
-	// char path[] = "./cgi/php";
-	// char path[] = "./cgi/php-cgi";
-	// int		fd[2];
-	// int		fd2[2];
 	pid_t	pid;
-	// int cfd = 0;
-	// char *str[2];
-	// str[0] = strdup(req->body.c_str());
-	// str[1] = NULL;
-	char	*argv[4];
-	argv[0] = strdup("./cgi/darwin_phpcgi");
-	argv[1] = strdup("/Users/pgueugno/Documents/webserv/www/test_echo_form.php");
-	// argv[2] = strdup(req->body.c_str());
+
+	char	*argv[3];
+	argv[0] = strdup(CGI_BIN);
+	argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
 	argv[2] = NULL;
 	// argv[3] = NULL;
 	char buffer[10000];
@@ -454,7 +330,7 @@ void response::handlePost ( void )
 		close(read_fd[0]);
 	}
 	if (output.size() == 0)
-		setCode(404);
+		setCode(404); // TODO A traiter en fonction retour CGI
 	else
 		setCode(200);
 
@@ -463,8 +339,8 @@ void response::handlePost ( void )
 	return;
 }
 
-
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
+// okay dans le parsing fichier de config normalement
 void response::redirectRequest (std::vector<std::string> *vec)
 {
 	 it = vec->begin();
@@ -503,14 +379,14 @@ void response::setLocation ( void )
 	for (	loc_it = conf.location.begin();
 			loc_it != conf.location.end();
 			loc_it++)
-		if ( req->requestLine[request::PATH].compare(loc_it->path) == 0 )
+		if ( req.requestLine[request::PATH].compare(loc_it->path) == 0 )
 			loc = *loc_it;
 }
 
 // extract request path
 void response::setPath ( void )
 {
-	path = req->requestLine[request::PATH];
+	path = req.requestLine[request::PATH];
 }
 
 // set the index file according to the request path
@@ -553,16 +429,15 @@ bool response::isRedirected (std::vector<std::string> *vec)
 
 bool response::isMethodImplemented(void)
 {
-	if ((req->requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req->requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req->requestLine[request::METHOD]).compare("DELETE") != 0)
+	if ((req.requestLine[request::METHOD]).compare("GET") != 0 &&
+		(req.requestLine[request::METHOD]).compare("POST") != 0 &&
+		(req.requestLine[request::METHOD]).compare("DELETE") != 0)
 		return (false);
 	return (true);
 }
 
 void response::parse ( void )
 {
-
 	// if all the server requests are redirected
 	if (isRedirected(&conf.return_dir) == true)
 		return(redirectRequest(&conf.return_dir));
@@ -576,11 +451,11 @@ void response::parse ( void )
 	setPath();
 	setIndex();
 
-	if ( (req->requestLine[request::METHOD]).compare("GET") == 0 )
+	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();
-	else if ( (req->requestLine[request::METHOD]).compare("DELETE") == 0 )
+	else if ( (req.requestLine[request::METHOD]).compare("DELETE") == 0 )
 		handleDelete();
-	else if ( (req->requestLine[request::METHOD]).compare("POST") == 0 )
+	else if ( (req.requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
 
 	// if (output.size() == 0)

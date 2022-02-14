@@ -2,7 +2,6 @@
 
 cgi::cgi (void)
 {
-	// bzero(&c_env, sizeof(env));
 	env.clear();
 	env.push_back("SERVER_SOFTWARE=nginx/1.21.5");
 	env.push_back("SERVER_NAME=");
@@ -11,7 +10,7 @@ cgi::cgi (void)
 	env.push_back("SERVER_PORT=");
 	env.push_back("REQUEST_METHOD=");
 	env.push_back("PATH_INFO=");
-	env.push_back("PATH_TRANSLATE=");
+	env.push_back("PATH_TRANSLATED=");
 	env.push_back("SCRIPT_NAME=");
 	env.push_back("QUERY_STRING=");
 	env.push_back("REMOTE_HOST=");
@@ -26,8 +25,10 @@ cgi::cgi (void)
 	env.push_back("HTTP_USER_AGENT=");
 	env.push_back("HTTP_COOKIE=");
 	env.push_back("HTTP_REFERER=");
-	env.push_back("REDIRECT_STATUS=");
+	// security of php-cgi redirect status 200
+	env.push_back("REDIRECT_STATUS=200");
 	env.push_back("SCRIPT_FILENAME=");
+	env.push_back("TMP_DIR=");
 }
 
 void cgi::convertToC ( void )

@@ -6,7 +6,7 @@ class response
 	public :
 
 	// conf
-	request 		*req;
+	request 		req;
 	t_server 		conf;
 	t_location 		loc;
 
@@ -30,7 +30,7 @@ class response
 
 	// constructors
 	response (void);
-	response (request *request, t_server config);
+	response (request request, t_server config);
 
 	void setCGIfd (int client_read_fd[2], int client_write_fd[2]);
 

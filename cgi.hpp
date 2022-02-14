@@ -30,6 +30,7 @@ class cgi
 		HTTP_REFERER,
 		REDIRECT_STATUS,
 		SCRIPT_FILENAME,
+		TMP_DIR,
 		NB_CGI_VAR,
 	};
 	
