@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 16:59:14 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/14 17:31:14 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,11 @@ void	Server::update_events(int fd, int update)
 void	Server::manage_request(t_client_data *client, request *request, t_server config)
 {
 	response 	response(*request, config);
+
+	response.setLocation();
+	response.setRoot();
+	response.setPath();
+	response.setIndex();
 	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 &&
 			response.isBodyTooLarge() == false )
 	{

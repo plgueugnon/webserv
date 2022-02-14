@@ -2,7 +2,7 @@
 
 #define NOT_ALLOWED " <!DOCTYPE html> <html> <body><h1> \
 					<h1 style=\"color:red;\"> \
-					METHOD IS NOT ALLOWED SORRY !</h1> </body> </html>"
+					NOT ALLOWED SORRY !</h1> </body> </html>"
 #define NOT_IMPLEMENTED " <!DOCTYPE html> <html> <body><h1> \
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
@@ -209,7 +209,7 @@ void response::handleGet( void )
 		return(redirectRequest(&conf.return_dir));
 	if (isRedirected(&loc.return_dir) == true)
 		return(redirectRequest(&loc.return_dir));
-	if (isMethodAllowed("GET") == 0)
+	if (isMethodAllowed("GET") == false)
 		return setCode(405);
 	// if the last character is a /, it's a folder, so add index.
 	if (req.requestLine[request::PATH].back() == '/')
@@ -233,7 +233,7 @@ void response::handleGet( void )
 // if file successfully deleted code 200
 void response::handleDelete ( void )
 {
-	if (isMethodAllowed("DELETE") == 0)
+	if (isMethodAllowed("DELETE") == false)
 		return setCode(405);
 
 	if (remove((root + path).c_str()) != 0)
@@ -277,8 +277,8 @@ void response::handlePost ( void )
 	// script to be executed by CGI
 	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD") + (std::string)"/";
 	cgi.env[cgi::SCRIPT_FILENAME] += root + path;
-	if (req.requestLine[request::PATH].back() == '/')
-		cgi.env[cgi::SCRIPT_FILENAME] += index;
+	// if (req.requestLine[request::PATH].back() == '/')
+	// 	cgi.env[cgi::SCRIPT_FILENAME] += index;
 
 	std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
@@ -412,7 +412,7 @@ void response::setLocation ( void )
 	for (	loc_it = conf.location.begin();
 			loc_it != conf.location.end();
 			loc_it++)
-		if ( req.requestLine[request::PATH].compare(loc_it->path) == 0 )
+		if ( req.requestLine[request::PATH].compare(0, loc_it->path.size(), loc_it->path) == 0 )
 			loc = *loc_it;
 }
 
@@ -462,19 +462,29 @@ bool response::isRedirected (std::vector<std::string> *vec)
 
 bool response::isMethodImplemented(void)
 {
-	if ((req.requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req.requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req.requestLine[request::METHOD]).compare("DELETE") != 0)
+	if ((req.requestLine[request::METHOD]).compare(0, 3, "GET") != 0 &&
+		(req.requestLine[request::METHOD]).compare(0, 4, "POST") != 0 &&
+		(req.requestLine[request::METHOD]).compare(0, 6, "DELETE") != 0)
 		return (false);
-	return (true);
+	else
+		return (true);
 }
 
 bool response::isBodyTooLarge(void)
 {
 	size_t limitSize = loc.client_max_body_size;
+	// std::cout << RED"limit size: " << limitSize << "\n"RESET;
+	// std::cout << RED"body size: " << req.body.size() << "\n"RESET;
 	if ( limitSize > req.body.size() )
 		return (false);
 	return (true);
+}
+
+bool response::isChunked(void)
+{
+	if (req.header[request::TRANSFER_ENCODING].compare(0, 7, "chunked") == 0)
+		return (true);
+	return (false);
 }
 
 void response::parse ( void )
@@ -482,11 +492,12 @@ void response::parse ( void )
 	// if all the server requests are redirected
 	if (isMethodImplemented() == false)
 		return (setCode(501));
+	if (isChunked() == true)
+		return (setCode(501));
 
-	setLocation();
-	setRoot();
-	setPath();
-	setIndex();
+	// setRoot();
+	// setPath();
+	// setIndex();
 
 	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();
