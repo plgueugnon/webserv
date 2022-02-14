@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Aincludes.hpp                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/14 08:58:43 by pgueugno          #+#    #+#             */
+/*   Updated: 2022/02/14 09:54:31 by pgueugno         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef __INCLUDES_H__
 #define __INCLUDES_H__
 
@@ -48,6 +60,8 @@ typedef struct s_client_data
 	int			server;
 	std::string	answer;
 	bool		timeout;
+	int			write_fd[2];
+	int			read_fd[2];
 }	t_client_data;
 
 // * Custom headers

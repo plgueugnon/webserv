@@ -37,6 +37,15 @@ response::response (request *request, t_server config)
  // //if not, not found
  check if there is error_pages for this location
  */
+
+void response::setCGIfd (int client_read_fd[2], int client_write_fd[2])
+{
+	this->read_fd[0] = client_read_fd[0];
+	this->read_fd[1] = client_read_fd[1];
+	this->write_fd[0] = client_write_fd[0];
+	this->write_fd[1] = client_write_fd[1];
+}
+
 std::string response::getAutoIndex( std::string fileName )
 {
 	std::vector<std::string> folder;
@@ -369,8 +378,8 @@ void response::handlePost ( void )
 	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
 	// char path[] = "./cgi/php";
 	// char path[] = "./cgi/php-cgi";
-	int		fd[2];
-	int		fd2[2];
+	// int		fd[2];
+	// int		fd2[2];
 	pid_t	pid;
 	// int cfd = 0;
 	// char *str[2];
@@ -378,14 +387,14 @@ void response::handlePost ( void )
 	// str[1] = NULL;
 	char	*argv[4];
 	argv[0] = strdup("./cgi/darwin_phpcgi");
-	argv[1] = strdup(req->header[cgi::SCRIPT_FILENAME].c_str());
+	argv[1] = strdup("/Users/pgueugno/Documents/webserv/www/test_echo_form.php");
 	// argv[2] = strdup(req->body.c_str());
 	argv[2] = NULL;
 	// argv[3] = NULL;
 	char buffer[10000];
 
-	pipe(fd); // ! ecriture
-	pipe(fd2);// ! lecture
+	// pipe(fd); // ! ecriture
+	// pipe(fd2);// ! lecture
 	// fcntl(fd[0], F_SETFL, O_NONBLOCK);
 	// ? https://www.unix.com/programming/58138-c-how-use-pipe-fork-stdin-stdout-another-program.html
 	pid = fork();
@@ -393,15 +402,15 @@ void response::handlePost ( void )
 		std::cerr << RED"error : fork failure\n"RESET;
 	else if (pid == 0)
 	{
-		close(fd[1]);
-		close(fd2[0]);
+		close(write_fd[1]);
+		close(read_fd[0]);
 		std::cout << BOLDWHITE"check child\n"RESET;
-		if (dup2(fd2[1], STDOUT_FILENO) < 0)
+		if (dup2(read_fd[1], STDOUT_FILENO) < 0)
 		{
 			std::cerr << RED"error : dup2 failure\n"RESET;
 			return ;
 		}
-		if (dup2(fd[0], STDIN_FILENO) < 0)
+		if (dup2(write_fd[0], STDIN_FILENO) < 0)
 		{
 			std::cerr << RED"error : dup2 failure\n"RESET;
 			return ;
@@ -409,8 +418,8 @@ void response::handlePost ( void )
 		if (execve(argv[0], argv, cgi.c_env) < 0)
 		{
 			std::cerr << RED"error : execve failure\n"RESET;
-			close(fd[0]);
-			close(fd2[1]);
+			close(write_fd[0]);
+			close(read_fd[1]);
 			kill(pid, SIGTERM);
 		}
 	}
@@ -418,18 +427,20 @@ void response::handlePost ( void )
 	{
 		std::cout << BOLDWHITE"check parent\n"RESET;
 		int r;
-		close(fd[0]);
-		close(fd2[1]);
+		close(write_fd[0]);
+		close(read_fd[1]);
 		// std::cout << "check body " << req->body.c_str() << std::endl;
 		// char s[] = "'last_name=YO'";
 		// write(fd[1], s, strlen(s));
 		// waitpid(pid, NULL, -1);
-		if (write(fd[1], req->body.c_str(), req->body.size()) < 0)
+		if (write(write_fd[1], req->body.c_str(), req->body.size()) < 0)
 			std::cout << RED"error: write failure\n";
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
 		std::cout << "wait !\n";
-		while((r = read(fd2[0], buffer, sizeof(buffer))) > 0)
+
+		close(write_fd[1]);
+		while((r = read(read_fd[0], buffer, sizeof(buffer))) > 0)
 		{
 			std::cout << "REEAAAAAAAAAAD\n";
 			buffer[r] = 0;
@@ -440,7 +451,7 @@ void response::handlePost ( void )
 		// std::cout << "data received = " << r << "\n";
 		if (r == -1)
 			std::cerr << RED"error : read failure\n"RESET;
-		// close(fd[0]);
+		close(read_fd[0]);
 	}
 	if (output.size() == 0)
 		setCode(404);

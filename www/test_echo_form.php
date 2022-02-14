@@ -15,40 +15,40 @@ if(isset($_POST['last_name'])) {
     // echo $argv[2];
     // echo "\n";
 
-    echo "LET'S CHECK ALL INFO\n";
-    // phpinfo();
-    $indicesServer = array
-    ('PHP_SELF',
-    'argv',
-    'argc',
-    'GATEWAY_INTERFACE',
-    'CONTENT_LENGTH',
-    'SERVER_ADDR',
-    'SERVER_NAME',
-    'SERVER_PROTOCOL',
-    'REQUEST_METHOD',
-    'QUERY_STRING',
-    'DOCUMENT_ROOT',
-    'SCRIPT_FILENAME',
-    'SERVER_ADMIN',
-    'SERVER_PORT',
-    'SERVER_SIGNATURE',
-    'PATH_TRANSLATED',
-    'SCRIPT_NAME',
-    'QUERY_STRING',
-    'REQUEST_URI',
-    'CONTENT_TYPE',
-    'GATEWAY_CGI',
-    'PATH_INFO',) ;
+    // echo "LET'S CHECK ALL INFO\n";
+    // // phpinfo();
+    // $indicesServer = array
+    // ('PHP_SELF',
+    // 'argv',
+    // 'argc',
+    // 'GATEWAY_INTERFACE',
+    // 'CONTENT_LENGTH',
+    // 'SERVER_ADDR',
+    // 'SERVER_NAME',
+    // 'SERVER_PROTOCOL',
+    // 'REQUEST_METHOD',
+    // 'QUERY_STRING',
+    // 'DOCUMENT_ROOT',
+    // 'SCRIPT_FILENAME',
+    // 'SERVER_ADMIN',
+    // 'SERVER_PORT',
+    // 'SERVER_SIGNATURE',
+    // 'PATH_TRANSLATED',
+    // 'SCRIPT_NAME',
+    // 'QUERY_STRING',
+    // 'REQUEST_URI',
+    // 'CONTENT_TYPE',
+    // 'GATEWAY_CGI',
+    // 'PATH_INFO',) ;
     
-    foreach ($indicesServer as $arg) {
-        if (isset($_SERVER[$arg])) {
-            echo $arg. ' : ' . $_SERVER[$arg] . "\n"  ;
-        }
-        else {
-            echo $arg. " : \n" ;
-        }
-    }
+    // foreach ($indicesServer as $arg) {
+    //     if (isset($_SERVER[$arg])) {
+    //         echo $arg. ' : ' . $_SERVER[$arg] . "\n"  ;
+    //     }
+    //     else {
+    //         echo $arg. " : \n" ;
+    //     }
+    // }
 
 
 

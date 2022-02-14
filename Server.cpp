@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
+/*   Updated: 2022/02/14 11:05:14 by pgueugno         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Aincludes.hpp"
 
 std::vector<t_set>	evSet;
@@ -112,17 +124,47 @@ void	Server::answer_client(int client_sock, std::string answer)
 	// close(client_sock);
 }
 
+void	Server::update_events(int fd, int update)
+{
+	switch (update)
+	{
+		case EVFILT_READ :
+			EV_SET(&_evCon, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+			kevent(_kq, &_evCon, 1, NULL, 0, NULL);
+			break;
+
+		case EVFILT_WRITE :
+			EV_SET(&_evCon, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+			EV_SET(&_evCon, fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+			kevent(_kq, &_evCon, 2, NULL, 0, NULL);
+			break;
+
+		default:
+			std::cerr << RED"error: update_events failure\n"RESET;
+			break;
+	}
+}
+
 void	Server::manage_request(t_client_data *client, request *request, t_server config)
 {
 	response 	response(request, config);
 	// std::string	answer = "";
 	// (void)config;
+	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 )
+	{
+		pipe(client->read_fd);
+		pipe(client->write_fd);
+		update_events(client->read_fd[0], EVFILT_READ);
+		update_events(client->read_fd[1], EVFILT_WRITE);
+		update_events(client->write_fd[0], EVFILT_READ);
+		update_events(client->write_fd[1], EVFILT_WRITE);
+		response.setCGIfd(client->read_fd, client->write_fd);
+	}
 	response.parse();
 	// answer += response.ret;
 	client->answer = response.ret;
 }
 
-#define BUFFER_SIZE 4096
 
 int	Server::receive_request(t_client_data *client, t_server config)
 {
@@ -227,27 +269,6 @@ int	Server::cycle_fd(std::vector<t_set> evSet, int fd)
 		if ( fd == evSet[i].server_socket )
 			return i;
 	return -1;
-}
-
-void	Server::update_events(int fd, int update)
-{
-	switch (update)
-	{
-		case EVFILT_READ :
-			EV_SET(&_evCon, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-			kevent(_kq, &_evCon, 1, NULL, 0, NULL);
-			break;
-
-		case EVFILT_WRITE :
-			EV_SET(&_evCon, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-			EV_SET(&_evCon, fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
-			kevent(_kq, &_evCon, 2, NULL, 0, NULL);
-			break;
-
-		default:
-			std::cerr << RED"error: update_events failure\n"RESET;
-			break;
-	}
 }
 
 void	Server::clear_late_clients( void )

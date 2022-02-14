@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/14 08:59:15 by pgueugno          #+#    #+#             */
+/*   Updated: 2022/02/14 09:01:21 by pgueugno         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
@@ -15,6 +27,7 @@
 #define REQUEST_TIMEOUT 30
 #define MONITOR_TIMEOUT_SEC 10
 #define MONITOR_TIMEOUT_NSEC 100000
+#define BUFFER_SIZE 4096
 
 typedef enum	e_events
 {
