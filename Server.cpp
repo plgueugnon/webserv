@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 11:32:40 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/14 14:36:33 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,8 @@ void	Server::manage_request(t_client_data *client, request *request, t_server co
 	response 	response(*request, config);
 	// std::string	answer = "";
 	// (void)config;
-	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 )
+	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 &&
+			response.isBodyTooLarge() == false )
 	{
 		pipe(client->read_fd);
 		pipe(client->write_fd);

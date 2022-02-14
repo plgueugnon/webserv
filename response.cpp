@@ -245,10 +245,11 @@ void response::handleDelete ( void )
 
 void response::handlePost ( void )
 {
-	if (isMethodAllowed("POST") == 0)
+	if (isMethodAllowed("POST") == false)
 		return setCode(405);
+	if (isBodyTooLarge() == true)
+		return setCode(413);
 
-	std::string pathFile = "";
 	// ! CGI env
 	cgi cgi;
 	// config
@@ -457,8 +458,6 @@ bool response::isMethodImplemented(void)
 bool response::isBodyTooLarge(void)
 {
 	size_t limitSize = loc.client_max_body_size;
-	// std::cout << RED"body size: " <<  req.body.size() << "\n"RESET;
-	// std::cout << RED"limit size: " <<  limitSize << "\n"RESET;
 	if ( limitSize > req.body.size() )
 		return (false);
 	return (true);
@@ -474,8 +473,6 @@ void response::parse ( void )
 	setRoot();
 	setPath();
 	setIndex();
-	// if (isBodyTooLarge() == true)
-	// 	return setCode(413);
 
 	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();
