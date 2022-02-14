@@ -131,7 +131,7 @@ void request::fillHeaders(void)
 	// vector with the key string to search in the headers
 	std::vector<std::string> toSearch 	= headerKeysToSearch(); 
 	// vector with one vector node for one request header line
-	std::vector<std::string> buf 		= split(headerbuf, '\r');
+	std::vector<std::string> buf 		= split(headerbuf, '\n');
 	// vec_enum(buf);
 	
 	// iterator on request headers lines

@@ -512,20 +512,12 @@ bool response::isURITooLong(void)
 bool response::isHeadersTooLong(void)
 {
 	size_t headerSize = 1;
-std::cout <<req.header[request::HOST];
-	headerSize += req.header[1].size();
-	headerSize += req.header[2].size();
-	headerSize += req.header[3].size();
-	headerSize += req.header[4].size();
-	headerSize += req.header[5].size();
-	headerSize += req.header[6].size();
-	headerSize += req.header[7].size();
-	headerSize += req.header[8].size();
-	headerSize += req.header[9].size();
-	headerSize += req.header[10].size();
-	headerSize += req.header[11].size();
-	headerSize += req.header[12].size();
-	std::cout << "headersize: " << headerSize << "\n";
+	std::cout << req.header[request::HOST] << "\n";
+	std::cout << req.header[request::CONNECTION] << "\n";
+	std::cout << req.header[request::AUTHORIZATION] << "\n";
+	std::cout << req.header[request::ACCEPT] << "\n";
+	std::cout << req.header[request::HOST] << "\n";
+	// std::cout << "headersize: " << headerSize << "\n";
 	if (headerSize > HEADERS_SIZE_LIMIT)
 		return (true);
 	return (false);
