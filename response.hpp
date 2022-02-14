@@ -55,6 +55,7 @@ class response
 	bool isMethodAllowed (std::string method);
 	bool isMethodImplemented ( void );
 	bool isRedirected (std::vector<std::string> *vec);
+	bool isBodyTooLarge ( void );
 };
 
 #endif /* RESPONSE_HPP */

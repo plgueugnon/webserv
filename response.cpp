@@ -6,6 +6,14 @@
 #define NOT_IMPLEMENTED " <!DOCTYPE html> <html> <body><h1> \
 					<h1 style=\"color:red;\"> \
 					METHOD IS NOT IMPLEMENTED SORRY !</h1> </body> </html>"
+#define PAYLOAD_TOO_LARGE " <!DOCTYPE html> <html> <body><h1> \
+					<h1 style=\"color:red;\"> \
+					Payload is too large. Modify client_max_body_size \
+					 !</h1> </body> </html>"
+
+#define NOT_FOUND "<html><body><h1>Not found.</h1></body></html>"
+#define CANT_DELETE "<html><body><h1>Couln't delete file.</h1></body></html>"
+#define FILE_CREATED "<html><body><h1>File successfuly uploaded.</h1></body></html>"
 
 #define CGI_BIN "./cgi/darwin_phpcgi"
 
@@ -126,10 +134,15 @@ void response::setCode(int code)
 		ret = CODE_200;
 		break;
 		// ! add 201 create when upload file
+		case 201 :
+		ret = CODE_201;
+		if (output.size() == 0)
+			output = FILE_CREATED;
+		break;
 		case 204 :
 		ret = CODE_204;
 		if (output.size() == 0)
-			output = "<html><body><h1>Couln't delete file.</h1></body></html>";
+			output = CANT_DELETE;
 		break;
 		case 400 :
 		ret = CODE_400;
@@ -146,12 +159,17 @@ void response::setCode(int code)
 		case 404 :
 		ret = CODE_404;
 		if (output.size() == 0)
-			output = "<html><body><h1>Not found.</h1></body></html>";
+			output = NOT_FOUND;
 		break;
 		case 405 :
 		ret = CODE_405;
 		if (output.size() == 0)
 			output = NOT_ALLOWED;
+		break ;
+		case 413 :
+		ret = CODE_413;
+		if (output.size() == 0)
+			output = PAYLOAD_TOO_LARGE;
 		break ;
 		case 500 : 
 		ret = CODE_500;
@@ -187,6 +205,8 @@ std::string response::getDataFromFile(std::string fileName)
 void response::handleGet( void )
 {
 
+	if (isRedirected(&conf.return_dir) == true)
+		return(redirectRequest(&conf.return_dir));
 	if (isRedirected(&loc.return_dir) == true)
 		return(redirectRequest(&loc.return_dir));
 	if (isMethodAllowed("GET") == 0)
@@ -227,6 +247,8 @@ void response::handlePost ( void )
 {
 	if (isMethodAllowed("POST") == 0)
 		return setCode(405);
+	if (isBodyTooLarge() == true)
+		return setCode(413);
 
 	std::string pathFile = "";
 	// ! CGI env
@@ -246,6 +268,7 @@ void response::handlePost ( void )
 	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] 	+= req.header[request::ACCEPT_LANGUAGE];
 	cgi.env[cgi::HTTP_USER_AGENT] 		+= req.header[request::USER_AGENT];
 	
+	// tmp dir to upload a file whith php script
 	cgi.env[cgi::TMP_DIR] 				+= getenv("PWD") + (std::string)"/";
 	cgi.env[cgi::TMP_DIR] 				+= root + (std::string)"/tmp/";
 
@@ -255,6 +278,7 @@ void response::handlePost ( void )
 	cgi.env[cgi::SCRIPT_FILENAME] += root + path;
 	if (req.requestLine[request::PATH].back() == '/')
 		cgi.env[cgi::SCRIPT_FILENAME] += index;
+
 	std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
 	cgi.convertToC();
@@ -305,10 +329,6 @@ void response::handlePost ( void )
 		int r;
 		close(write_fd[0]);
 		close(read_fd[1]);
-		// std::cout << "check body " << req->body.c_str() << std::endl;
-		// char s[] = "'last_name=YO'";
-		// write(fd[1], s, strlen(s));
-		// waitpid(pid, NULL, -1);
 		if (write(write_fd[1], req.body.c_str(), req.body.size()) < 0)
 			std::cout << RED"error: write failure\n";
 		std::cout << "wait ?\n";
@@ -436,17 +456,25 @@ bool response::isMethodImplemented(void)
 	return (true);
 }
 
+bool response::isBodyTooLarge(void)
+{
+	size_t limitSize;
+
+	limitSize = loc.client_max_body_size;
+	std::cout << RED"loc size : " << limitSize << "\n"RESET;
+	limitSize = conf.client_max_body_size;
+	std::cout << RED"loc size : " << limitSize << "\n"RESET;
+		return (false);
+	return (true);
+}
+
 void response::parse ( void )
 {
 	// if all the server requests are redirected
-	if (isRedirected(&conf.return_dir) == true)
-		return(redirectRequest(&conf.return_dir));
 	if (isMethodImplemented() == 0)
 		return (setCode(501));
 
 	setLocation();
-	if (isRedirected(&loc.return_dir) == true)
-		return(redirectRequest(&loc.return_dir));
 	setRoot();
 	setPath();
 	setIndex();
