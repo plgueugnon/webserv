@@ -28,6 +28,7 @@ cgi::cgi (void)
 	// security of php-cgi redirect status 200
 	env.push_back("REDIRECT_STATUS=200");
 	env.push_back("SCRIPT_FILENAME=");
+	// tmp dir where the files will be uploaded
 	env.push_back("TMP_DIR=");
 }
 

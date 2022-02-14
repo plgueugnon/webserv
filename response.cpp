@@ -168,8 +168,8 @@ void response::setCode(int code)
 		break ;
 		case 413 :
 		ret = CODE_413;
-		if (output.size() == 0)
-			output = PAYLOAD_TOO_LARGE;
+		// if (output.size() == 0)
+		output = PAYLOAD_TOO_LARGE;
 		break ;
 		case 500 : 
 		ret = CODE_500;
@@ -247,12 +247,11 @@ void response::handleDelete ( void )
 // * https://www.unix.com/programming/58138-c-how-use-pipe-fork-stdin-stdout-another-program.html
 void response::handlePost ( void )
 {
-	if (isMethodAllowed("POST") == 0)
+	if (isMethodAllowed("POST") == false)
 		return setCode(405);
 	if (isBodyTooLarge() == true)
 		return setCode(413);
 
-	std::string pathFile = "";
 	// ! CGI env
 	cgi cgi;
 	// config
@@ -450,12 +449,8 @@ bool response::isMethodImplemented(void)
 
 bool response::isBodyTooLarge(void)
 {
-	size_t limitSize;
-
-	limitSize = loc.client_max_body_size;
-	std::cout << RED"loc size : " << limitSize << "\n"RESET;
-	limitSize = conf.client_max_body_size;
-	std::cout << RED"loc size : " << limitSize << "\n"RESET;
+	size_t limitSize = loc.client_max_body_size;
+	if ( limitSize > req.body.size() )
 		return (false);
 	return (true);
 }
@@ -463,7 +458,7 @@ bool response::isBodyTooLarge(void)
 void response::parse ( void )
 {
 	// if all the server requests are redirected
-	if (isMethodImplemented() == 0)
+	if (isMethodImplemented() == false)
 		return (setCode(501));
 
 	setLocation();

@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 13:21:04 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/14 14:49:18 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,18 +138,16 @@ void	Server::update_events(int fd, int update)
 void	Server::manage_request(t_client_data *client, request *request, t_server config)
 {
 	response 	response(*request, config);
-	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 )
+	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 &&
+			response.isBodyTooLarge() == false )
 	{
 		pipe(client->read_fd);
 		pipe(client->write_fd);
 		update_events(client->read_fd[0], EVFILT_READ);
-		// update_events(client->read_fd[1], EVFILT_WRITE);
 		update_events(client->write_fd[0], EVFILT_READ);
-		// update_events(client->write_fd[1], EVFILT_WRITE);
 		response.setCGIfd(client->read_fd, client->write_fd);
 	}
 	response.parse();
-	// answer += response.ret;
 	client->answer = response.ret;
 }
 
@@ -160,8 +158,6 @@ int	Server::receive_request(t_client_data *client, t_server config)
 	char buffer[BUFFER_SIZE];
 	request 		request;
 
-	// ! Keep-alive request pas traité par défaut
-	// ? A implémenter ?
 	while ( (n = recv(client->fd, &buffer, BUFFER_SIZE - 1, 0)) > 0)
 	{
 		buffer[n] = '\0';
