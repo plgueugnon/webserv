@@ -168,8 +168,8 @@ void response::setCode(int code)
 		break ;
 		case 413 :
 		ret = CODE_413;
-		if (output.size() == 0)
-			output = PAYLOAD_TOO_LARGE;
+		// if (output.size() == 0)
+		output = PAYLOAD_TOO_LARGE;
 		break ;
 		case 500 : 
 		ret = CODE_500;
@@ -247,8 +247,6 @@ void response::handlePost ( void )
 {
 	if (isMethodAllowed("POST") == 0)
 		return setCode(405);
-	if (isBodyTooLarge() == true)
-		return setCode(413);
 
 	std::string pathFile = "";
 	// ! CGI env
@@ -458,12 +456,10 @@ bool response::isMethodImplemented(void)
 
 bool response::isBodyTooLarge(void)
 {
-	size_t limitSize;
-
-	limitSize = loc.client_max_body_size;
-	std::cout << RED"loc size : " << limitSize << "\n"RESET;
-	limitSize = conf.client_max_body_size;
-	std::cout << RED"loc size : " << limitSize << "\n"RESET;
+	size_t limitSize = loc.client_max_body_size;
+	// std::cout << RED"body size: " <<  req.body.size() << "\n"RESET;
+	// std::cout << RED"limit size: " <<  limitSize << "\n"RESET;
+	if ( limitSize > req.body.size() )
 		return (false);
 	return (true);
 }
@@ -471,13 +467,15 @@ bool response::isBodyTooLarge(void)
 void response::parse ( void )
 {
 	// if all the server requests are redirected
-	if (isMethodImplemented() == 0)
+	if (isMethodImplemented() == false)
 		return (setCode(501));
 
 	setLocation();
 	setRoot();
 	setPath();
 	setIndex();
+	// if (isBodyTooLarge() == true)
+	// 	return setCode(413);
 
 	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();
@@ -485,8 +483,4 @@ void response::parse ( void )
 		handleDelete();
 	else if ( (req.requestLine[request::METHOD]).compare("POST") == 0 )
 		handlePost();
-
-	// if (output.size() == 0)
-	// 	output = getErrorPage(&conf.error_page);
-	// return response;
 }

@@ -12,7 +12,6 @@
 ./webserv ./etc/index_missing.conf
 
 ./webserv ./etc/root_semicolon.conf
-# ./webserv /etc/root_wrong.conf
 ./webserv ./etc/root_missing.conf
 
 ./webserv ./etc/body_size_missing.conf
@@ -36,9 +35,8 @@
 ./webserv ./etc/error_page_code.conf
 ./webserv ./etc/error_page_uri.conf
 
-./webserv ./etc/except_method.conf.conf
+./webserv ./etc/except_method.conf
 ./webserv ./etc/except_semicolon.conf
 
 ./webserv ./etc/return_semicolon.conf
-./webserv ./etc/return_code.conf
 ./webserv ./etc/return_uri.conf
