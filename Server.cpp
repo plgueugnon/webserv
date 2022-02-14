@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 15:19:27 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/14 17:31:14 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,13 +105,21 @@ void	Server::setup_config( void )
 
 void	Server::answer_client(int client_sock, std::string answer)
 {
-	if (send(client_sock, answer.c_str(), answer.size(), 0) == -1)
+	int r = send(client_sock, answer.c_str(), answer.size(), 0);
+	switch (r)
 	{
-		std::cerr << YELLOW"error: failure to send answer\n"RESET;
-		// close(client_sock);
-		del_client_socket(client_sock);
-		return ;
-	}
+		case -1:
+			std::cerr << RED"error: failure to send answer\n"RESET;
+			del_client_socket(client_sock);
+			break;
+		case 0:
+			if (VERBOSE)
+				std::cout << YELLOW"warning: no data sent\n"RESET;
+			break;
+		default:
+			break;
+	}		
+	return ;
 }
 
 void	Server::update_events(int fd, int update)
@@ -146,8 +154,8 @@ void	Server::manage_request(t_client_data *client, request *request, t_server co
 	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 &&
 			response.isBodyTooLarge() == false )
 	{
-		pipe(client->read_fd);
-		pipe(client->write_fd);
+		if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
+			throw PipeFailure();
 		update_events(client->read_fd[0], EVFILT_READ);
 		update_events(client->write_fd[0], EVFILT_READ);
 		response.setCGIfd(client->read_fd, client->write_fd);
@@ -177,10 +185,14 @@ int	Server::receive_request(t_client_data *client, t_server config)
 			request.redirectBody();
 		}
 
-		if (n == 0 || n == EAGAIN )
-			return 0;
 		if (n < BUFFER_SIZE - 1)
 			break;
+	}
+	if (n == 0)
+	{
+		if (VERBOSE)
+			std::cout << YELLOW"warning: no data received\n"RESET;
+		return 0;
 	}
 	manage_request(client, &request, config);
 	return 1;
@@ -265,7 +277,6 @@ void	Server::clear_late_clients( void )
 	unsigned int now = gettime();
 	for(int i = 0; i < NUM_CLIENTS; i++)
 	{
-		// std::cout << "check time ?\n";
 		if (clients[i].fd)
 		{
 			std::cout << "client #" << i << " time left = " << clients[i].time - now << "\n"; // ! A SUPPR
@@ -273,10 +284,8 @@ void	Server::clear_late_clients( void )
 			{
 				if (VERBOSE)
 					std::cout << GREEN"client # " << get_client_socket(clients[i].fd) << " on port " << clients[i].port << " with fd # " << clients[i].fd << " timeout\n"RESET;
-				// send(clients[i].fd, late, strlen(late), 0); // ! A modifier pour faire une reponse 408 timeout au client
-				update_events(clients[i].fd, EVFILT_WRITE); // TODO modif pour passer en write client avec un signal 408
+				update_events(clients[i].fd, EVFILT_WRITE);
 				clients[i].timeout = true;
-				// del_client_socket(clients[i].fd); // TODO suppr ici pour fermer requete après envoi reponse seulement
 			}
 		}
 	}
@@ -289,10 +298,8 @@ void	sighandler(int signum)
 		if (VERBOSE)
 			std::cout << GREEN"Shutting down server\n"RESET;
 		for (int i = 0; i < NUM_CLIENTS; i++)
-			// shutdown(clients[i].fd, SHUT_RDWR);
 			close(clients[i].fd);
 		for (size_t i = 0; i < evSet.size(); i++)
-			// shutdown(evSet[i].server_socket, SHUT_RDWR);
 			close(evSet[i].server_socket);
 		stop = true;
 	}
@@ -318,21 +325,19 @@ void	Server::run( void )
 			if ((n = cycle_fd(evSet, _evList[i].ident)) != -1)
 			{
 				client_sock = accept(_evList[i].ident, NULL, NULL);
-				if (add_client_socket(client_sock, evSet[n].port, evSet[n].server) == 0) // ! 1 event a la fois read or write // pas poss les 2 en meme temps
-				{
+				if (add_client_socket(client_sock, evSet[n].port, evSet[n].server) == 0)
 					update_events(client_sock, EVFILT_READ);
-				}
 				else
 				{
 					std::cerr << YELLOW"error: fail to accept connection request on port: " << evSet[n].port << "\n"RESET;
-					close(client_sock);
+					del_client_socket(_evList[i].ident);
 				}
 			}
 			else if (_evList[i].flags & EV_ERROR)
 			{
 				if (VERBOSE)
 					std::cout << YELLOW"client #" << get_client_socket(_evList[i].ident) << " disconnected due to error: " << _evList[i].data << "\n";
-				del_client_socket(_evList[i].ident); // ! Pas  besoin check si read ou write -> close() elimine fd et tous events associés
+				del_client_socket(_evList[i].ident);
 			}
 			else if (_evList[i].flags & EV_EOF)
 			{
@@ -344,9 +349,7 @@ void	Server::run( void )
 			{
 				int r = get_client_socket(_evList[i].ident);
 				if (!receive_request(&clients[r], server_config->server[clients[r].server]))
-				{
 					del_client_socket(_evList[i].ident);
-				}
 				else
 					update_events(clients[r].fd, EVFILT_WRITE); 
 			}

@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:59:15 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 09:01:21 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/14 16:27:02 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,18 +86,7 @@ class Server
 		struct kevent	_evCon;
 
 	public:
-		// std::vector<t_set>	evSet;
-		// t_client_data		clients[NUM_CLIENTS];
-		// webserv				*server_config;
-		t_http				*server_config;
-
-		// std::vector<int> ports;
-		//* local var
-		// struct kevent	evCon;
-		// int	client_sock;
-
-		// * temp
-		// char	late[] = "connection timeout !\n";
+		t_http			*server_config;
 
 };
 
@@ -157,6 +146,16 @@ public:
 
 	virtual const char	*what( void ) const throw() {
 		return ( "error: kevent failure\n" );
+	}
+
+};
+
+class PipeFailure : public std::exception {
+
+public:
+
+	virtual const char	*what( void ) const throw() {
+		return ( "error: pipe creation failure\n" );
 	}
 
 };
