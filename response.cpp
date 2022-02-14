@@ -453,9 +453,9 @@ bool response::isBodyTooLarge(void)
 	size_t limitSize = loc.client_max_body_size;
 	// if (limitSize == 0)
 	// 	limitSize--;
-	std::cout << RED"limit size: " << limitSize << "\n"RESET;
-	std::cout << RED"body size: " << req.body.size() << "\n"RESET;
-	if ( limitSize < req.body.size() )
+	// std::cout << RED"limit size: " << limitSize << "\n"RESET;
+	// std::cout << RED"body size: " << req.body.size() << "\n"RESET;
+	if ( limitSize > req.body.size() )
 		return (false);
 	return (true);
 }
