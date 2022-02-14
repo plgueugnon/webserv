@@ -1,6 +1,8 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
+#define PIPE_BUFFER_SIZE 10000
+
 class response
 {
 	public :

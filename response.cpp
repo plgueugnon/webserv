@@ -284,31 +284,41 @@ void response::handlePost ( void )
 
 	cgi.convertToC();
 	print_env_c(cgi.c_env);
-	std::cout << BOLDWHITE"youhou t'es là?\n"RESET;
 	pid_t	pid;
-
 	char	*argv[3];
+	char	buffer[PIPE_BUFFER_SIZE];
+	int		r = 0;
+	int		w = 0;
+
+	if ((pid = fork()) == -1 )
+	{
+		std::cerr << RED"error : fork failure\n"RESET;
+		close(write_fd[1]);
+		close(read_fd[0]);
+		close(write_fd[0]);
+		close(read_fd[1]);
+		setCode(500);
+		return ;
+	}
 	argv[0] = strdup(CGI_BIN);
 	argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
 	argv[2] = NULL;
-	char buffer[10000];
-
-	pid = fork();
-	if (pid == -1)
-		std::cerr << RED"error : fork failure\n"RESET;
-	else if (pid == 0)
+	if (pid == 0)
 	{
 		close(write_fd[1]);
 		close(read_fd[0]);
-		std::cout << BOLDWHITE"check child\n"RESET;
 		if (dup2(read_fd[1], STDOUT_FILENO) < 0)
 		{
 			std::cerr << RED"error : dup2 failure\n"RESET;
+			close(write_fd[0]);
+			close(read_fd[1]);
 			return ;
 		}
 		if (dup2(write_fd[0], STDIN_FILENO) < 0)
 		{
 			std::cerr << RED"error : dup2 failure\n"RESET;
+			close(write_fd[0]);
+			close(read_fd[1]);
 			return ;
 		}
 		if (execve(argv[0], argv, cgi.c_env) < 0)
@@ -321,32 +331,44 @@ void response::handlePost ( void )
 	}
 	else
 	{
-		std::cout << BOLDWHITE"check parent\n"RESET;
-		int r;
 		close(write_fd[0]);
 		close(read_fd[1]);
-		if (write(write_fd[1], req.body.c_str(), req.body.size()) < 0)
-			std::cout << RED"error: write failure\n";
 		waitpid(pid, NULL, WNOHANG);
+
+		w = write(write_fd[1], req.body.c_str(), req.body.size());
+		switch (w)
+		{
+			case -1:
+				std::cerr << RED"error : cgi write failure\n"RESET;
+				break;
+			case 0:
+				if (VERBOSE)
+					std::cout << YELLOW"warning: no data input sent to cgi\n"RESET;
+				break;
+			default:
+				break;
+		}
 		close(write_fd[1]);
+
 		while((r = read(read_fd[0], buffer, sizeof(buffer))) > 0)
 		{
 			buffer[r] = 0;
-			// std::cout << CYAN << buffer << RESET << std::endl;
 			output += buffer;
 			bzero(buffer, sizeof(buffer));
 		}
 		if (r == -1)
-			std::cerr << RED"error : read failure\n"RESET;
+			std::cerr << RED"error : cgi read failure\n"RESET;
 		close(read_fd[0]);
 	}
-	if (output.size() == 0)
-		setCode(404); // TODO A traiter en fonction retour CGI
+	free(argv[0]);
+	free(argv[1]);
+	if (w < 0 || r < 0)
+		setCode(500);
+	else if (output.size() == 0)
+		setCode(404);
 	else
 		setCode(200);
 
-	free(argv[0]);
-	free(argv[1]);
 	return;
 }
 
