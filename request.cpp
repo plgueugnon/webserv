@@ -74,7 +74,7 @@ void request::fillRequestLine(void)
 {
 	// TODO gestion exception et erreur, a voir quand on saura comment et ou on implement les reponses
 	// extract first line of the buffer
-	unsigned long	pos = headerbuf.find('\n');
+	unsigned long	pos = headerbuf.find("\r\n");
 	std::string 	str = headerbuf.substr(0, pos);
 
 // std::cout << RED"pos :" << pos << "\n"RESET;
