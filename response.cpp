@@ -390,7 +390,7 @@ void response::setLocation ( void )
 	for (	loc_it = conf.location.begin();
 			loc_it != conf.location.end();
 			loc_it++)
-		if ( req.requestLine[request::PATH].compare(loc_it->path) == 0 )
+		if ( req.requestLine[request::PATH].compare(0, loc_it->path.size(), loc_it->path) == 0 )
 			loc = *loc_it;
 }
 
@@ -444,13 +444,18 @@ bool response::isMethodImplemented(void)
 		(req.requestLine[request::METHOD]).compare("POST") != 0 &&
 		(req.requestLine[request::METHOD]).compare("DELETE") != 0)
 		return (false);
-	return (true);
+	else
+		return (true);
 }
 
 bool response::isBodyTooLarge(void)
 {
 	size_t limitSize = loc.client_max_body_size;
-	if ( limitSize > req.body.size() )
+	// if (limitSize == 0)
+	// 	limitSize--;
+	std::cout << RED"limit size: " << limitSize << "\n"RESET;
+	std::cout << RED"body size: " << req.body.size() << "\n"RESET;
+	if ( limitSize < req.body.size() )
 		return (false);
 	return (true);
 }
@@ -461,10 +466,9 @@ void response::parse ( void )
 	if (isMethodImplemented() == false)
 		return (setCode(501));
 
-	setLocation();
-	setRoot();
-	setPath();
-	setIndex();
+	// setRoot();
+	// setPath();
+	// setIndex();
 
 	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();
