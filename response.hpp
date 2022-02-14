@@ -57,6 +57,8 @@ class response
 	bool isRedirected (std::vector<std::string> *vec);
 	bool isBodyTooLarge ( void );
 	bool isChunked ( void );
+	bool isURITooLong(void);
+	bool isHeadersTooLong(void);
 };
 
 #endif /* RESPONSE_HPP */

@@ -14,8 +14,13 @@
 #define NOT_FOUND "<html><body><h1>Not found.</h1></body></html>"
 #define CANT_DELETE "<html><body><h1>Couln't delete file.</h1></body></html>"
 #define FILE_CREATED "<html><body><h1>File successfuly uploaded.</h1></body></html>"
+#define URI_TOO_LONG "<html><body><h1>URI is too long.</h1></body></html>"
+#define HEADERS_TOO_LONG "<html><body><h1>Header field is too long.</h1></body></html>"
 
 #define CGI_BIN "./cgi/darwin_phpcgi"
+
+#define URI_SIZE_LIMIT 256
+#define HEADERS_SIZE_LIMIT 96
 
 
 response::response ( void )
@@ -170,6 +175,16 @@ void response::setCode(int code)
 		ret = CODE_413;
 		// if (output.size() == 0)
 		output = PAYLOAD_TOO_LARGE;
+		break ;
+		case 414 :
+		ret = CODE_414;
+		// if (output.size() == 0)
+		output = URI_TOO_LONG;
+		break ;
+		case 431 :
+		ret = CODE_431;
+		// if (output.size() == 0)
+		output = HEADERS_TOO_LONG;
 		break ;
 		case 500 : 
 		ret = CODE_500;
@@ -465,6 +480,35 @@ bool response::isChunked(void)
 	return (false);
 }
 
+bool response::isURITooLong(void)
+{
+	if (path.size() > URI_SIZE_LIMIT)
+		return (true);
+	return (false);
+}
+
+bool response::isHeadersTooLong(void)
+{
+	size_t headerSize = 1;
+std::cout <<req.header[request::HOST];
+	headerSize += req.header[1].size();
+	headerSize += req.header[2].size();
+	headerSize += req.header[3].size();
+	headerSize += req.header[4].size();
+	headerSize += req.header[5].size();
+	headerSize += req.header[6].size();
+	headerSize += req.header[7].size();
+	headerSize += req.header[8].size();
+	headerSize += req.header[9].size();
+	headerSize += req.header[10].size();
+	headerSize += req.header[11].size();
+	headerSize += req.header[12].size();
+	std::cout << "headersize: " << headerSize << "\n";
+	if (headerSize > HEADERS_SIZE_LIMIT)
+		return (true);
+	return (false);
+}
+
 void response::parse ( void )
 {
 	// if all the server requests are redirected
@@ -472,10 +516,10 @@ void response::parse ( void )
 		return (setCode(501));
 	if (isChunked() == true)
 		return (setCode(501));
-
-	// setRoot();
-	// setPath();
-	// setIndex();
+	if (isURITooLong() == true)
+		return (setCode(414));
+	if (isHeadersTooLong() == true)
+		return (setCode(431));
 
 	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )
 		handleGet();
