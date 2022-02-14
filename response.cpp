@@ -440,9 +440,9 @@ bool response::isRedirected (std::vector<std::string> *vec)
 
 bool response::isMethodImplemented(void)
 {
-	if ((req.requestLine[request::METHOD]).compare("GET") != 0 &&
-		(req.requestLine[request::METHOD]).compare("POST") != 0 &&
-		(req.requestLine[request::METHOD]).compare("DELETE") != 0)
+	if ((req.requestLine[request::METHOD]).compare(0, 3, "GET") != 0 &&
+		(req.requestLine[request::METHOD]).compare(0, 4, "POST") != 0 &&
+		(req.requestLine[request::METHOD]).compare(0, 6, "DELETE") != 0)
 		return (false);
 	else
 		return (true);
