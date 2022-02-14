@@ -118,6 +118,7 @@ void response::setCode(int code)
 		case 200 :
 		ret = CODE_200;
 		break;
+		// ! add 201 create when upload file
 		case 204 :
 		ret = CODE_204;
 		if (output.size() == 0)
@@ -221,43 +222,33 @@ void response::handlePost ( void )
 		return setCode(405);
 
 	std::string pathFile = "";
-	pathFile= getenv("PWD") + (std::string)"/" + root + "/upload/upload_script.php";
 	// ! CGI env
 	cgi cgi;
 	// config
-	cgi.env[cgi::SERVER_NAME] += conf.server_name;
-	cgi.env[cgi::SERVER_PORT] += conf.listen;
+	cgi.env[cgi::SERVER_NAME] 			+= conf.server_name;
+	cgi.env[cgi::SERVER_PORT] 			+= conf.listen;
 
 	//request Line
-	cgi.env[cgi::REQUEST_METHOD] += req.requestLine[request::METHOD];
-	// cgi.env[cgi::REQUEST_METHOD] += "GET";
-	cgi.env[cgi::QUERY_STRING] += req.requestLine[request::QUERY];
+	cgi.env[cgi::REQUEST_METHOD] 		+= req.requestLine[request::METHOD];
+	cgi.env[cgi::QUERY_STRING] 			+= req.requestLine[request::QUERY];
 
 	// headers
-	cgi.env[cgi::CONTENT_LENGTH] += req.header[request::CONTENT_LENGTH];
-	cgi.env[cgi::CONTENT_TYPE] += req.header[request::CONTENT_TYPE];
-	cgi.env[cgi::HTTP_ACCEPT] += req.header[request::ACCEPT];
-	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] += req.header[request::ACCEPT_LANGUAGE];
-	cgi.env[cgi::HTTP_USER_AGENT] += req.header[request::USER_AGENT];
-	cgi.env[cgi::REDIRECT_STATUS] += "200";
-	cgi.env[cgi::REMOTE_ADDR] += "0.0.0.0";
+	cgi.env[cgi::CONTENT_LENGTH] 		+= req.header[request::CONTENT_LENGTH];
+	cgi.env[cgi::CONTENT_TYPE] 			+= req.header[request::CONTENT_TYPE];
+	cgi.env[cgi::HTTP_ACCEPT] 			+= req.header[request::ACCEPT];
+	cgi.env[cgi::HTTP_ACCEPT_LANGUAGE] 	+= req.header[request::ACCEPT_LANGUAGE];
+	cgi.env[cgi::HTTP_USER_AGENT] 		+= req.header[request::USER_AGENT];
+	
+	cgi.env[cgi::TMP_DIR] 				+= getenv("PWD") + (std::string)"/";
+	cgi.env[cgi::TMP_DIR] 				+= root + (std::string)"/tmp/";
 
-	cgi.env[cgi::REMOTE_HOST] = "PWD=";
-	cgi.env[cgi::REMOTE_HOST] += getenv("PWD");
 
-	// cgi.env[cgi::REMOTE_USER] += "user";
-	// cgi.env[cgi::REMOTE_IDENT] += "ident";
-
-	cgi.env[cgi::PATH_INFO] += pathFile;
-	// cgi.env[cgi::PATH_INFO] += getenv("PWD");
-	// cgi.env[cgi::PATH_INFO] += "/";
-	// cgi.env[cgi::PATH_INFO] += root;
-	cgi.env[cgi::SCRIPT_NAME] += path;
-	cgi.env[cgi::PATH_TRANSLATED] += pathFile;
-
-	// Bin
-	cgi.env[cgi::SCRIPT_FILENAME] += pathFile;
-	std::cout << RED"pathFile: " <<  pathFile << "\n"RESET;
+	// script to be executed by CGI
+	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD") + (std::string)"/";
+	cgi.env[cgi::SCRIPT_FILENAME] += root + path;
+	if (req.requestLine[request::PATH].back() == '/')
+		cgi.env[cgi::SCRIPT_FILENAME] += index;
+	std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
 	// s_env._upload_dir = "uploaddir=" + loc._uploadDir; // ! methode alex = creer une var env pour designer un dossier upload en config
 
@@ -345,13 +336,14 @@ void response::handlePost ( void )
 	close(fd2[0]);
 	// close(fd[1]);
 	setCode(200);
+	// ! code 201 a mettre en place quand fichier created
 	// if (output.size() == 0)
 	// 	setCode(404);
 	// else 
 	// 	setCode(200);
 
-	// free(argv[0]);
-	// free(argv[1]);
+	free(argv[0]);
+	free(argv[1]);
 	return;
 }
 

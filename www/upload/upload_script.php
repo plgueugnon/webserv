@@ -34,7 +34,7 @@ echo "salut";
 // var_dump($upload_tmp_dir);
 // // Sauvegarde de tous les fichiers passés en input
 foreach ($_FILES as $file) {
-    $uploadfile = $_ENV['PWD'] . "/www/tmp/" . basename($file['name']);
+    $uploadfile = $_ENV['TMP_DIR'] . basename($file['name']);
     echo "uploading => " . $file['name'] . "\n";
     if (move_uploaded_file($file['tmp_name'], $uploadfile)){
         echo "Le fichier " . $file['name'] . " a bien été envoyé\n";
