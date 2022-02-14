@@ -309,7 +309,7 @@ void response::handlePost ( void )
 		// char s[] = "'last_name=YO'";
 		// write(fd[1], s, strlen(s));
 		// waitpid(pid, NULL, -1);
-		if (write(write_fd[1], req->body.c_str(), req->body.size()) < 0)
+		if (write(write_fd[1], req.body.c_str(), req.body.size()) < 0)
 			std::cout << RED"error: write failure\n";
 		std::cout << "wait ?\n";
 		waitpid(pid, NULL, WNOHANG);
