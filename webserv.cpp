@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/14 12:08:30 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/14 18:00:45 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -923,7 +923,7 @@ void webserv::parseConfigFile ( void )
 
 	file.open(_file_name.c_str() );
 
-	if (file.is_open())
+	if (file.good())
 	{
 		while (getline(file, line))
 		{

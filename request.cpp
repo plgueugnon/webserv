@@ -37,6 +37,7 @@ void request::parseHeader(void)
 	// so return to recv to receive the end of the headers
 	if (pos < 0)
 		return;
+	headerSize = pos;
 	isBody = true;
 	// save the beginning of the body, saved in the buffer
 	// + 4 to skip \r\n\r\n
@@ -49,7 +50,7 @@ void request::parseHeader(void)
 	buf.clear();
 	fillRequestLine();
 	fillHeaders();
-	// eraseEndChar();
+	eraseEndChar();
 	// printRequest();
 	// ! faire check erreur si version http differente de 1.1
 	// ! faire check erreur si headers trop longs

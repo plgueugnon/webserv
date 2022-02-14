@@ -20,7 +20,7 @@
 #define CGI_BIN "./cgi/darwin_phpcgi"
 
 #define URI_SIZE_LIMIT 256
-#define HEADERS_SIZE_LIMIT 96
+#define HEADERS_SIZE_LIMIT 1096
 
 
 response::response ( void )
@@ -509,20 +509,6 @@ bool response::isURITooLong(void)
 	return (false);
 }
 
-bool response::isHeadersTooLong(void)
-{
-	size_t headerSize = 1;
-	std::cout << req.header[request::HOST] << "\n";
-	std::cout << req.header[request::CONNECTION] << "\n";
-	std::cout << req.header[request::AUTHORIZATION] << "\n";
-	std::cout << req.header[request::ACCEPT] << "\n";
-	std::cout << req.header[request::HOST] << "\n";
-	// std::cout << "headersize: " << headerSize << "\n";
-	if (headerSize > HEADERS_SIZE_LIMIT)
-		return (true);
-	return (false);
-}
-
 void response::parse ( void )
 {
 	// if all the server requests are redirected
@@ -532,7 +518,7 @@ void response::parse ( void )
 		return (setCode(501));
 	if (isURITooLong() == true)
 		return (setCode(414));
-	if (isHeadersTooLong() == true)
+	if (req.headerSize > HEADERS_SIZE_LIMIT)
 		return (setCode(431));
 
 	if ( (req.requestLine[request::METHOD]).compare("GET") == 0 )

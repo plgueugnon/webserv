@@ -12,6 +12,7 @@ class request
 	// buffer filled with recv
 	bool 						isBody;
 	std::string 				buf;
+	size_t 						headerSize;
 
 	enum requestLineIndex
 	{
