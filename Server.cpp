@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 17:31:14 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/14 17:59:30 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ void	Server::update_events(int fd, int update)
 			break;
 
 		default:
-			std::cerr << RED"error: update_events failure\n"RESET;
+			std::cerr << RED"error: update_events unrecognized flag parameter\n"RESET;
 			break;
 	}
 }
@@ -227,7 +227,7 @@ int	Server::add_client_socket(int fd, int socket_port, int server)
 	if ((i = get_client_socket(0)) == -1)
 		return -1;
 	clients[i].fd = fd;
-	clients[i].time = gettime() + (REQUEST_TIMEOUT * 1000); // ! chaque requete commence avec 30 sec (nginx = 60)
+	clients[i].time = gettime() + (REQUEST_TIMEOUT * 1000);
 	clients[i].port = socket_port;
 	clients[i].server = server;
 	clients[i].timeout = false;
@@ -279,7 +279,6 @@ void	Server::clear_late_clients( void )
 	{
 		if (clients[i].fd)
 		{
-			std::cout << "client #" << i << " time left = " << clients[i].time - now << "\n"; // ! A SUPPR
 			if (clients[i].time - now <= 0)
 			{
 				if (VERBOSE)

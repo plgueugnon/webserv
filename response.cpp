@@ -295,7 +295,7 @@ void response::handlePost ( void )
 	// if (req.requestLine[request::PATH].back() == '/')
 	// 	cgi.env[cgi::SCRIPT_FILENAME] += index;
 
-	std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
+	// std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
 	cgi.convertToC();
 	print_env_c(cgi.c_env);

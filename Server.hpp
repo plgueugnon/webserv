@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:59:15 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 16:27:02 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/14 17:59:58 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,16 @@
 
 #define NUM_CLIENTS 512
 #define MAX_EVENTS 100
+
+/*
+* each request begins with a 30 sec timeout delay
+* the monitoring loop will check client timeout every 10 sec
+*/
 #define REQUEST_TIMEOUT 30
 #define MONITOR_TIMEOUT_SEC 10
 #define MONITOR_TIMEOUT_NSEC 100000
+
+// * recv buffer size
 #define BUFFER_SIZE 4096
 
 typedef enum	e_events
@@ -48,8 +55,6 @@ typedef struct	s_set
 
 class Server
 {
-	private:
-		/* data */
 	public:
 
 		Server( void );
