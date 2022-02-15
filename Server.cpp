@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 17:59:30 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/15 14:47:34 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,15 +143,15 @@ void	Server::update_events(int fd, int update)
 	}
 }
 
-void	Server::manage_request(t_client_data *client, request *request, t_server config)
+void	Server::manage_request(t_client_data *client, t_server config)
 {
-	response 	response(*request, config);
+	response 	response(*client->request, config);
 
 	response.setLocation();
 	response.setRoot();
 	response.setPath();
 	response.setIndex();
-	if ( (request->requestLine[request::METHOD]).compare("POST") == 0 &&
+	if ( (client->request->requestLine[request::METHOD]).compare("POST") == 0 &&
 			response.isBodyTooLarge() == false )
 	{
 		if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
@@ -169,20 +169,24 @@ int	Server::receive_request(t_client_data *client, t_server config)
 {
 	ssize_t n = 0;
 	char buffer[BUFFER_SIZE];
-	request 		request;
+	// request		request;
+	client->request = new request;
+	
 
 	while ( (n = recv(client->fd, &buffer, BUFFER_SIZE - 1, 0)) > 0)
 	{
 		buffer[n] = '\0';
-		if (request.isBody == false)
+		if (client->request->isBody == false)
 		{
-			request.buf += buffer;
-			request.parseHeader();
+			client->request->buf += buffer;
+			client->request->parseHeader();
 		}
 		else
 		{
-			request.buf = buffer;
-			request.redirectBody();
+			client->request->buf = buffer;
+			client->request->redirectBody();
+			if (client->request->body.size() == (unsigned long)atoi(client->request->header[request::CONTENT_LENGTH].c_str()))
+				client->request->BodyReady = true;
 		}
 
 		if (n < BUFFER_SIZE - 1)
@@ -194,10 +198,11 @@ int	Server::receive_request(t_client_data *client, t_server config)
 			std::cout << YELLOW"warning: no data received\n"RESET;
 		return 0;
 	}
-	manage_request(client, &request, config);
+	if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
+		(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
+		manage_request(client, config);
 	return 1;
 }
-
 
 unsigned int	Server::gettime(void)
 {
@@ -259,6 +264,7 @@ int	Server::del_client_socket(int fd)
 	clients[i].port = 0;
 	clients[i].server = 0;
 	clients[i].timeout = false;
+	delete clients[i].request;
 	if (VERBOSE)
 		std::cout << GREEN"Closing connection with client #" << i << "\n"RESET;
 	return (close(fd));

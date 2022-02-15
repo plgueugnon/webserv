@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:43 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 09:54:31 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/15 13:52:33 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@
 #include <string.h>
 #include <dirent.h> // opendir
 
+
+// * Custom headers
+#include "request.hpp"
+
 // * client struct
 typedef struct s_client_data
 {
@@ -62,13 +66,12 @@ typedef struct s_client_data
 	bool		timeout;
 	int			write_fd[2];
 	int			read_fd[2];
+	request		*request;
 }	t_client_data;
 
-// * Custom headers
 #include "httpContext.hpp"
 #include "webserv.hpp"
 #include "cgi.hpp"
-#include "request.hpp"
 #include "response.hpp"
 #include "httpCodes.hpp"
 #include "Server.hpp"

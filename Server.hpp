@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:59:15 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/14 17:59:58 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/15 14:22:09 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 #define MONITOR_TIMEOUT_NSEC 100000
 
 // * recv buffer size
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 80
 
 typedef enum	e_events
 {
@@ -80,7 +80,7 @@ class Server
 
 		// * client I/O
 		void	answer_client(int client_sock, std::string answer);
-		void	manage_request(t_client_data *client, request *request, t_server config);
+		void	manage_request(t_client_data *client, t_server config);
 		int	receive_request(t_client_data *client, t_server config);
 
 		// * attributes

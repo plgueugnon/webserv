@@ -11,6 +11,7 @@ class request
 	public :
 	// buffer filled with recv
 	bool 						isBody;
+	bool 						BodyReady;
 	std::string 				buf;
 	size_t 						headerSize;
 
@@ -48,6 +49,7 @@ class request
 
 	// constructor
 	request ( void );
+	~request ( void );
 
 	void parseHeader ( void );
 	void redirectBody ( void );
