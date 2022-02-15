@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/14 18:00:45 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/15 16:15:56 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #define ERR_HTTP_MISSING "Http context is missing."
 #define ERR_WRONG_AUTOINDEX "Wrong autoindex value, usage : on | off."
 #define ERR_WRONG_AUTOINDEX_ARG "Autoindex, Missing semicolomn ';'."
-#define ERR_NEG_BODY_SIZE "client_max_body_size : can't be negative."
+#define ERR_NEG_BODY_SIZE "client_max_body_size : can't be negative or bigger than 1 Million"
 #define ERR_BODY_SIZE_ARG "client_max_body_size, Missing semicolomn ';'."
 #define ERR_INDEX_ARG "index, Missing semicolomn ';'."
 #define ERR_ROOT_ARG "root, Missing semicolomn ';'."
@@ -47,6 +47,8 @@
 #define ERR_ROOT_MISSING "root argument is missing."
 #define ERR_LISTEN_MISSING "listen argument is missing."
 #define ERR_SERVER_NAME_MISSING "server_name argument is missing."
+
+#define BODY_MAX 1000000
 
 /*
  * LIST OF CONTEXTS to implement
@@ -203,7 +205,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if ( onlyDigits(it->c_str()) == false )
 				throw std::invalid_argument(ERR_MAX_BODY_DIGIT);
 			int 	n = atoi(it->c_str());
-			if (n >= 0)
+			if (n >= 0 && n < BODY_MAX)
 				_config.client_max_body_size = n;
 			else
 				 throw std::invalid_argument(ERR_NEG_BODY_SIZE);
@@ -311,7 +313,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if ( onlyDigits(it->c_str()) == false )
 				throw std::invalid_argument(ERR_MAX_BODY_DIGIT);
 			int 	n = atoi(it->c_str());
-			if (n >= 0)
+			if (n >= 0 && n < BODY_MAX)
 				_config.server[srv_nb].client_max_body_size = n;
 			else
 				 throw std::invalid_argument(ERR_NEG_BODY_SIZE);
@@ -410,7 +412,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			if ( onlyDigits(it->c_str()) == false )
 				throw std::invalid_argument(ERR_MAX_BODY_DIGIT);
 			int 	n = atoi(it->c_str());
-			if (n >= 0)
+			if (n >= 0 && n < BODY_MAX)
 				_config.server[srv_nb].location[loc_nb].client_max_body_size = n;
 			else
 				 throw std::invalid_argument(ERR_NEG_BODY_SIZE);

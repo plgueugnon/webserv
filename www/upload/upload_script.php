@@ -17,7 +17,7 @@ foreach ($_FILES as $file) {
     {
         echo "uploading => " . $file['name'] . "\n";
         (move_uploaded_file($file['tmp_name'], $uploadfile));
-        echo "Le fichier " . $file['name'] . " a bien été envoyé\n";
+        echo "Le fichier " . $file['name'] . " a bien ete envoye\n";
     } 
     else 
     {
