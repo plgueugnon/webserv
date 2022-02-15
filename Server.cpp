@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/15 14:47:34 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/15 15:09:24 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,9 +169,9 @@ int	Server::receive_request(t_client_data *client, t_server config)
 {
 	ssize_t n = 0;
 	char buffer[BUFFER_SIZE];
-	// request		request;
-	client->request = new request;
-	
+	request		request;
+	client->request = &request;
+	// client->request = new request;
 
 	while ( (n = recv(client->fd, &buffer, BUFFER_SIZE - 1, 0)) > 0)
 	{
@@ -264,7 +264,7 @@ int	Server::del_client_socket(int fd)
 	clients[i].port = 0;
 	clients[i].server = 0;
 	clients[i].timeout = false;
-	delete clients[i].request;
+	// delete clients[i].request;
 	if (VERBOSE)
 		std::cout << GREEN"Closing connection with client #" << i << "\n"RESET;
 	return (close(fd));
