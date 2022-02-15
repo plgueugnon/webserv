@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/15 17:03:41 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/15 23:38:06 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ void	Server::update_events(int fd, int update)
 	switch (update)
 	{
 		case EVFILT_READ :
-			EV_SET(&_evCon, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+			EV_SET(&_evCon, fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 			kevent(_kq, &_evCon, 1, NULL, 0, NULL);
 			break;
 
@@ -202,28 +202,41 @@ int	Server::receive_request(t_client_data *client, t_server config)
 			if (client->request->body.size() == (unsigned long)atoi(client->request->header[request::CONTENT_LENGTH].c_str()))
 				client->request->BodyReady = true;
 		}
+		// bzero(buffer, BUFFER_SIZE);
+		// memset(buffer, 0, BUFFER_SIZE);
 
 		if (n < BUFFER_SIZE - 1)
 			break ;
 	}
-	if (n == 0)
+	if (n == 0 || n == EAGAIN || n == EWOULDBLOCK)
 	{
 		if (VERBOSE)
 			std::cout << YELLOW"warning: no data received\n"RESET;
 		return 0;
 	}
-	if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
-	(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
-		manage_request(client, config);
 	// if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
-	// 	(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
-	// 	{
-	// 		manage_request(client, config);
-	// 		return 1;
-	// 	}
-	// else
-	// 	return 2; // TODO changer le code de retour pour ne pas mettre en write de suite
-	return 1;
+	// (client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
+	// 	manage_request(client, config);
+	if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
+		(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
+		{
+			// std::cout << BOLDCYAN"I'M IN!\n"RESET;
+			// std::cout << MAGENTA << client->request->isBody << RESET << std::endl;
+			// std::cout << MAGENTA << client->request->BodyReady << RESET << std::endl;
+			// std::cout << MAGENTA << "size received " << client->request->body.size() << RESET << std::endl;
+			// std::cout << MAGENTA << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
+			manage_request(client, config);
+			return 1;
+		}
+	else
+	{
+		// std::cout << CYAN << client->request->isBody << RESET << std::endl;
+		// std::cout << CYAN << client->request->BodyReady << RESET << std::endl;
+		// std::cout << CYAN << "size received " << client->request->body.size() << RESET << std::endl;
+		// std::cout << CYAN << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
+		return 2; // TODO changer le code de retour pour ne pas mettre en write de suite
+	}
+	// return 1;
 }
 
 unsigned int	Server::gettime(void)
@@ -355,6 +368,9 @@ void	Server::run( void )
 			if ((n = cycle_fd(evSet, _evList[i].ident)) != -1)
 			{
 				client_sock = accept(_evList[i].ident, NULL, NULL);
+				// fcntl(client_sock, F_SETFL, O_NONBLOCK);
+				// int a = 1000000;
+				// setsockopt(client_sock, SOL_SOCKET, SO_RCVBUF, &a, sizeof(a));
 				if (add_client_socket(client_sock, evSet[n].port, evSet[n].server) == 0)
 					update_events(client_sock, EVFILT_READ);
 				else
@@ -378,6 +394,13 @@ void	Server::run( void )
 			else if (_evList[i].filter == EVFILT_READ)
 			{
 				int r = get_client_socket(_evList[i].ident);
+				// if (!receive_request(&clients[r], server_config->server[clients[r].server]))
+				// {
+				// 	std::cout << "echec\n";
+				// 	del_client_socket(_evList[i].ident);
+				// }
+				// else
+				// 	update_events(clients[r].fd, EVFILT_WRITE);
 				int n = receive_request(&clients[r], server_config->server[clients[r].server]);
 				switch (n)
 				{
@@ -387,9 +410,10 @@ void	Server::run( void )
 					case 1:
 						update_events(clients[r].fd, EVFILT_WRITE);
 						break ;
-					// case 2:
-					// 	std::cout << "Not all is received\n";
-					// 	break ;
+					case 2:
+						// std::cout << CYAN << _evList[i].data << RESET << std::endl;
+						// std::cout << "Not all is received\n";
+						break ;
 				}
 			}
 			else if (_evList[i].filter == EVFILT_WRITE)
