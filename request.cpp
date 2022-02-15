@@ -22,7 +22,7 @@ body("")
 
 request::~request ( void )
 {
-	std::cout << BOLDMAGENTA"REQUEST DESTROYED !\n"RESET;
+	// std::cout << BOLDMAGENTA"REQUEST DESTROYED !\n"RESET;
 }
 
 // return -1 if str doesn't contain \r\n
@@ -80,7 +80,6 @@ std::vector<std::string> split(std::string str, char delim)
 
 void request::fillRequestLine(void)
 {
-	// TODO gestion exception et erreur, a voir quand on saura comment et ou on implement les reponses
 	// extract first line of the buffer
 	unsigned long	pos = headerbuf.find("\r\n");
 	std::string 	str = headerbuf.substr(0, pos);
