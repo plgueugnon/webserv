@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/15 15:09:24 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/15 17:03:41 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,21 @@ void	Server::setup_config( void )
 
 void	Server::answer_client(int client_sock, std::string answer)
 {
+
+	// int	send_rc;
+	// int	send_left = (int)answer.size();
+	// char *message_ptr = strdup(answer.c_str());
+
+	// while (send_left > 0)
+	// {
+	// 	send_rc = send(client_sock, message_ptr, send_left, 0);
+	// 	if (send_rc == -1)
+	// 		break ;
+	// 	send_left -= send_rc;
+	// 	message_ptr += send_rc;
+	// }
+
+	// TODO A modifier pour découper envoie selon un buffer => max = 1mb
 	int r = send(client_sock, answer.c_str(), answer.size(), 0);
 	switch (r)
 	{
@@ -164,13 +179,12 @@ void	Server::manage_request(t_client_data *client, t_server config)
 	client->answer = response.ret;
 }
 
-
 int	Server::receive_request(t_client_data *client, t_server config)
 {
 	ssize_t n = 0;
 	char buffer[BUFFER_SIZE];
-	request		request;
-	client->request = &request;
+	// request		request;
+	// client->request = &request;
 	// client->request = new request;
 
 	while ( (n = recv(client->fd, &buffer, BUFFER_SIZE - 1, 0)) > 0)
@@ -190,7 +204,7 @@ int	Server::receive_request(t_client_data *client, t_server config)
 		}
 
 		if (n < BUFFER_SIZE - 1)
-			break;
+			break ;
 	}
 	if (n == 0)
 	{
@@ -199,8 +213,16 @@ int	Server::receive_request(t_client_data *client, t_server config)
 		return 0;
 	}
 	if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
-		(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
+	(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
 		manage_request(client, config);
+	// if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
+	// 	(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
+	// 	{
+	// 		manage_request(client, config);
+	// 		return 1;
+	// 	}
+	// else
+	// 	return 2; // TODO changer le code de retour pour ne pas mettre en write de suite
 	return 1;
 }
 
@@ -226,6 +248,7 @@ int	Server::get_client_socket(int fd)
 
 int	Server::add_client_socket(int fd, int socket_port, int server)
 {
+	request	request;
 	int i;
 	if ( fd < 1)
 		return -1;
@@ -236,6 +259,7 @@ int	Server::add_client_socket(int fd, int socket_port, int server)
 	clients[i].port = socket_port;
 	clients[i].server = server;
 	clients[i].timeout = false;
+	clients[i].request = new class request;
 	if (VERBOSE)
 		std::cout << GREEN"client # " << get_client_socket(clients[i].fd) << "with fd #" << clients[i].fd << " and port " << socket_port << "\n"RESET;
 	return 0;
@@ -264,7 +288,8 @@ int	Server::del_client_socket(int fd)
 	clients[i].port = 0;
 	clients[i].server = 0;
 	clients[i].timeout = false;
-	// delete clients[i].request;
+	delete clients[i].request;
+	// clients[i].request = NULL;
 	if (VERBOSE)
 		std::cout << GREEN"Closing connection with client #" << i << "\n"RESET;
 	return (close(fd));
@@ -353,10 +378,19 @@ void	Server::run( void )
 			else if (_evList[i].filter == EVFILT_READ)
 			{
 				int r = get_client_socket(_evList[i].ident);
-				if (!receive_request(&clients[r], server_config->server[clients[r].server]))
-					del_client_socket(_evList[i].ident);
-				else
-					update_events(clients[r].fd, EVFILT_WRITE); 
+				int n = receive_request(&clients[r], server_config->server[clients[r].server]);
+				switch (n)
+				{
+					case 0:
+						del_client_socket(_evList[i].ident);
+						break ;
+					case 1:
+						update_events(clients[r].fd, EVFILT_WRITE);
+						break ;
+					// case 2:
+					// 	std::cout << "Not all is received\n";
+					// 	break ;
+				}
 			}
 			else if (_evList[i].filter == EVFILT_WRITE)
 			{

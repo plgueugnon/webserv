@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/15 16:15:56 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/15 16:50:34 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@
 #define ERR_LISTEN_MISSING "listen argument is missing."
 #define ERR_SERVER_NAME_MISSING "server_name argument is missing."
 
-#define BODY_MAX 1000000
+#define BODY_MAX 1000001
 
 /*
  * LIST OF CONTEXTS to implement

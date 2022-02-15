@@ -22,7 +22,7 @@ body("")
 
 request::~request ( void )
 {
-	// std::cout << BOLDMAGENTA"REQUEST DESTROYED !\n"RESET;
+	std::cout << BOLDMAGENTA"REQUEST DESTROYED !\n"RESET;
 }
 
 // return -1 if str doesn't contain \r\n

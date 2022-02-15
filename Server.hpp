@@ -6,7 +6,11 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:59:15 by pgueugno          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2022/02/15 16:36:39 by ygeslin          ###   ########.fr       */
+=======
+/*   Updated: 2022/02/15 16:14:05 by pgueugno         ###   ########.fr       */
+>>>>>>> cee702e51d81ee012f575669c14a11c805c48d45
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +38,7 @@
 #define MONITOR_TIMEOUT_NSEC 100000
 
 // * recv buffer size
-#define BUFFER_SIZE 80
+#define BUFFER_SIZE 4096
 
 typedef enum	e_events
 {
