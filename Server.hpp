@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:59:15 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/15 14:22:09 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/15 16:14:05 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 #define MONITOR_TIMEOUT_NSEC 100000
 
 // * recv buffer size
-#define BUFFER_SIZE 80
+#define BUFFER_SIZE 4096
 
 typedef enum	e_events
 {
