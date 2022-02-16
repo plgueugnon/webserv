@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/15 23:38:06 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/16 10:09:08 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,6 +194,8 @@ int	Server::receive_request(t_client_data *client, t_server config)
 		{
 			client->request->buf += buffer;
 			client->request->parseHeader();
+			if (client->request->body.size() == (unsigned long)atoi(client->request->header[request::CONTENT_LENGTH].c_str()))
+				client->request->BodyReady = true;
 		}
 		else
 		{
@@ -208,7 +210,7 @@ int	Server::receive_request(t_client_data *client, t_server config)
 		if (n < BUFFER_SIZE - 1)
 			break ;
 	}
-	if (n == 0 || n == EAGAIN || n == EWOULDBLOCK)
+	if (n == 0)
 	{
 		if (VERBOSE)
 			std::cout << YELLOW"warning: no data received\n"RESET;
@@ -422,7 +424,9 @@ void	Server::run( void )
 				if (clients[r].timeout)
 				{
 					clients[r].answer = CODE_408;
+					clients[r].answer += "\nConnection: close";
 					clients[r].answer += CRLF;
+					clients[r].answer += "<html><body><h1>To late man !</h1></body></html>";
 				}
 				answer_client(clients[r].fd, clients[r].answer);
 				del_client_socket(_evList[i].ident);
