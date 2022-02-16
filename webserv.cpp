@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/16 10:26:49 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/16 10:30:56 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -939,6 +939,6 @@ void webserv::parseConfigFile ( void )
 		tokenizeConfigFile(config_string);
 	}
 	else
-		std::cerr << RED"Unable to open '" << _file_name << "' file.\n"RESET;
+		throw std::invalid_argument("Unable to open config file.");
 	return ;
 }
