@@ -365,7 +365,8 @@ void response::handlePost ( void )
 		}
 		close(write_fd[1]);
 
-		while((r = read(read_fd[0], buffer, sizeof(buffer))) > 0)
+		// while((r = read(read_fd[0], buffer, sizeof(buffer))) > 0)
+		while((r = read(read_fd[0], buffer, PIPE_BUFFER_SIZE - 1)) > 0)
 		{
 			buffer[r] = 0;
 			output += buffer;

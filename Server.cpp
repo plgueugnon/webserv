@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/16 10:09:08 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/16 12:03:27 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,12 @@ void	Server::update_events(int fd, int update)
 
 		case EVFILT_WRITE :
 			EV_SET(&_evCon, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-			EV_SET(&_evCon, fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+			EV_SET(&_evCon, fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
+			kevent(_kq, &_evCon, 2, NULL, 0, NULL);
+			break;
+
+		case 3 :
+			EV_SET(&_evCon, fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
 			kevent(_kq, &_evCon, 2, NULL, 0, NULL);
 			break;
 
@@ -161,6 +166,7 @@ void	Server::update_events(int fd, int update)
 void	Server::manage_request(t_client_data *client, t_server config)
 {
 	response 	response(*client->request, config);
+	std::pair <bool, bool> ready (false, false);
 
 	response.setLocation();
 	response.setRoot();
@@ -172,8 +178,17 @@ void	Server::manage_request(t_client_data *client, t_server config)
 		if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
 			throw PipeFailure();
 		update_events(client->read_fd[0], EVFILT_READ);
-		update_events(client->write_fd[0], EVFILT_READ);
+		update_events(client->write_fd[1], EVFILT_WRITE);
 		response.setCGIfd(client->read_fd, client->write_fd);
+		for (int i = 0; i < MAX_EVENTS; i++)
+		{
+			if ((int)_evList[i].ident == client->read_fd[0] && (int)_evList[i].flags == EVFILT_READ)
+				ready.first = true;
+			if ((int)_evList[i].ident == client->write_fd[1] && (int)_evList[i].flags == EVFILT_WRITE)
+				ready.second = true;
+			if (ready.first && ready.second)
+				break ;
+		}
 	}
 	response.parse();
 	client->answer = response.ret;
