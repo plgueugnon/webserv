@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/16 10:15:00 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/16 10:26:49 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -923,7 +923,10 @@ void webserv::parseConfigFile ( void )
 
 	std::vector<std::string> 	token;
 
-	file.open(_file_name.c_str() );
+	if (_file_name.find(".conf") == std::string::npos)
+		throw std::invalid_argument("Wrong extension file.");
+
+	file.open(_file_name.c_str(), 	std::ios::in  );
 
 	if (file.good())
 	{
