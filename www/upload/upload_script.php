@@ -1,12 +1,13 @@
 <?php
 // Sauvegarde de tous les fichiers passés en input
+    echo "fin";
 foreach ($_FILES as $file) {
-    // var_dump($file);
+    var_dump($file);
     $errors= array();
     $path = $file['name'];
     $ext = pathinfo($path, PATHINFO_EXTENSION);
     $extensions= array("html", "txt", "php");
-    // var_dump($ext);
+    var_dump($ext);
     if(in_array($ext,$extensions)=== false)
     {
         $errors[]="extension not allowed";
@@ -24,4 +25,5 @@ foreach ($_FILES as $file) {
         print_r($errors);
         echo "Erreur dans l'envoi du fichier " . $file['name'] . "\n";
     }
+    echo "fin";
 }
