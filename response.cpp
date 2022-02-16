@@ -57,6 +57,14 @@ void response::setCGIfd (int client_read_fd[2], int client_write_fd[2])
 	this->write_fd[1] = client_write_fd[1];
 }
 
+void response::closeAllfd(void)
+{
+	close(write_fd[1]);
+	close(read_fd[0]);
+	close(write_fd[0]);
+	close(read_fd[1]);
+}
+
 std::string response::getAutoIndex( std::string fileName )
 {
 	std::vector<std::string> folder;
@@ -171,6 +179,9 @@ void response::setCode(int code)
 		if (output.size() == 0)
 			output = NOT_ALLOWED;
 		break ;
+		case 411 :
+		ret = CODE_411;
+		break;
 		case 413 :
 		ret = CODE_413;
 		// if (output.size() == 0)
@@ -197,6 +208,9 @@ void response::setCode(int code)
 	}
 	ret += CRLF;
 	ret += output;
+	// std::cout << "YA QUOI " << req.requestLine[request::METHOD] << std::endl;
+	if (req.requestLine[request::METHOD].compare(0,4,"POST") == 0)
+		closeAllfd();
 	return ;
 }
 
@@ -266,6 +280,8 @@ void response::handlePost ( void )
 		return setCode(405);
 	if (isBodyTooLarge() == true)
 		return setCode(413);
+	if (req.header[request::CONTENT_LENGTH].size() == 0 || req.header[request::CONTENT_LENGTH].front() == '0')
+		return setCode(411);
 
 	// ! CGI env
 	cgi cgi;
@@ -288,7 +304,6 @@ void response::handlePost ( void )
 	cgi.env[cgi::TMP_DIR] 				+= getenv("PWD") + (std::string)"/";
 	cgi.env[cgi::TMP_DIR] 				+= root + (std::string)"/tmp/";
 
-
 	// script to be executed by CGI
 	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD") + (std::string)"/";
 	cgi.env[cgi::SCRIPT_FILENAME] += root + path;
@@ -308,10 +323,6 @@ void response::handlePost ( void )
 	if ((pid = fork()) == -1 )
 	{
 		std::cerr << RED"error : fork failure\n"RESET;
-		close(write_fd[1]);
-		close(read_fd[0]);
-		close(write_fd[0]);
-		close(read_fd[1]);
 		setCode(500);
 		return ;
 	}
@@ -513,6 +524,7 @@ bool response::isURITooLong(void)
 void response::parse ( void )
 {
 	// if all the server requests are redirected
+	// std::cout << "check response parse\n"; // !
 	if (isMethodImplemented() == false)
 		return (setCode(501));
 	if (isChunked() == true)

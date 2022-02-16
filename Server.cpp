@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/16 12:03:27 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/16 19:38:37 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,20 @@ void	Server::setup_config( void )
 
 // *____________________________SERVER_LOOP_________________________________*
 
+void	sighandler(int signum)
+{
+	if (signum == SIGINT)
+	{
+		if (VERBOSE)
+			std::cout << GREEN"Shutting down server\n"RESET;
+		for (int i = 0; i < NUM_CLIENTS; i++)
+			close(clients[i].fd);
+		for (size_t i = 0; i < evSet.size(); i++)
+			close(evSet[i].server_socket);
+		stop = true;
+	}
+}
+
 void	Server::answer_client(int client_sock, std::string answer)
 {
 
@@ -118,7 +132,11 @@ void	Server::answer_client(int client_sock, std::string answer)
 	// 	send_left -= send_rc;
 	// 	message_ptr += send_rc;
 	// }
-
+	// if (client_sock == 0)
+	// {
+	// 	std::cerr << RED"error: " << client_sock << " invalid fd\n"RESET;
+	// 	return ;
+	// }
 	// TODO A modifier pour découper envoie selon un buffer => max = 1mb
 	int r = send(client_sock, answer.c_str(), answer.size(), 0);
 	switch (r)
@@ -141,20 +159,25 @@ void	Server::update_events(int fd, int update)
 {
 	switch (update)
 	{
-		case EVFILT_READ :
+		case add_read :
 			EV_SET(&_evCon, fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-			kevent(_kq, &_evCon, 1, NULL, 0, NULL);
+			if (kevent(_kq, &_evCon, 1, NULL, 0, NULL) < 0)
+				std::cerr << RED"error: kevent failure to set READ event\n"RESET;
 			break;
 
-		case EVFILT_WRITE :
+		case read_to_write :
 			EV_SET(&_evCon, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+			if (kevent(_kq, &_evCon, 1, NULL, 0, NULL) < 0)
+				std::cerr << RED"error: kevent failure to delete READ event\n"RESET;
 			EV_SET(&_evCon, fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
-			kevent(_kq, &_evCon, 2, NULL, 0, NULL);
+			if (kevent(_kq, &_evCon, 1, NULL, 0, NULL) < 0)
+				std::cerr << RED"error: kevent failure to set READ to WRITE event\n"RESET;
 			break;
 
-		case 3 :
+		case add_write :
 			EV_SET(&_evCon, fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
-			kevent(_kq, &_evCon, 2, NULL, 0, NULL);
+			if (kevent(_kq, &_evCon, 1, NULL, 0, NULL) < 0)
+				std::cerr << RED"error: kevent failure to set WRITE event\n"RESET;
 			break;
 
 		default:
@@ -166,31 +189,55 @@ void	Server::update_events(int fd, int update)
 void	Server::manage_request(t_client_data *client, t_server config)
 {
 	response 	response(*client->request, config);
-	std::pair <bool, bool> ready (false, false);
+	// std::pair <bool, bool> ready (false, false);
 
 	response.setLocation();
 	response.setRoot();
 	response.setPath();
 	response.setIndex();
-	if ( (client->request->requestLine[request::METHOD]).compare("POST") == 0 &&
+	signal(SIGINT, &sighandler);
+	if ( (client->request->requestLine[request::METHOD]).compare(0, 4, "POST") == 0 &&
 			response.isBodyTooLarge() == false )
 	{
-		if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
-			throw PipeFailure();
-		update_events(client->read_fd[0], EVFILT_READ);
-		update_events(client->write_fd[1], EVFILT_WRITE);
-		response.setCGIfd(client->read_fd, client->write_fd);
-		for (int i = 0; i < MAX_EVENTS; i++)
-		{
-			if ((int)_evList[i].ident == client->read_fd[0] && (int)_evList[i].flags == EVFILT_READ)
-				ready.first = true;
-			if ((int)_evList[i].ident == client->write_fd[1] && (int)_evList[i].flags == EVFILT_WRITE)
-				ready.second = true;
-			if (ready.first && ready.second)
-				break ;
-		}
+			// struct kevent	fdlist[MAX_EVENTS];
+			// int n;
+			// std::cout << "CHEEEEEECK\n";
+			if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
+				throw PipeFailure();
+			update_events(client->write_fd[1], add_write);
+			update_events(client->read_fd[0], add_read);
+			// std::cout << "write fd is " << client->write_fd[1] << std::endl;
+			response.setCGIfd(client->read_fd, client->write_fd); // TODO intégrer les filtres READ ET WRITE ici ou intégrer dans boucle ou rajouter les fonctions de handlePost ici
+			// while (1)
+			// {
+			// // 	n = kevent(_kq, NULL, 0, fdlist, MAX_EVENTS, &_timeout);
+			// 	// std::cout << "events " << n << std::endl;
+			// 	for (int i = 0; i < n; i++)
+			// 	{
+			// 		if (fdlist[i].filter == EVFILT_READ)
+			// 		{
+			// 			// std::cout << "read " << std::endl;
+			// 			ready.first = true;
+			// 		}
+			// 		else if (fdlist[i].filter == EVFILT_WRITE)
+			// 		{
+			// 			// std::cout << "write " << std::endl;
+			// 			ready.second = true;
+			// 		}
+			// 	}
+				// if ((ready.first && ready.second) || n == 0)
+				// {
+				// 	std::cout << "check ready\n";
+				// 	response.parse();
+				// 	break ;
+				// }
+			// }
+			response.parse();
+			// std::cout << ready.first << " | " << ready.second << std::endl;
 	}
-	response.parse();
+	else
+	// std::cout << "check manage request = " << client->request->requestLine[request::METHOD] << "\n";
+		response.parse();
 	client->answer = response.ret;
 }
 
@@ -198,9 +245,6 @@ int	Server::receive_request(t_client_data *client, t_server config)
 {
 	ssize_t n = 0;
 	char buffer[BUFFER_SIZE];
-	// request		request;
-	// client->request = &request;
-	// client->request = new request;
 
 	while ( (n = recv(client->fd, &buffer, BUFFER_SIZE - 1, 0)) > 0)
 	{
@@ -219,9 +263,6 @@ int	Server::receive_request(t_client_data *client, t_server config)
 			if (client->request->body.size() == (unsigned long)atoi(client->request->header[request::CONTENT_LENGTH].c_str()))
 				client->request->BodyReady = true;
 		}
-		// bzero(buffer, BUFFER_SIZE);
-		// memset(buffer, 0, BUFFER_SIZE);
-
 		if (n < BUFFER_SIZE - 1)
 			break ;
 	}
@@ -231,12 +272,9 @@ int	Server::receive_request(t_client_data *client, t_server config)
 			std::cout << YELLOW"warning: no data received\n"RESET;
 		return 0;
 	}
-	// if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
-	// (client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
-	// 	manage_request(client, config);
 	if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
 		(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
-		{
+	{
 			// std::cout << BOLDCYAN"I'M IN!\n"RESET;
 			// std::cout << MAGENTA << client->request->isBody << RESET << std::endl;
 			// std::cout << MAGENTA << client->request->BodyReady << RESET << std::endl;
@@ -244,14 +282,14 @@ int	Server::receive_request(t_client_data *client, t_server config)
 			// std::cout << MAGENTA << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
 			manage_request(client, config);
 			return 1;
-		}
+	}
 	else
 	{
 		// std::cout << CYAN << client->request->isBody << RESET << std::endl;
 		// std::cout << CYAN << client->request->BodyReady << RESET << std::endl;
 		// std::cout << CYAN << "size received " << client->request->body.size() << RESET << std::endl;
 		// std::cout << CYAN << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
-		return 2; // TODO changer le code de retour pour ne pas mettre en write de suite
+		return 2;
 	}
 	// return 1;
 }
@@ -291,7 +329,7 @@ int	Server::add_client_socket(int fd, int socket_port, int server)
 	clients[i].timeout = false;
 	clients[i].request = new class request;
 	if (VERBOSE)
-		std::cout << GREEN"client # " << get_client_socket(clients[i].fd) << "with fd #" << clients[i].fd << " and port " << socket_port << "\n"RESET;
+		std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << " with fd #" << clients[i].fd << " and port " << socket_port << "\n"RESET;
 	return 0;
 }
 
@@ -319,6 +357,10 @@ int	Server::del_client_socket(int fd)
 	clients[i].server = 0;
 	clients[i].timeout = false;
 	delete clients[i].request;
+	// close(clients[i].read_fd[0]);
+	// close(clients[i].read_fd[1]);
+	// close(clients[i].write_fd[0]);
+	// close(clients[i].write_fd[1]);
 	// clients[i].request = NULL;
 	if (VERBOSE)
 		std::cout << GREEN"Closing connection with client #" << i << "\n"RESET;
@@ -343,25 +385,11 @@ void	Server::clear_late_clients( void )
 			if (clients[i].time - now <= 0)
 			{
 				if (VERBOSE)
-					std::cout << GREEN"client # " << get_client_socket(clients[i].fd) << " on port " << clients[i].port << " with fd # " << clients[i].fd << " timeout\n"RESET;
-				update_events(clients[i].fd, EVFILT_WRITE);
+					std::cout << GREEN"client #" << get_client_socket(clients[i].fd) << " on port " << clients[i].port << " with fd #" << clients[i].fd << " timeout\n"RESET;
+				update_events(clients[i].fd, read_to_write);
 				clients[i].timeout = true;
 			}
 		}
-	}
-}
-
-void	sighandler(int signum)
-{
-	if (signum == SIGINT)
-	{
-		if (VERBOSE)
-			std::cout << GREEN"Shutting down server\n"RESET;
-		for (int i = 0; i < NUM_CLIENTS; i++)
-			close(clients[i].fd);
-		for (size_t i = 0; i < evSet.size(); i++)
-			close(evSet[i].server_socket);
-		stop = true;
 	}
 }
 
@@ -385,11 +413,8 @@ void	Server::run( void )
 			if ((n = cycle_fd(evSet, _evList[i].ident)) != -1)
 			{
 				client_sock = accept(_evList[i].ident, NULL, NULL);
-				// fcntl(client_sock, F_SETFL, O_NONBLOCK);
-				// int a = 1000000;
-				// setsockopt(client_sock, SOL_SOCKET, SO_RCVBUF, &a, sizeof(a));
 				if (add_client_socket(client_sock, evSet[n].port, evSet[n].server) == 0)
-					update_events(client_sock, EVFILT_READ);
+					update_events(client_sock, add_read);
 				else
 				{
 					std::cerr << YELLOW"error: fail to accept connection request on port: " << evSet[n].port << "\n"RESET;
@@ -425,7 +450,7 @@ void	Server::run( void )
 						del_client_socket(_evList[i].ident);
 						break ;
 					case 1:
-						update_events(clients[r].fd, EVFILT_WRITE);
+						update_events(clients[r].fd, read_to_write);
 						break ;
 					case 2:
 						// std::cout << CYAN << _evList[i].data << RESET << std::endl;
@@ -435,16 +460,26 @@ void	Server::run( void )
 			}
 			else if (_evList[i].filter == EVFILT_WRITE)
 			{
+				// int r;
+				// if ((r = get_client_socket(_evList[i].ident)) < 0 )
+				// {
+				// 	std::cout << "FUCK YOU " << _evList[i].ident << std::endl;
+				// 	close(_evList[i].ident);
+				// }
 				int r = get_client_socket(_evList[i].ident);
-				if (clients[r].timeout)
-				{
-					clients[r].answer = CODE_408;
-					clients[r].answer += "\nConnection: close";
-					clients[r].answer += CRLF;
-					clients[r].answer += "<html><body><h1>To late man !</h1></body></html>";
-				}
-				answer_client(clients[r].fd, clients[r].answer);
-				del_client_socket(_evList[i].ident);
+				// else
+				// {
+					if (clients[r].timeout)
+					{
+						clients[r].answer = CODE_408;
+						clients[r].answer += "\nConnection: close";
+						clients[r].answer += CRLF;
+						clients[r].answer += "<html><body><h1>Too late buddy !</h1></body></html>";
+					}
+					// std::cout << "this is the fd " << clients[r].fd << std::endl;
+					answer_client(clients[r].fd, clients[r].answer);
+					del_client_socket(_evList[i].ident);
+				// }
 			}
 		}
 		if (stop)

@@ -35,6 +35,7 @@ class response
 	response (request request, t_server config);
 
 	void setCGIfd (int client_read_fd[2], int client_write_fd[2]);
+	void closeAllfd ( void );
 
 	void setRoot ( void );
 	void setPath ( void );

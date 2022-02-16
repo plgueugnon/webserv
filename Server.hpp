@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:59:15 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/15 19:09:10 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/16 18:46:35 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,9 @@ typedef enum	e_events
 {
 	add_read,
 	add_write,
-	del_read,
+	read_to_write,
 	del_write,
+	del_read,
 }				t_events;
 
 typedef struct	s_set
