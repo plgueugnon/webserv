@@ -1,7 +1,7 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
-#define PIPE_BUFFER_SIZE 10000
+#define R_BUFFER_SIZE 10000
 
 class response
 {
@@ -22,8 +22,13 @@ class response
 	std::string 	buffer;
 	std::string 	output;
 	std::string 	ret;
+
 	int				read_fd[2];
 	int				write_fd[2];
+	// pid_t	pid;
+	// char	*argv[3];
+
+
 
 	// iterator
 	std::vector<std::string>::iterator 	it;
@@ -48,6 +53,10 @@ class response
 	void handleGet ( void );
 	void handleDelete ( void );
 	void handlePost (  void );
+
+	void exec_child( pid_t pid, cgi *cgi );
+	void write_to_cgi( void );
+	void read_from_cgi( void );
 
 	std::string getAutoIndex ( std::string fileName );
 	std::string getErrorPage (std::vector<std::string> vec );

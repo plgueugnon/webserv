@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/16 19:38:37 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/17 00:24:52 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,18 +189,18 @@ void	Server::update_events(int fd, int update)
 void	Server::manage_request(t_client_data *client, t_server config)
 {
 	response 	response(*client->request, config);
-	// std::pair <bool, bool> ready (false, false);
+	std::pair <bool, bool> ready (false, false);
 
 	response.setLocation();
 	response.setRoot();
 	response.setPath();
 	response.setIndex();
-	signal(SIGINT, &sighandler);
+	// signal(SIGINT, &sighandler);
 	if ( (client->request->requestLine[request::METHOD]).compare(0, 4, "POST") == 0 &&
 			response.isBodyTooLarge() == false )
 	{
-			// struct kevent	fdlist[MAX_EVENTS];
-			// int n;
+			struct kevent	fdlist[MAX_EVENTS];
+			int n;
 			// std::cout << "CHEEEEEECK\n";
 			if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
 				throw PipeFailure();
@@ -208,31 +208,37 @@ void	Server::manage_request(t_client_data *client, t_server config)
 			update_events(client->read_fd[0], add_read);
 			// std::cout << "write fd is " << client->write_fd[1] << std::endl;
 			response.setCGIfd(client->read_fd, client->write_fd); // TODO intégrer les filtres READ ET WRITE ici ou intégrer dans boucle ou rajouter les fonctions de handlePost ici
-			// while (1)
-			// {
-			// // 	n = kevent(_kq, NULL, 0, fdlist, MAX_EVENTS, &_timeout);
-			// 	// std::cout << "events " << n << std::endl;
-			// 	for (int i = 0; i < n; i++)
-			// 	{
-			// 		if (fdlist[i].filter == EVFILT_READ)
-			// 		{
-			// 			// std::cout << "read " << std::endl;
-			// 			ready.first = true;
-			// 		}
-			// 		else if (fdlist[i].filter == EVFILT_WRITE)
-			// 		{
-			// 			// std::cout << "write " << std::endl;
-			// 			ready.second = true;
-			// 		}
-			// 	}
-				// if ((ready.first && ready.second) || n == 0)
-				// {
-				// 	std::cout << "check ready\n";
-				// 	response.parse();
-				// 	break ;
-				// }
-			// }
-			response.parse();
+			while (1)
+			{
+				n = kevent(_kq, NULL, 0, fdlist, MAX_EVENTS, &_timeout);
+				// std::cout << "events " << n << std::endl;
+				for (int i = 0; i < n; i++)
+				{
+					if (fdlist[i].filter == EVFILT_READ)
+					{
+						// std::cout << "read " << std::endl;
+						// response.read_from_cgi();
+						ready.first = true;
+					}
+					else if (fdlist[i].filter == EVFILT_WRITE)
+					{
+						// std::cout << "write " << std::endl;
+						response.parse();
+						ready.second = true;
+					}
+				}
+				if (ready.first && ready.second)
+				{
+					std::cout << "check ready\n";
+					// response.parse();
+					break ;
+				}
+				if (stop)
+					break ;
+			}
+			// response.parse();
+			// response.read_from_cgi();
+			// response.handlePost();
 			// std::cout << ready.first << " | " << ready.second << std::endl;
 	}
 	else

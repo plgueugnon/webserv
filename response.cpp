@@ -272,6 +272,99 @@ void response::handleDelete ( void )
 	return;
 }
 
+void response::exec_child( pid_t pid, cgi *cgi )
+{
+	char *argv[3];
+	argv[0] = strdup(CGI_BIN);
+	argv[1] = strdup(cgi->env[cgi::SCRIPT_FILENAME].c_str());
+	argv[2] = NULL;
+	std::cout << argv[0] << std::endl;
+	std::cout << argv[1] << std::endl;
+	// std::cout << argv[2] << std::endl;
+	close(write_fd[1]);
+	close(read_fd[0]);
+	if (dup2(read_fd[1], STDOUT_FILENO) < 0)
+	{
+		std::cerr << RED"error : dup2 failure\n"RESET;
+		close(write_fd[0]);
+		close(read_fd[1]);
+		return ;
+	}
+	if (dup2(write_fd[0], STDIN_FILENO) < 0)
+	{
+		std::cerr << RED"error : dup2 failure\n"RESET;
+		close(write_fd[0]);
+		close(read_fd[1]);
+		return ;
+	}
+	if (execve(argv[0], argv, cgi->c_env) < 0)
+	{
+		std::cerr << RED"error : execve failure\n"RESET;
+		std::cerr << "FAIL = " << errno << std::endl;
+		close(write_fd[0]);
+		close(read_fd[1]);
+		kill(pid, SIGTERM);
+	}
+	free(argv[0]);
+	free(argv[1]);
+}
+
+void response::write_to_cgi( void )
+{
+	int w = write(write_fd[1], req.body.c_str(), req.body.size());
+	switch (w)
+	{
+		case -1:
+			std::cerr << RED"error : cgi write failure\n"RESET;
+			break;
+		case 0:
+			if (VERBOSE)
+				std::cout << YELLOW"warning: no data input sent to cgi\n"RESET;
+			break;
+		default:
+			break;
+	}
+	close(write_fd[1]);
+}
+
+void response::read_from_cgi( void )
+{
+	int r;
+	char	read_buf[R_BUFFER_SIZE];
+	while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
+	{
+		read_buf[r] = 0;
+		output += read_buf;
+		bzero(read_buf, sizeof(read_buf));
+	}
+	if (r == -1)
+		std::cerr << RED"error : cgi read failure\n"RESET;
+	close(read_fd[0]);
+	// free(argv[0]);
+	// free(argv[1]);
+	// if (w < 0 || r < 0)
+		// setCode(500);
+	if (output.size() == 0)
+	// else if (output.size() == 0)
+		setCode(404);
+	else
+		setCode(200);
+}
+// {
+// 	// char	read_buf[R_BUFFER_SIZE];
+// 	char *read_buf;
+// 	read_buf = (char *)malloc(sizeof(char) * R_BUFFER_SIZE);
+// 	int r;
+// 	while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
+// 	{
+// 		read_buf[r] = 0;
+// 		output += read_buf;
+// 		bzero(read_buf, sizeof(R_BUFFER_SIZE));
+// 	}
+// 	if (r == -1)
+// 		std::cerr << RED"error : cgi read failure\n"RESET;
+// 	close(read_fd[0]);
+// }
 
 // * https://www.unix.com/programming/58138-c-how-use-pipe-fork-stdin-stdout-another-program.html
 void response::handlePost ( void )
@@ -313,12 +406,12 @@ void response::handlePost ( void )
 	// std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
 	cgi.convertToC();
-	print_env_c(cgi.c_env);
+	print_env_c(cgi.c_env); // ! Issue HERE makes execve fail
 	pid_t	pid;
-	char	*argv[3];
-	char	buffer[PIPE_BUFFER_SIZE];
-	int		r = 0;
-	int		w = 0;
+	// char	*argv[3];
+	// char	read_buf[R_BUFFER_SIZE];
+	// int		r = 0;
+	// int		w = 0;
 
 	if ((pid = fork()) == -1 )
 	{
@@ -326,77 +419,58 @@ void response::handlePost ( void )
 		setCode(500);
 		return ;
 	}
-	argv[0] = strdup(CGI_BIN);
-	argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
-	argv[2] = NULL;
+	// argv[0] = strdup(CGI_BIN);
+	// argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
+	// argv[2] = NULL;
 	if (pid == 0)
-	{
-		close(write_fd[1]);
-		close(read_fd[0]);
-		if (dup2(read_fd[1], STDOUT_FILENO) < 0)
-		{
-			std::cerr << RED"error : dup2 failure\n"RESET;
-			close(write_fd[0]);
-			close(read_fd[1]);
-			return ;
-		}
-		if (dup2(write_fd[0], STDIN_FILENO) < 0)
-		{
-			std::cerr << RED"error : dup2 failure\n"RESET;
-			close(write_fd[0]);
-			close(read_fd[1]);
-			return ;
-		}
-		if (execve(argv[0], argv, cgi.c_env) < 0)
-		{
-			std::cerr << RED"error : execve failure\n"RESET;
-			close(write_fd[0]);
-			close(read_fd[1]);
-			kill(pid, SIGTERM);
-		}
-	}
+		exec_child(pid, &cgi);
 	else
 	{
 		close(write_fd[0]);
 		close(read_fd[1]);
 		waitpid(pid, NULL, WNOHANG);
 
-		w = write(write_fd[1], req.body.c_str(), req.body.size());
-		switch (w)
-		{
-			case -1:
-				std::cerr << RED"error : cgi write failure\n"RESET;
-				break;
-			case 0:
-				if (VERBOSE)
-					std::cout << YELLOW"warning: no data input sent to cgi\n"RESET;
-				break;
-			default:
-				break;
-		}
-		close(write_fd[1]);
+		write_to_cgi();
+		// w = write(write_fd[1], req.body.c_str(), req.body.size());
+		// switch (w)
+		// {
+		// 	case -1:
+		// 		std::cerr << RED"error : cgi write failure\n"RESET;
+		// 		break;
+		// 	case 0:
+		// 		if (VERBOSE)
+		// 			std::cout << YELLOW"warning: no data input sent to cgi\n"RESET;
+		// 		break;
+		// 	default:
+		// 		break;
+		// }
+		// close(write_fd[1]);
 
-		// while((r = read(read_fd[0], buffer, sizeof(buffer))) > 0)
-		while((r = read(read_fd[0], buffer, PIPE_BUFFER_SIZE - 1)) > 0)
+		// read_from_cgi(); // ! should work !
+		int		r = 0;
+		char	read_buf[R_BUFFER_SIZE];
+		while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
 		{
-			buffer[r] = 0;
-			output += buffer;
-			bzero(buffer, sizeof(buffer));
+			read_buf[r] = 0;
+			output += read_buf;
+			bzero(read_buf, sizeof(read_buf));
 		}
 		if (r == -1)
 			std::cerr << RED"error : cgi read failure\n"RESET;
 		close(read_fd[0]);
 	}
-	free(argv[0]);
-	free(argv[1]);
-	if (w < 0 || r < 0)
-		setCode(500);
-	else if (output.size() == 0)
+
+	// free(argv[0]);
+	// free(argv[1]);
+	// if (w < 0 || r < 0)
+		// setCode(500);
+	if (output.size() == 0)
+	// else if (output.size() == 0)
 		setCode(404);
 	else
 		setCode(200);
 
-	return;
+	return ;
 }
 
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
