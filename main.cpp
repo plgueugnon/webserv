@@ -6,33 +6,11 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:49 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/10 10:56:43 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/17 17:52:35 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-/* 
-check args
-open and copy config file 
-convert into token
-fill struct with token
-check errors "double key, unvalid value"
-fill servers struct with http default settings if empty
-create listen socket according to servers listen ports
-
-wait for requests
-parse requests
-return response
-
-if CGI
-fill CGI env std::string
-convert to char **
-exec cgi
-
-
-*/
-
 #include "Aincludes.hpp"
-// #include "headers.hpp" // ! choix a faire entre headers et utils
 
 void print_welcome( void )
 {
@@ -109,8 +87,6 @@ int main (int ac, char **av, char **env)
 		std::cerr << RED"Error : " << e.what() << std::endl << RESET;
 		return -1;
 	}
-	// send ports number to socket vector<int>
-	// listener(&server);
 	try
 	{
 		Server	listener(&server_config._config);
@@ -123,24 +99,5 @@ int main (int ac, char **av, char **env)
 		std::cerr << RED << e.what() << RESET << std::endl;
 		return -1;
 	}
-
-// ! CGI env
-	// cgi cgi;
-	// if (VERBOSE)
-	// {
-	// 	vec_enum(cgi.env);
-	// 	cgi.convertToC();
-	// 	print_env_c(cgi.c_env);
-	// }
-	
-	
-
 	return ( 0 );
 }
-/*
-1. parse cofing // gestion erreur de config
-2. listener (recoit config en class)
-3. receive request -> gerer parsing body + gerer chunk request
-4. parsing request  -> appel cgi ? init class var cgi ? listing directory ? detection erreur / requete valide / (que parsing ici)
-5. manage response -> appel cgi + stockage reponse cgi + choix du code de retour (que exec ici) -> retour a la boucle listener 
-*/

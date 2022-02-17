@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 16:48:25 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 17:42:00 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/17 17:50:56 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,6 @@ void response::setCode(int code)
 		case 200 :
 		ret = CODE_200;
 		break;
-		// ! add 201 create when upload file
 		case 201 :
 		ret = CODE_201;
 		if (output.size() == 0)
@@ -189,17 +188,14 @@ void response::setCode(int code)
 		break;
 		case 413 :
 		ret = CODE_413;
-		// if (output.size() == 0)
 		output = PAYLOAD_TOO_LARGE;
 		break ;
 		case 414 :
 		ret = CODE_414;
-		// if (output.size() == 0)
 		output = URI_TOO_LONG;
 		break ;
 		case 431 :
 		ret = CODE_431;
-		// if (output.size() == 0)
 		output = HEADERS_TOO_LONG;
 		break ;
 		case 500 : 
@@ -423,8 +419,6 @@ void response::handlePost ( void )
 	}
 }
 
-// ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
-// okay dans le parsing fichier de config normalement
 void response::redirectRequest (std::vector<std::string> *vec)
 {
 	 it = vec->begin();
@@ -555,7 +549,6 @@ bool response::isVersionHandled(void)
 void response::parse ( void )
 {
 	// if all the server requests are redirected
-	// std::cout << "check response parse\n"; // !
 	if (isVersionHandled() == false)
 		return (setCode(505));
 	if (isMethodImplemented() == false)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Aincludes.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:43 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/15 17:28:30 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/17 17:54:10 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,10 @@
 #include <csignal>
 #include <unistd.h>
 #include <cstdlib>
-#include <cstdio> // remove (file)
-#include <cstring> // strtok
+#include <cstdio>
+#include <cstring>
 #include <string.h>
-#include <dirent.h> // opendir
-
+#include <dirent.h>
 
 // * Custom headers
 #include "request.hpp"

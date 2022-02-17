@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:40:54 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/16 11:23:43 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/17 17:49:08 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,7 +270,7 @@ void webserv::parseToken(std::vector<std::string> & vec)
 			it++;
 			tmp = *it;
 			// debut de checking si location path se termine pas par /
-			if (tmp[0] != '/' )//&& tmp[tmp.size() - 1] != '/' )
+			if (tmp[0] != '/' )
 				 throw std::invalid_argument(ERR_LOCATION_SLASH);
 			it++;
 			if (it->compare("{") != 0)
@@ -628,8 +628,6 @@ void webserv::tokenizeConfigFile(std::string & src)
 		i = j;
 	}
 	vec_erase_empty(token);
-	// if (VERBOSE)
-	// 	vec_enum(token);
 	parseToken(token);
 	return ;
 }
@@ -654,11 +652,6 @@ void webserv::listenCheck ( void )
 		else
 			listenPorts.push_back(port);
 	}
-	// if (VERBOSE)
-	// {
-	// 	std::cout << "listen Ports\n";
-	// 	vec_enum(listenPorts);
-	// }
 }
 
 // check if error_page codes are known error codes and if a token begin with /, we check if it's the last : syntax = code ... code /URI;
@@ -717,8 +710,6 @@ void webserv::errorPageCheck ( void )
 	// ! check HTTP error_pages
 	for (it = _config.error_page.begin(); it != _config.error_page.end(); it++)
 	{
-		// if (VERBOSE)
-		// 	std::cout << *it << "\n";
 		// * syntax : code code [...] /URI
 		if (it->compare("/") != 0)
 		{
@@ -762,8 +753,6 @@ void webserv::errorPageCheck ( void )
 				 it2 != loc_it->error_page.end();
 				 it2++)
 			{
-				// if (VERBOSE)
-				// 	std::cout << *it2 << "\n";
 				if (it2[0][0] != '/')
 				{
 					code = atoi(it2->c_str());
@@ -910,8 +899,6 @@ void webserv::checkParseError ( void )
 	limitExceptCheck();
 	fillDefaultSettings();
 	emptySettingCheck();
-	// if (VERBOSE)
-	// 	printHttpConfig();
 }
 
 void webserv::parseConfigFile ( void )

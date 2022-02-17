@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   request.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/17 17:51:13 by pgueugno          #+#    #+#             */
+/*   Updated: 2022/02/17 17:51:53 by pgueugno         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef __REQUEST_H__
 #define __REQUEST_H__
 
@@ -54,10 +66,6 @@ void request::parseHeader(void)
 	fillRequestLine();
 	fillHeaders();
 	eraseEndChar();
-	// printRequest();
-	// ! faire check erreur si version http differente de 1.1
-	// ! faire check erreur si headers trop longs
-
 	return ;
 }
 
@@ -81,8 +89,6 @@ void request::fillRequestLine(void)
 	unsigned long	pos = headerbuf.find("\r\n");
 	std::string 	str = headerbuf.substr(0, pos);
 
-// std::cout << RED"pos :" << pos << "\n"RESET;
-	// erase first line of the buffer (request line)
 	headerbuf.erase(0, pos + 1);
 	std::vector<std::string> vec = split(str, ' ');
 	if (vec.size() != 3)
@@ -90,7 +96,6 @@ void request::fillRequestLine(void)
 		std::cerr << "Wrong arg nb in request line\n";
 		return ;
 	}
-	// ! mettre exception a terme
 	requestLine[METHOD] = vec[0];
 	requestLine[HTTP_VERSION] = vec[2];
 	// extracting query
@@ -103,7 +108,7 @@ void request::fillRequestLine(void)
 		std::cerr << RED"multiple ? in query \n"RESET;
 		return ;
 	}
-	// ! mettre exception a terme
+
 	return ;
 }
 
@@ -135,7 +140,6 @@ void request::fillHeaders(void)
 	std::vector<std::string> toSearch 	= headerKeysToSearch(); 
 	// vector with one vector node for one request header line
 	std::vector<std::string> buf 		= split(headerbuf, '\n');
-	// vec_enum(buf);
 	
 	// iterator on request headers lines
 	std::vector<std::string>::iterator requestHeaders;

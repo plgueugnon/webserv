@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/21 10:41:04 by ygeslin           #+#    #+#             */
-/*   Updated: 2022/02/01 15:13:26 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/17 17:49:18 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ class webserv
 		std::string 		_file_name;
 		t_http 				_config;
 		std::vector<int>	listenPorts;
-		// listen 		socket;
-
 
 		/* CONSTRUCTOR */
 		webserv ( void );

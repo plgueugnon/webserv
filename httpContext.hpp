@@ -1,5 +1,13 @@
 /* ************************************************************************** */
-/* ygeslin                                                                    */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   httpContext.hpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/17 17:52:45 by pgueugno          #+#    #+#             */
+/*   Updated: 2022/02/17 17:52:54 by pgueugno         ###   ########.fr       */
+/*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPCONTEXT_HPP
@@ -17,7 +25,6 @@ typedef struct s_location
 	std::vector < std::string >		error_page;
 	std::vector < std::string >		return_dir;
 	std::vector < std::string >		limit_except;
-	// std::vector < s_location >		location;
 
 } 				t_location;
 
@@ -42,7 +49,6 @@ typedef struct s_http
 	std::string 					root;
 	std::vector < std::string >		error_page;
 	std::vector < t_server >		server;
-	// std::vector < t_location >		location;
 }				t_http;
 
 #endif

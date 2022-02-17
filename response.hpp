@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 16:48:29 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 17:20:26 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/17 17:49:48 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ class response
 	// response
 	int				code;
 	std::fstream	file;
-	// std::string 	fileName;
 	std::string 	root;
 	std::string 	path;
 	std::string 	index;

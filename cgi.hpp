@@ -76,38 +76,4 @@ Voici quelques exemples de variables possibles :
  @param REDIRECT_STATUS			: Permet au cgi php d'accepter les requêtes qui lui sont directement adressées
  */
 
-// http://www.cgi101.com/book/ch3/env.cgi?test1
-// CONTEXT_DOCUMENT_ROOT = /home/cgi101/public_html
-// CONTEXT_PREFIX =
-// DOCUMENT_ROOT = /home/cgi101/public_html
-// GATEWAY_INTERFACE = CGI/1.1
-// HTTP_ACCEPT = text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-// HTTP_ACCEPT_ENCODING = gzip, deflate
-// HTTP_ACCEPT_LANGUAGE = en,fr-FR;q=0.9,fr;q=0.8,en-FR;q=0.7,en-US;q=0.6
-// HTTP_CACHE_CONTROL = max-age=0
-// HTTP_CONNECTION = keep-alive
-// HTTP_HOST = www.cgi101.com
-// HTTP_REFERER = http://www.cgi101.com/book/ch3/text.html
-// HTTP_UPGRADE_INSECURE_REQUESTS = 1
-// HTTP_USER_AGENT = Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36
-// PATH = /usr/local/bin:/usr/bin:/bin
-// QUERY_STRING = test1
-// REMOTE_ADDR = 62.210.32.97
-// REMOTE_PORT = 57452
-// REQUEST_METHOD = GET
-// REQUEST_SCHEME = http
-// REQUEST_URI = /book/ch3/env.cgi?test1
-// SCRIPT_FILENAME = /home/cgi101/public_html/book/ch3/env.cgi
-// SCRIPT_NAME = /book/ch3/env.cgi
-// SERVER_ADDR = 45.79.7.121
-// SERVER_ADMIN = kira@lightsphere.com
-// SERVER_NAME = www.cgi101.com
-// SERVER_PORT = 80
-// SERVER_PROTOCOL = HTTP/1.1
-// SERVER_SIGNATURE =
-// Apache/2.4.25 (Debian) Server at www.cgi101.com Port 80
-
-// SERVER_SOFTWARE = Apache/2.4.25 (Debian)
-// UNIQUE_ID = Yelk9X8AAQEAACKjB2cAAAAD
-
 #endif /* CGI_HPP */

@@ -6,7 +6,7 @@
 #    By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/10 12:56:57 by pgueugno          #+#    #+#              #
-#    Updated: 2022/02/10 11:42:50 by pgueugno         ###   ########.fr        #
+#    Updated: 2022/02/17 17:36:34 by pgueugno         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,6 @@ NAME			=	webserv
 CXX				= @ clang++
 CXXFLAGS		= -Wall -Wextra -Werror -std=c++98 -g3 -MMD
 DEBUG_LEAK		= -fsanitize=address
-DEBUG_THREAD	= -fsanitize=thread #-lpthread
 RM				= @ rm -f
 
 #_________________________Sources and objects directories______________________#
@@ -73,9 +72,6 @@ debug:	CXXFLAGS += $(DEBUG_LEAK)
 debug:	all
 rd:		fclean
 rd:		debug
-
-thread:	CXXFLAGS += $(DEBUG_THREAD)
-thread:	all
 
 verbose:	CXXFLAGS += -D DEBUG
 verbose:	all
