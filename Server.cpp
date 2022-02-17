@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 10:52:54 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/17 12:23:08 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,33 +208,38 @@ void	Server::manage_request(t_client_data *client, t_server config)
 			update_events(client->read_fd[0], add_read);
 			// std::cout << "write fd is " << client->write_fd[1] << std::endl;
 			response.setCGIfd(client->read_fd, client->write_fd); // TODO intégrer les filtres READ ET WRITE ici ou intégrer dans boucle ou rajouter les fonctions de handlePost ici
-			while (1)
+			response.parse();
+			if (!response.ret.size())
 			{
-				n = kevent(_kq, NULL, 0, fdlist, MAX_EVENTS, &_timeout);
-				// std::cout << "events " << n << std::endl;
-				for (int i = 0; i < n; i++)
+				while (1)
 				{
-					if (fdlist[i].filter == EVFILT_READ)
+					n = kevent(_kq, NULL, 0, fdlist, MAX_EVENTS, &_timeout);
+					// std::cout << "events " << n << std::endl;
+					for (int i = 0; i < n; i++)
 					{
-						// std::cout << "read " << std::endl;
-						response.read_from_cgi();
-						ready.first = true;
+						if (fdlist[i].filter == EVFILT_READ)
+						{
+							// std::cout << "read " << std::endl;
+							response.read_from_cgi();
+							ready.first = true;
+						}
+						else if (fdlist[i].filter == EVFILT_WRITE)
+						{
+							// std::cout << "write " << std::endl;
+							// response.parse();
+							response.write_to_cgi();
+							ready.second = true;
+						}
 					}
-					else if (fdlist[i].filter == EVFILT_WRITE)
+					if (ready.first && ready.second)
 					{
-						// std::cout << "write " << std::endl;
-						response.parse();
-						ready.second = true;
+						std::cout << "check ready\n";
+						// response.parse();
+						break ;
 					}
+					if (stop)
+						break ;
 				}
-				if (ready.first && ready.second)
-				{
-					std::cout << "check ready\n";
-					// response.parse();
-					break ;
-				}
-				if (stop)
-					break ;
 			}
 			// response.parse();
 			// response.read_from_cgi();

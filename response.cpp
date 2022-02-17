@@ -432,7 +432,7 @@ void response::handlePost ( void )
 		close(read_fd[1]);
 		waitpid(pid, NULL, WNOHANG);
 
-		write_to_cgi();
+		// write_to_cgi();
 		// w = write(write_fd[1], req.body.c_str(), req.body.size());
 		// switch (w)
 		// {
