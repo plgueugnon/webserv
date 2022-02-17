@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 16:48:25 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 16:48:26 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/17 17:21:56 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -533,10 +533,21 @@ bool response::isURITooLong(void)
 	return (false);
 }
 
+bool response::isVersionHandled(void)
+{
+	if (req.requestLine[request::HTTP_VERSION].compare("HTTP/1.1") != 0)
+		return (false);
+	return (true);
+}
+
+
+
 void response::parse ( void )
 {
 	// if all the server requests are redirected
 	// std::cout << "check response parse\n"; // !
+	if (isVersionHandled() == false)
+		return (setCode(501));
 	if (isMethodImplemented() == false)
 		return (setCode(501));
 	if (isChunked() == true)
