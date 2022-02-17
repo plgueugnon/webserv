@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 16:48:25 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 17:21:56 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/17 17:28:41 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,11 @@
 #define PAYLOAD_TOO_LARGE " <!DOCTYPE html> <html> <body><h1> \
 					<h1 style=\"color:red;\"> \
 					Payload is too large. Modify client_max_body_size \
+					 !</h1> </body> </html>"
+
+#define HTTP_VERSION_ERROR " <!DOCTYPE html> <html> <body><h1> \
+					<h1 style=\"color:red;\"> \
+					HTTP version is not supported. Use HTTP/1.1 !\
 					 !</h1> </body> </html>"
 
 #define NOT_FOUND "<html><body><h1>Not found.</h1></body></html>"
@@ -204,6 +209,11 @@ void response::setCode(int code)
 		ret = CODE_501;
 		if (output.size() == 0)
 			output = NOT_IMPLEMENTED;
+		break ;
+		case 505 :
+		ret = CODE_505;
+		if (output.size() == 0)
+			output = HTTP_VERSION_ERROR;
 		break ;
 	}
 	ret += CRLF;
@@ -547,7 +557,7 @@ void response::parse ( void )
 	// if all the server requests are redirected
 	// std::cout << "check response parse\n"; // !
 	if (isVersionHandled() == false)
-		return (setCode(501));
+		return (setCode(505));
 	if (isMethodImplemented() == false)
 		return (setCode(501));
 	if (isChunked() == true)
