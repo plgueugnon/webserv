@@ -59,6 +59,7 @@ class response
 	void exec_child( pid_t pid, cgi *cgi );
 	void write_to_cgi( void );
 	void read_from_cgi( void );
+	void RemoveLine(std::string& source, const std::string& to_remove);
 
 	std::string getAutoIndex ( std::string fileName );
 	std::string getErrorPage (std::vector<std::string> vec );

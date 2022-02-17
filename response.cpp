@@ -313,6 +313,13 @@ void response::exec_child( pid_t pid, cgi *cgi )
 	free(argv[1]);
 }
 
+void response::RemoveLine(std::string& source, const std::string& to_remove)
+{
+    size_t m = source.find(to_remove);
+    size_t n = source.find_first_of("\n", m + to_remove.length());
+    source.erase(m, n - m + 1);
+}
+
 void response::write_to_cgi( void )
 {
 	int w = write(write_fd[1], req.body.c_str(), req.body.size());
@@ -348,6 +355,9 @@ void response::read_from_cgi( void )
 	// free(argv[1]);
 	// if (w < 0 || r < 0)
 		// setCode(500);
+	
+	RemoveLine(output, std::string("X-Powered-By"));
+	RemoveLine(output, std::string("Content-type"));
 	if (output.size() == 0)
 	// else if (output.size() == 0)
 		setCode(404);
