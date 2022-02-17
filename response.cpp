@@ -6,7 +6,7 @@
 /*   By: ygeslin <ygeslin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 16:48:25 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 17:28:41 by ygeslin          ###   ########.fr       */
+/*   Updated: 2022/02/17 17:42:00 by ygeslin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,7 +257,7 @@ void response::handleGet( void )
 		output = getDataFromFile(root + path + index);
 	else
 		output = getDataFromFile(root + path);
-	if (output.size() == 0)
+	if (output.size() == 0 && loc.autoindex.compare("on") == 0)
 		output = getAutoIndex(root + path);
 	// if fileName can't be open, return empty string -> size 0 = no index.
 	// size = 0 means that autoindex couln't be generated
