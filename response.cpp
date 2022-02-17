@@ -35,6 +35,7 @@ response::response (request request, t_server config)
 	buffer = "";
 	output = "";
 	ret = "";
+	// cgi();
 }
 /*
  check if the request path match a location block
@@ -278,8 +279,8 @@ void response::exec_child( pid_t pid, cgi *cgi )
 	argv[0] = strdup(CGI_BIN);
 	argv[1] = strdup(cgi->env[cgi::SCRIPT_FILENAME].c_str());
 	argv[2] = NULL;
-	std::cout << argv[0] << std::endl;
-	std::cout << argv[1] << std::endl;
+	// std::cout << argv[0] << std::endl;
+	// std::cout << argv[1] << std::endl;
 	// std::cout << argv[2] << std::endl;
 	close(write_fd[1]);
 	close(read_fd[0]);
@@ -330,7 +331,7 @@ void response::write_to_cgi( void )
 void response::read_from_cgi( void )
 {
 	int r;
-	char	read_buf[R_BUFFER_SIZE];
+	// char	read_buf[R_BUFFER_SIZE];
 	while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
 	{
 		read_buf[r] = 0;
@@ -406,7 +407,7 @@ void response::handlePost ( void )
 	// std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
 	cgi.convertToC();
-	print_env_c(cgi.c_env); // ! Issue HERE makes execve fail
+	// print_env_c(cgi.c_env); // ! Issue HERE makes execve fail
 	pid_t	pid;
 	// char	*argv[3];
 	// char	read_buf[R_BUFFER_SIZE];
@@ -422,6 +423,7 @@ void response::handlePost ( void )
 	// argv[0] = strdup(CGI_BIN);
 	// argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
 	// argv[2] = NULL;
+	// char	read_buf[R_BUFFER_SIZE];
 	if (pid == 0)
 		exec_child(pid, &cgi);
 	else
@@ -447,30 +449,30 @@ void response::handlePost ( void )
 		// close(write_fd[1]);
 
 		// read_from_cgi(); // ! should work !
-		int		r = 0;
-		char	read_buf[R_BUFFER_SIZE];
-		while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
-		{
-			read_buf[r] = 0;
-			output += read_buf;
-			bzero(read_buf, sizeof(read_buf));
-		}
-		if (r == -1)
-			std::cerr << RED"error : cgi read failure\n"RESET;
-		close(read_fd[0]);
+		// int		r = 0;
+		// char	read_buf[R_BUFFER_SIZE];
+		// while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
+		// {
+		// 	read_buf[r] = 0;
+		// 	output += read_buf;
+		// 	bzero(read_buf, sizeof(read_buf));
+		// }
+		// if (r == -1)
+		// 	std::cerr << RED"error : cgi read failure\n"RESET;
+		// close(read_fd[0]);
 	}
 
 	// free(argv[0]);
 	// free(argv[1]);
 	// if (w < 0 || r < 0)
 		// setCode(500);
-	if (output.size() == 0)
-	// else if (output.size() == 0)
-		setCode(404);
-	else
-		setCode(200);
+	// if (output.size() == 0)
+	// // else if (output.size() == 0)
+	// 	setCode(404);
+	// else
+	// 	setCode(200);
 
-	return ;
+	// return ;
 }
 
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args

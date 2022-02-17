@@ -27,6 +27,8 @@ class response
 	int				write_fd[2];
 	// pid_t	pid;
 	// char	*argv[3];
+	char	read_buf[R_BUFFER_SIZE];
+	// class cgi cgi;
 
 
 

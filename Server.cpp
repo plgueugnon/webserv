@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 00:24:52 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/17 10:52:54 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,7 @@ void	Server::manage_request(t_client_data *client, t_server config)
 	{
 			struct kevent	fdlist[MAX_EVENTS];
 			int n;
-			// std::cout << "CHEEEEEECK\n";
+			std::cout << "CHEEEEEECK\n";
 			if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
 				throw PipeFailure();
 			update_events(client->write_fd[1], add_write);
@@ -217,7 +217,7 @@ void	Server::manage_request(t_client_data *client, t_server config)
 					if (fdlist[i].filter == EVFILT_READ)
 					{
 						// std::cout << "read " << std::endl;
-						// response.read_from_cgi();
+						response.read_from_cgi();
 						ready.first = true;
 					}
 					else if (fdlist[i].filter == EVFILT_WRITE)
@@ -281,20 +281,20 @@ int	Server::receive_request(t_client_data *client, t_server config)
 	if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
 		(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
 	{
-			// std::cout << BOLDCYAN"I'M IN!\n"RESET;
-			// std::cout << MAGENTA << client->request->isBody << RESET << std::endl;
-			// std::cout << MAGENTA << client->request->BodyReady << RESET << std::endl;
-			// std::cout << MAGENTA << "size received " << client->request->body.size() << RESET << std::endl;
-			// std::cout << MAGENTA << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
+			std::cout << BOLDCYAN"I'M IN!\n"RESET;
+			std::cout << MAGENTA << client->request->isBody << RESET << std::endl;
+			std::cout << MAGENTA << client->request->BodyReady << RESET << std::endl;
+			std::cout << MAGENTA << "size received " << client->request->body.size() << RESET << std::endl;
+			std::cout << MAGENTA << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
 			manage_request(client, config);
 			return 1;
 	}
 	else
 	{
-		// std::cout << CYAN << client->request->isBody << RESET << std::endl;
-		// std::cout << CYAN << client->request->BodyReady << RESET << std::endl;
-		// std::cout << CYAN << "size received " << client->request->body.size() << RESET << std::endl;
-		// std::cout << CYAN << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
+		std::cout << CYAN << client->request->isBody << RESET << std::endl;
+		std::cout << CYAN << client->request->BodyReady << RESET << std::endl;
+		std::cout << CYAN << "size received " << client->request->body.size() << RESET << std::endl;
+		std::cout << CYAN << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
 		return 2;
 	}
 	// return 1;
@@ -363,11 +363,6 @@ int	Server::del_client_socket(int fd)
 	clients[i].server = 0;
 	clients[i].timeout = false;
 	delete clients[i].request;
-	// close(clients[i].read_fd[0]);
-	// close(clients[i].read_fd[1]);
-	// close(clients[i].write_fd[0]);
-	// close(clients[i].write_fd[1]);
-	// clients[i].request = NULL;
 	if (VERBOSE)
 		std::cout << GREEN"Closing connection with client #" << i << "\n"RESET;
 	return (close(fd));
@@ -459,8 +454,8 @@ void	Server::run( void )
 						update_events(clients[r].fd, read_to_write);
 						break ;
 					case 2:
-						// std::cout << CYAN << _evList[i].data << RESET << std::endl;
-						// std::cout << "Not all is received\n";
+						std::cout << CYAN << _evList[i].data << RESET << std::endl;
+						std::cout << "Not all is received\n";
 						break ;
 				}
 			}

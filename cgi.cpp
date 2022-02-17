@@ -2,6 +2,7 @@
 
 cgi::cgi (void)
 {
+
 	env.clear();
 	env.push_back("SERVER_SOFTWARE=nginx/1.21.5");
 	env.push_back("SERVER_NAME=");
@@ -30,13 +31,14 @@ cgi::cgi (void)
 	env.push_back("SCRIPT_FILENAME=");
 	// tmp dir where the files will be uploaded
 	env.push_back("TMP_DIR=");
+	c_env[NB_CGI_VAR] = 0;
 }
 
 void cgi::convertToC ( void )
 {
-	std::vector<std::string>::iterator it = env.begin();
+	std::vector<std::string>::iterator it;
 	int i = 0;
-	for ( ; it != env.end(); it++)
+	for (it = env.begin() ; it != env.end(); it++)
 	{
 		c_env[i] = (char*)env[i].c_str();
 		c_env[i][(env[i].size())] = '\0';
