@@ -6,7 +6,7 @@
 /*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/14 08:58:17 by pgueugno          #+#    #+#             */
-/*   Updated: 2022/02/17 12:23:08 by pgueugno         ###   ########.fr       */
+/*   Updated: 2022/02/17 16:54:14 by pgueugno         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,25 +119,6 @@ void	sighandler(int signum)
 
 void	Server::answer_client(int client_sock, std::string answer)
 {
-
-	// int	send_rc;
-	// int	send_left = (int)answer.size();
-	// char *message_ptr = strdup(answer.c_str());
-
-	// while (send_left > 0)
-	// {
-	// 	send_rc = send(client_sock, message_ptr, send_left, 0);
-	// 	if (send_rc == -1)
-	// 		break ;
-	// 	send_left -= send_rc;
-	// 	message_ptr += send_rc;
-	// }
-	// if (client_sock == 0)
-	// {
-	// 	std::cerr << RED"error: " << client_sock << " invalid fd\n"RESET;
-	// 	return ;
-	// }
-	// TODO A modifier pour découper envoie selon un buffer => max = 1mb
 	int r = send(client_sock, answer.c_str(), answer.size(), 0);
 	switch (r)
 	{
@@ -195,59 +176,43 @@ void	Server::manage_request(t_client_data *client, t_server config)
 	response.setRoot();
 	response.setPath();
 	response.setIndex();
-	// signal(SIGINT, &sighandler);
 	if ( (client->request->requestLine[request::METHOD]).compare(0, 4, "POST") == 0 &&
 			response.isBodyTooLarge() == false )
 	{
 			struct kevent	fdlist[MAX_EVENTS];
 			int n;
-			std::cout << "CHEEEEEECK\n";
 			if (pipe(client->read_fd) < 0 || pipe(client->write_fd) < 0)
 				throw PipeFailure();
 			update_events(client->write_fd[1], add_write);
 			update_events(client->read_fd[0], add_read);
-			// std::cout << "write fd is " << client->write_fd[1] << std::endl;
-			response.setCGIfd(client->read_fd, client->write_fd); // TODO intégrer les filtres READ ET WRITE ici ou intégrer dans boucle ou rajouter les fonctions de handlePost ici
+			response.setCGIfd(client->read_fd, client->write_fd);
 			response.parse();
 			if (!response.ret.size())
 			{
 				while (1)
 				{
 					n = kevent(_kq, NULL, 0, fdlist, MAX_EVENTS, &_timeout);
-					// std::cout << "events " << n << std::endl;
 					for (int i = 0; i < n; i++)
 					{
 						if (fdlist[i].filter == EVFILT_READ)
 						{
-							// std::cout << "read " << std::endl;
 							response.read_from_cgi();
 							ready.first = true;
 						}
 						else if (fdlist[i].filter == EVFILT_WRITE)
 						{
-							// std::cout << "write " << std::endl;
-							// response.parse();
 							response.write_to_cgi();
 							ready.second = true;
 						}
 					}
 					if (ready.first && ready.second)
-					{
-						std::cout << "check ready\n";
-						// response.parse();
 						break ;
-					}
 					if (stop)
 						break ;
 				}
 			}
-			// response.parse();
-			// response.read_from_cgi();
-			// response.handlePost();
-			// std::cout << ready.first << " | " << ready.second << std::endl;
 	}
 	else
-	// std::cout << "check manage request = " << client->request->requestLine[request::METHOD] << "\n";
 		response.parse();
 	client->answer = response.ret;
 }
@@ -286,23 +251,11 @@ int	Server::receive_request(t_client_data *client, t_server config)
 	if ((client->request->BodyReady == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") == 0) ||
 		(client->request->isBody == true && client->request->requestLine[request::METHOD].compare(0,4,"POST") != 0))
 	{
-			std::cout << BOLDCYAN"I'M IN!\n"RESET;
-			std::cout << MAGENTA << client->request->isBody << RESET << std::endl;
-			std::cout << MAGENTA << client->request->BodyReady << RESET << std::endl;
-			std::cout << MAGENTA << "size received " << client->request->body.size() << RESET << std::endl;
-			std::cout << MAGENTA << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
 			manage_request(client, config);
 			return 1;
 	}
 	else
-	{
-		std::cout << CYAN << client->request->isBody << RESET << std::endl;
-		std::cout << CYAN << client->request->BodyReady << RESET << std::endl;
-		std::cout << CYAN << "size received " << client->request->body.size() << RESET << std::endl;
-		std::cout << CYAN << "size target " << client->request->header[request::CONTENT_LENGTH] << RESET << std::endl;
 		return 2;
-	}
-	// return 1;
 }
 
 unsigned int	Server::gettime(void)
@@ -442,13 +395,6 @@ void	Server::run( void )
 			else if (_evList[i].filter == EVFILT_READ)
 			{
 				int r = get_client_socket(_evList[i].ident);
-				// if (!receive_request(&clients[r], server_config->server[clients[r].server]))
-				// {
-				// 	std::cout << "echec\n";
-				// 	del_client_socket(_evList[i].ident);
-				// }
-				// else
-				// 	update_events(clients[r].fd, EVFILT_WRITE);
 				int n = receive_request(&clients[r], server_config->server[clients[r].server]);
 				switch (n)
 				{
@@ -459,22 +405,12 @@ void	Server::run( void )
 						update_events(clients[r].fd, read_to_write);
 						break ;
 					case 2:
-						std::cout << CYAN << _evList[i].data << RESET << std::endl;
-						std::cout << "Not all is received\n";
 						break ;
 				}
 			}
 			else if (_evList[i].filter == EVFILT_WRITE)
 			{
-				// int r;
-				// if ((r = get_client_socket(_evList[i].ident)) < 0 )
-				// {
-				// 	std::cout << "FUCK YOU " << _evList[i].ident << std::endl;
-				// 	close(_evList[i].ident);
-				// }
 				int r = get_client_socket(_evList[i].ident);
-				// else
-				// {
 					if (clients[r].timeout)
 					{
 						clients[r].answer = CODE_408;
@@ -482,10 +418,8 @@ void	Server::run( void )
 						clients[r].answer += CRLF;
 						clients[r].answer += "<html><body><h1>Too late buddy !</h1></body></html>";
 					}
-					// std::cout << "this is the fd " << clients[r].fd << std::endl;
 					answer_client(clients[r].fd, clients[r].answer);
 					del_client_socket(_evList[i].ident);
-				// }
 			}
 		}
 		if (stop)

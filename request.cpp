@@ -20,10 +20,7 @@ body("")
 	return ;
 }
 
-request::~request ( void )
-{
-	// std::cout << BOLDMAGENTA"REQUEST DESTROYED !\n"RESET;
-}
+request::~request ( void ) {}
 
 // return -1 if str doesn't contain \r\n
 // return the pos of the \r

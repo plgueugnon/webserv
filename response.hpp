@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   response.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/17 16:48:29 by pgueugno          #+#    #+#             */
+/*   Updated: 2022/02/17 16:48:29 by pgueugno         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
@@ -25,12 +37,8 @@ class response
 
 	int				read_fd[2];
 	int				write_fd[2];
-	// pid_t	pid;
-	// char	*argv[3];
-	char	read_buf[R_BUFFER_SIZE];
-	// class cgi cgi;
-
-
+	char			read_buf[R_BUFFER_SIZE];
+	bool			pipe_fail;
 
 	// iterator
 	std::vector<std::string>::iterator 	it;

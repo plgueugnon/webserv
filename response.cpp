@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   response.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pgueugno <pgueugno@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/17 16:48:25 by pgueugno          #+#    #+#             */
+/*   Updated: 2022/02/17 16:48:26 by pgueugno         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Aincludes.hpp"
 
 #define NOT_ALLOWED " <!DOCTYPE html> <html> <body><h1> \
@@ -35,20 +47,7 @@ response::response (request request, t_server config)
 	buffer = "";
 	output = "";
 	ret = "";
-	// cgi();
 }
-/*
- check if the request path match a location block
-// // if the request path match a location block,
- check if there is a return directive
-	return the code
- // // check if the method is allowed in this location block
-// // change root and index and autoindex
- // //if the path is a directory begin and finish with /
- // //return auto index
- // //if not, not found
- check if there is error_pages for this location
- */
 
 void response::setCGIfd (int client_read_fd[2], int client_write_fd[2])
 {
@@ -209,7 +208,6 @@ void response::setCode(int code)
 	}
 	ret += CRLF;
 	ret += output;
-	// std::cout << "YA QUOI " << req.requestLine[request::METHOD] << std::endl;
 	if (req.requestLine[request::METHOD].compare(0,4,"POST") == 0)
 		closeAllfd();
 	return ;
@@ -282,9 +280,6 @@ void response::exec_child( pid_t pid, cgi *cgi )
 	argv[0] = strdup(CGI_BIN);
 	argv[1] = strdup(cgi->env[cgi::SCRIPT_FILENAME].c_str());
 	argv[2] = NULL;
-	// std::cout << argv[0] << std::endl;
-	// std::cout << argv[1] << std::endl;
-	// std::cout << argv[2] << std::endl;
 	close(write_fd[1]);
 	close(read_fd[0]);
 	if (dup2(read_fd[1], STDOUT_FILENO) < 0)
@@ -327,6 +322,7 @@ void response::write_to_cgi( void )
 	{
 		case -1:
 			std::cerr << RED"error : cgi write failure\n"RESET;
+			pipe_fail = true;
 			break;
 		case 0:
 			if (VERBOSE)
@@ -341,7 +337,6 @@ void response::write_to_cgi( void )
 void response::read_from_cgi( void )
 {
 	int r;
-	// char	read_buf[R_BUFFER_SIZE];
 	while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
 	{
 		read_buf[r] = 0;
@@ -349,36 +344,21 @@ void response::read_from_cgi( void )
 		bzero(read_buf, sizeof(read_buf));
 	}
 	if (r == -1)
+	{
 		std::cerr << RED"error : cgi read failure\n"RESET;
+		pipe_fail = true;
+	}
 	close(read_fd[0]);
-	// free(argv[0]);
-	// free(argv[1]);
-	// if (w < 0 || r < 0)
-		// setCode(500);
 	
 	RemoveLine(output, std::string("X-Powered-By"));
 	RemoveLine(output, std::string("Content-type"));
-	if (output.size() == 0)
-	// else if (output.size() == 0)
+	if (pipe_fail)
+		setCode(500);
+	else if (output.size() == 0)
 		setCode(404);
 	else
 		setCode(200);
 }
-// {
-// 	// char	read_buf[R_BUFFER_SIZE];
-// 	char *read_buf;
-// 	read_buf = (char *)malloc(sizeof(char) * R_BUFFER_SIZE);
-// 	int r;
-// 	while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
-// 	{
-// 		read_buf[r] = 0;
-// 		output += read_buf;
-// 		bzero(read_buf, sizeof(R_BUFFER_SIZE));
-// 	}
-// 	if (r == -1)
-// 		std::cerr << RED"error : cgi read failure\n"RESET;
-// 	close(read_fd[0]);
-// }
 
 // * https://www.unix.com/programming/58138-c-how-use-pipe-fork-stdin-stdout-another-program.html
 void response::handlePost ( void )
@@ -387,9 +367,8 @@ void response::handlePost ( void )
 		return setCode(405);
 	if (isBodyTooLarge() == true)
 		return setCode(413);
-	// if (req.header[request::CONTENT_LENGTH].size() == 0 || req.header[request::CONTENT_LENGTH].front() == '0')
-	// 	return setCode(411);
 
+	pipe_fail = false;
 	// ! CGI env
 	cgi cgi;
 	// config
@@ -414,18 +393,9 @@ void response::handlePost ( void )
 	// script to be executed by CGI
 	cgi.env[cgi::SCRIPT_FILENAME] += getenv("PWD") + (std::string)"/";
 	cgi.env[cgi::SCRIPT_FILENAME] += root + path;
-	// if (req.requestLine[request::PATH].back() == '/')
-	// 	cgi.env[cgi::SCRIPT_FILENAME] += index;
-
-	// std::cout << RED"scriptFilename :" << cgi.env[cgi::SCRIPT_FILENAME] << "\n"RESET;
 
 	cgi.convertToC();
-	// print_env_c(cgi.c_env); // ! Issue HERE makes execve fail
 	pid_t	pid;
-	// char	*argv[3];
-	// char	read_buf[R_BUFFER_SIZE];
-	// int		r = 0;
-	// int		w = 0;
 
 	if ((pid = fork()) == -1 )
 	{
@@ -433,10 +403,6 @@ void response::handlePost ( void )
 		setCode(500);
 		return ;
 	}
-	// argv[0] = strdup(CGI_BIN);
-	// argv[1] = strdup(cgi.env[cgi::SCRIPT_FILENAME].c_str());
-	// argv[2] = NULL;
-	// char	read_buf[R_BUFFER_SIZE];
 	if (pid == 0)
 		exec_child(pid, &cgi);
 	else
@@ -444,48 +410,7 @@ void response::handlePost ( void )
 		close(write_fd[0]);
 		close(read_fd[1]);
 		waitpid(pid, NULL, WNOHANG);
-
-		// write_to_cgi();
-		// w = write(write_fd[1], req.body.c_str(), req.body.size());
-		// switch (w)
-		// {
-		// 	case -1:
-		// 		std::cerr << RED"error : cgi write failure\n"RESET;
-		// 		break;
-		// 	case 0:
-		// 		if (VERBOSE)
-		// 			std::cout << YELLOW"warning: no data input sent to cgi\n"RESET;
-		// 		break;
-		// 	default:
-		// 		break;
-		// }
-		// close(write_fd[1]);
-
-		// read_from_cgi(); // ! should work !
-		// int		r = 0;
-		// char	read_buf[R_BUFFER_SIZE];
-		// while((r = read(read_fd[0], read_buf, R_BUFFER_SIZE - 1)) > 0)
-		// {
-		// 	read_buf[r] = 0;
-		// 	output += read_buf;
-		// 	bzero(read_buf, sizeof(read_buf));
-		// }
-		// if (r == -1)
-		// 	std::cerr << RED"error : cgi read failure\n"RESET;
-		// close(read_fd[0]);
 	}
-
-	// free(argv[0]);
-	// free(argv[1]);
-	// if (w < 0 || r < 0)
-		// setCode(500);
-	// if (output.size() == 0)
-	// // else if (output.size() == 0)
-	// 	setCode(404);
-	// else
-	// 	setCode(200);
-
-	// return ;
 }
 
 // ! add meilleur parsing d'erreur pour redirect only code 30x et 2 args args
@@ -589,8 +514,6 @@ bool response::isMethodImplemented(void)
 bool response::isBodyTooLarge(void)
 {
 	size_t limitSize = loc.client_max_body_size;
-	// std::cout << RED"limit size: " << limitSize << "\n"RESET;
-	// std::cout << RED"body size: " << req.body.size() << "\n"RESET;
 	if ( limitSize > req.body.size() )
 		return (false);
 	return (true);
