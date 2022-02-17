@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir -p www/pokedex_to_delete
+mkdir -p ../www/pokedex_to_delete
 
 echo "kikoo je suis un bulbizare" > ../www/pokedex_to_delete/bulbizare
 echo "kikoo je suis un salameche" > ../www/pokedex_to_delete/salameche

@@ -387,8 +387,8 @@ void response::handlePost ( void )
 		return setCode(405);
 	if (isBodyTooLarge() == true)
 		return setCode(413);
-	if (req.header[request::CONTENT_LENGTH].size() == 0 || req.header[request::CONTENT_LENGTH].front() == '0')
-		return setCode(411);
+	// if (req.header[request::CONTENT_LENGTH].size() == 0 || req.header[request::CONTENT_LENGTH].front() == '0')
+	// 	return setCode(411);
 
 	// ! CGI env
 	cgi cgi;
