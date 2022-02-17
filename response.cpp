@@ -225,7 +225,10 @@ std::string response::getDataFromFile(std::string fileName)
 	if (file.is_open())
 	{
 		while (getline(file, buffer))
+		{
 				data += buffer;
+				data += '\n';
+		}
 		file.close();
 	}
 	return data;
