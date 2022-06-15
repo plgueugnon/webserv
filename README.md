@@ -16,7 +16,7 @@
 - Implement multiplexed socket management using either select, poll, epoll or kqueue (we used kqueue)
 
 ### Warning
-Has we used kqueue to implement our server which is less portable than select, program might not compile depending on the OS you are using (project was built and tested on MacOS).
+As we used kqueue function to implement our server which is less portable than select, program might not compile depending on the OS you are using (project was built and tested on MacOS).
 
 ### Credit
 @[pgueugno](pgueugno@student.42.fr) @[ygeslin](ygeslin@student.42.fr)
